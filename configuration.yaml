@@ -1,4 +1,4 @@
-### Dropwizard skeleton configuration file
+### Dropwizard locations configuration file
 ##
 ## Do not commit changes that contain credentials or sensitive data!
 
@@ -27,8 +27,8 @@ server:
 #      threshold: DEBUG
 #      target: stdout
 #    - type: file
-#      currentLogFilename: logs/web-api-skeleton.log
-#      archivedLogFilenamePattern: logs/web-api-skeleton-%d.log.gz
+#      currentLogFilename: logs/locations.log
+#      archivedLogFilenamePattern: logs/locations-%d.log.gz
 #      archivedFileCount: 5
 #      threshold: ALL
 #      timeZone: UTC
