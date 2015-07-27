@@ -1,6 +1,6 @@
-package edu.oregonstate.mist.webapiskeleton.resources
+package edu.oregonstate.mist.locations.resources
 
-import edu.oregonstate.mist.webapiskeleton.core.Sample
+import edu.oregonstate.mist.locations.core.Sample
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces

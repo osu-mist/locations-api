@@ -1,12 +1,12 @@
-package edu.oregonstate.mist.webapiskeleton
+package edu.oregonstate.mist.locations
 
-import edu.oregonstate.mist.webapiskeleton.resources.SampleResource
+import edu.oregonstate.mist.locations.resources.SampleResource
 import io.dropwizard.Application
 import io.dropwizard.Configuration
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 
-class SkeletonApplication extends Application<Configuration>{
+class LocationApplication extends Application<Configuration>{
     @Override
     public void initialize(Bootstrap<Configuration> bootstrap) {}
 
@@ -16,6 +16,6 @@ class SkeletonApplication extends Application<Configuration>{
     }
 
     public static void main(String[] arguments) throws Exception {
-        new SkeletonApplication().run(arguments)
+        new LocationApplication().run(arguments)
     }
 }
