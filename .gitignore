@@ -3,6 +3,7 @@
 
 # Dropwizard
 build/
+configuration.yaml
 
 # IntelliJ IDEA
 *.iml
