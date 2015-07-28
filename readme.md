@@ -1,23 +1,7 @@
-# Web API Skeleton
-
-Locations API.
+# Locations API.
 
 
-## Tasks
-
-List all tasks runnable from root project:
-
-    $ gradle tasks
-
-### IntelliJ IDEA
-
-Generate IntelliJ IDEA project:
-
-    $ gradle idea
-
-Open with `File` -> `Open Project`.
-
-### Build
+## Build
 
 Build the project:
 
@@ -25,7 +9,7 @@ Build the project:
 
 JARs [will be saved](https://github.com/johnrengelman/shadow#using-the-default-plugin-task) into the directory `build/libs/`.
 
-### Run
+## Run
 
 Run the project:
 
@@ -37,17 +21,22 @@ Run the project:
 
 The Web API definition is contained in the [Swagger specification](swagger.yaml).
 
-### GET /
+### GET /locations/{id}
 
-This sample resource returns a short message:
+This resource returns the information for a given building:
 
-    $ nc localhost 8008 << HERE
-    > GET / HTTP/1.0
-    > 
-    > HERE
-    HTTP/1.1 200 OK
-    Date: Mon, 20 Jul 2015 21:51:49 GMT
-    Content-Type: text/plain
-    Content-Length: 11
-    
-    hello world
+    $ wget http://localhost:8008/locations/743
+
+    {
+        "id":743,
+        "name":"Valley Library",
+        "abbrev":"VLib",
+        "shortDescription":"brief desc",
+        "description":"longer desc",
+        "address":"201 SW Waldo Place",
+        "latitude":"44.5650618928",
+        "longitude":"-123.27603917",
+        "adaEntrance":"ENTRIES: North entry: level to 2nd floor;.\r\nFLOORS: All floors; elevator; access north section power-assisted doors of 1st through Reserve Book staff area.",
+        "thumbnail":"valley_library_thumbnail.jpg",
+        "largerImage":"valley_library.jpg"
+    }
