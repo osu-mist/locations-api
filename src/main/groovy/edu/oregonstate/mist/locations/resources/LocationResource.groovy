@@ -21,7 +21,6 @@ import javax.ws.rs.core.Response
 class LocationResource {
     private final LocationDAO locationDAO
 
-    //@todo: is this really needed?
     LocationResource(LocationDAO locationDAO) {
         this.locationDAO = locationDAO
     }
@@ -33,7 +32,6 @@ class LocationResource {
         final Location location = locationDAO.getLocationById(id.get())
 
         if (!location) {
-            //@todo - does this also set the correct headers?
             throw new WebApplicationException(Response.Status.NOT_FOUND)
         }
 
