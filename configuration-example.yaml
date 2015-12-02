@@ -1,0 +1,80 @@
+### Dropwizard skeleton configuration file
+##
+## Do not commit changes that contain credentials or sensitive data!
+
+server:
+  rootPath: /api/v0/*
+  applicationConnectors:
+    - type: https
+      port: 8080
+      keyStorePath: /path/to/development.keystore
+      keyStorePassword: password
+      certAlias: development
+      trustStorePath: /path/to/development.truststore
+      supportedProtocols:
+        - TLSv1.1
+        - TLSv1.2
+  adminConnectors:
+    - type: https
+      port: 8081
+      keyStorePath: /path/to/development.keystore
+      keyStorePassword: password
+      certAlias: development
+      trustStorePath: /path/to/development.truststore
+      supportedProtocols:
+        - TLSv1.1
+        - TLSv1.2
+
+logging:
+  loggers:
+      org.hibernate.SQL: ALL
+  appenders:
+    - type: console
+      threshold: ALL
+      target: stdout
+    - type: file
+      currentLogFilename: logs/web-api-skeleton.log
+      archivedLogFilenamePattern: logs/web-api-skeleton-%d.log.gz
+      archivedFileCount: 5
+      threshold: ALL
+      timeZone: PST
+
+authentication:
+  - username: username
+    password: password
+
+#
+## Example Oracle configuration
+#
+#database:
+#  driverClass: oracle.jdbc.OracleDriver
+#  url: jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=ON) (ADDRESS=(PROTOCOL=TCP)(Host=db1.example.com)(Port=1521)) (ADDRESS=(PROTOCOL=TCP)(Host=db2.example.com)(Port=1521)) (CONNECT_DATA=(SERVICE_NAME=example.db)))
+#  user: Username
+#  password: Password
+#  abandonWhenPercentageFull: 0
+#  alternateUsernamesAllowed: false
+#  commitOnReturn: false
+#  autoCommitByDefault: true
+#  readOnlyByDefault: false
+#  properties:
+#    hibernate.dialect: org.hibernate.dialect.Oracle10gDialect
+#  defaultCatalog: # none
+#  defaultTransactionIsolation: default
+#  useFairQueue: true
+#  initialSize: 10
+#  minSize: 10
+#  maxSize: 20
+#  initializationQuery: # none
+#  logAbandonedConnections: true
+#  logValidationErrors: true
+#  maxConnectionAge: # none
+#  maxWaitForConnection: 1 # second
+#  minIdleTime: 1 # minute
+#  validationQuery: "SELECT 1 FROM dual"
+#  validationQueryTimeout: # none
+#  checkConnectionWhileIdle: true
+#  checkConnectionOnConnect: false
+#  checkConnectionOnReturn: false
+#  autoCommentsEnabled: true
+#  evictionInterval: 5 # seconds
+#  validationInterval: 30 # seconds

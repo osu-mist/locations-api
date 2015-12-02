@@ -35,6 +35,6 @@ class LocationResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND)
         }
 
-        return location
+        location
     }
 }
