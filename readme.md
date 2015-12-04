@@ -1,7 +1,14 @@
 # Locations API.
 
 
-## Build
+## Skeleton 
+
+This API is based on the web-api-skeleton. For more documentation on the skeleton and the framework, see the github repo: https://github.com/osu-mist/web-api-skeleton
+
+## Configure
+
+Copy [configuration-example.yaml](configuration-example.yaml) to `configuration.yaml`. Modify as necessary, being careful to avoid committing sensitive data.
+
 
 Build the project:
 
@@ -14,8 +21,6 @@ JARs [will be saved](https://github.com/johnrengelman/shadow#using-the-default-p
 Run the project:
 
     $ gradle run
-
-
 
 ## Resources
 
