@@ -1,6 +1,8 @@
 package edu.oregonstate.mist.locations.core
 
-class OpenHours {
+import com.fasterxml.jackson.annotation.JsonIgnore
+
+class DayOpenHours {
     Date start
     Date end
     /**
@@ -10,7 +12,9 @@ class OpenHours {
      * different sequence
      *
      */
+    @JsonIgnore
     String uid
+    @JsonIgnore
     Integer sequence
 
     @Override

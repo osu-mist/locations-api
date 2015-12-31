@@ -5,6 +5,7 @@ import edu.oregonstate.mist.api.BasicAuthenticator
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
+import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.resources.LocationResource
 import edu.oregonstate.mist.locations.resources.SampleResource
 import io.dropwizard.Application
@@ -41,9 +42,10 @@ class LocationApplication extends Application<LocationConfiguration> {
         final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
         final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
         final DiningDAO diningDAO = new DiningDAO(configuration.locationsConfiguration)
+        final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
 
         environment.jersey().register(new SampleResource())
-        environment.jersey().register(new LocationResource(campusMapLocationDAO, diningDAO))
+        environment.jersey().register(new LocationResource(campusMapLocationDAO, diningDAO, locationDAO))
         environment.jersey().register(
                 AuthFactory.binder(
                         new BasicAuthFactory<AuthenticatedUser>(

@@ -1,11 +1,15 @@
 package edu.oregonstate.mist.locations.resources
 
 import com.codahale.metrics.annotation.Timed
+import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
+import edu.oregonstate.mist.locations.db.LocationDAO
+import edu.oregonstate.mist.locations.jsonapi.ResourceObject
+import edu.oregonstate.mist.locations.jsonapi.ResultObject
 import io.dropwizard.auth.Auth
 
 import javax.ws.rs.GET
@@ -20,10 +24,12 @@ import javax.ws.rs.core.Response
 class LocationResource {
     private final CampusMapLocationDAO campusMapLocationDAO
     private final DiningDAO diningDAO
+    private final LocationDAO locationDAO
 
-    LocationResource(CampusMapLocationDAO locationDAO, DiningDAO diningDAO) {
-        this.campusMapLocationDAO = locationDAO
+    LocationResource(CampusMapLocationDAO campusMapLocationDAO, DiningDAO diningDAO, LocationDAO locationDAO) {
+        this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
+        this.locationDAO = locationDAO
     }
 
     @GET
@@ -43,7 +49,7 @@ class LocationResource {
     @Path("dining")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    List<DiningLocation> getDinig(@Auth AuthenticatedUser authenticatedUser) {
+    List<DiningLocation> getDining(@Auth AuthenticatedUser authenticatedUser) {
         final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {

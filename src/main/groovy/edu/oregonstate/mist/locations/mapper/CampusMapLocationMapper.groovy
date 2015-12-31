@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.locations.mapper
 
 import edu.oregonstate.mist.locations.core.CampusMapLocation
-import edu.oregonstate.mist.locations.core.Location
 import org.skife.jdbi.v2.StatementContext
 import org.skife.jdbi.v2.tweak.ResultSetMapper
 

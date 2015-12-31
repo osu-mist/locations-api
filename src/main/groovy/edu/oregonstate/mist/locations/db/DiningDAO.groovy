@@ -2,8 +2,9 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.DiningLocation
-import edu.oregonstate.mist.locations.core.OpenHours
+import edu.oregonstate.mist.locations.core.DayOpenHours
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.filter.Filter
 import net.fortuna.ical4j.filter.PeriodRule
@@ -17,8 +18,6 @@ import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.security.MessageDigest
 
 /**
  * The Dining data comes from google calendar
@@ -67,12 +66,11 @@ public class DiningDAO {
             LOGGER.debug(icalURL)
 
             String icalData = getIcalData(icalURL, icalFileName)
-            it.weekOpenHours = parseDiningICAL(icalData)
+            it.openHours = parseDiningICAL(icalData)
         }
         //@todo: how to deal with html in title?
 
         //@todo: need a flag to know if it's the first time in the day taht we have flagged
-        //@todo: need a cache or data directory where all the files should be stored
         //@todo: return only YYYY-MM-DDTHH:MMZ (utc with up to minute for the most accuracy)
 
         diners
@@ -128,19 +126,19 @@ public class DiningDAO {
         }
     }
 
-    private HashMap<Integer, List<OpenHours>> parseDiningICAL(String icalData) {
+    private HashMap<Integer, List<DayOpenHours>> parseDiningICAL(String icalData) {
         // setup ical4j calendar and parse it
         CalendarBuilder builder = new CalendarBuilder()
         def stream = new ByteArrayInputStream(icalData.getBytes())
         net.fortuna.ical4j.model.Calendar calendar = builder.build(stream)
 
         // setup jodatime varaibles
-        Map<Integer, List<OpenHours>> weekOpenHours = new HashMap<Integer, List<OpenHours>>()
+        Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
         DateTime today = new DateTime().withTimeAtStartOfDay()
 
         (0..6).each { // iterate over a week to find out next 7 days of open hours
             def singleDay = today.plusDays(it)
-            def dayOpenHours = new ArrayList<OpenHours>()
+            def dayOpenHours = new ArrayList<DayOpenHours>()
 
             // filter out so that only events for the current day are retrieved
             def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
@@ -178,14 +176,14 @@ public class DiningDAO {
         false
     }
 
-    private void addEventToToday(def it, ArrayList<OpenHours> dayOpenHours) {
+    private void addEventToToday(def it, ArrayList<DayOpenHours> dayOpenHours) {
         def dtStart = it.getProperties().getProperty(Property.DTSTART)
         def dtEnd = it.getProperties().getProperty(Property.DTEND)
         def sequence = it.getProperties().getProperty(Property.SEQUENCE)
         def uid = it.getProperties().getProperty(Property.UID)
 
         //@todo: Store start/end in utc
-        OpenHours eventHours = new OpenHours([start: dtStart.date, end: dtEnd.date, sequence: sequence.sequenceNo,
+        DayOpenHours eventHours = new DayOpenHours([start: dtStart.date, end: dtEnd.date, sequence: sequence.sequenceNo,
                                              uid  : uid.value])
 
         def existingUIDEventKey = dayOpenHours.findIndexOf { openHour ->
@@ -214,16 +212,6 @@ public class DiningDAO {
             return true
         }
 
-        getMD5Hash(fileContent) == getMD5Hash(recentData)
-    }
-
-    /**
-     * Calculates MD5 Hash of a string
-     *
-     * @param content
-     * @return
-     */
-    private String getMD5Hash(String content) {
-        MessageDigest.getInstance("MD5").digest(content.bytes).encodeHex().toString()
+        LocationUtil.getMD5Hash(fileContent) == LocationUtil.getMD5Hash(recentData)
     }
 }
