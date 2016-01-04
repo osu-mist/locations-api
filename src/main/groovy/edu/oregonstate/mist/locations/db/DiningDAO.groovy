@@ -71,7 +71,6 @@ public class DiningDAO {
         //@todo: how to deal with html in title?
 
         //@todo: need a flag to know if it's the first time in the day taht we have flagged
-        //@todo: return only YYYY-MM-DDTHH:MMZ (utc with up to minute for the most accuracy)
 
         diners
     }
@@ -182,7 +181,7 @@ public class DiningDAO {
         def sequence = it.getProperties().getProperty(Property.SEQUENCE)
         def uid = it.getProperties().getProperty(Property.UID)
 
-        //@todo: Store start/end in utc
+        // Json annotation in POGO handles utc storage
         DayOpenHours eventHours = new DayOpenHours([start: dtStart.date, end: dtEnd.date, sequence: sequence.sequenceNo,
                                              uid  : uid.value])
 

@@ -1,10 +1,15 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 class DayOpenHours {
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="HH:mm Z", timezone="UTC")
     Date start
+
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="HH:mm Z", timezone="UTC")
     Date end
+
     /**
      * Property used to identify events in a series.
      *
@@ -14,6 +19,7 @@ class DayOpenHours {
      */
     @JsonIgnore
     String uid
+
     @JsonIgnore
     Integer sequence
 
