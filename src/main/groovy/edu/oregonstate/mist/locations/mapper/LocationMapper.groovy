@@ -9,8 +9,13 @@ import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 import java.nio.charset.StandardCharsets
 
 class LocationMapper  {
-    public static final String CAMPUSMAP = "campusmap"
-    public static final String DINING = "dining"
+    private static final String CAMPUSMAP = "campusmap"
+    private static final String DINING = "uhds"
+
+    private static final String TYPE_BUILDING = "building"
+    private static final String TYPE_DINING = "dining"
+
+    private static final String CAMPUS_CORVALLIS = "corvallis"
 
     String campusmapUrl
     String campusmapImageUrl
@@ -25,7 +30,8 @@ class LocationMapper  {
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
             thumbnails: [getImageUrl(campusMapLocation.thumbnail)],
-            images: [getImageUrl(campusMapLocation.largerImage)]
+            images: [getImageUrl(campusMapLocation.largerImage)],
+            type: TYPE_BUILDING
         )
 
         // Some attribute fields are calculated based on campusmap information
@@ -41,6 +47,8 @@ class LocationMapper  {
             latitude: diningLocation.latitude,
             longitude: diningLocation.longitude,
             summary: "Zone: ${diningLocation.zone}", //@todo: move it somewhere else? call it something else?
+            type: TYPE_DINING,
+            campus: CAMPUS_CORVALLIS,
             openHours: diningLocation.openHours
         )
 
@@ -71,7 +79,7 @@ class LocationMapper  {
     private void setCalculatedFields(Attributes attributes, CampusMapLocation campusMapLocation) {
         attributes.state = "OR"
         attributes.city = "Corvallis"
-        attributes.campus = "corvallis"
+        attributes.campus = CAMPUS_CORVALLIS
         attributes.website = getCampusmapWebsite(campusMapLocation.id)
     }
 }
