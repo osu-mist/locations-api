@@ -48,7 +48,7 @@ class LocationMapper  {
         new ResourceObject(id: id, type: "locations", attributes: attributes)
     }
 
-    private String getWebsite(Integer id) {
+    private String getCampusmapWebsite(Integer id) {
         campusmapUrl + id
     }
 
@@ -72,6 +72,6 @@ class LocationMapper  {
         attributes.state = "OR"
         attributes.city = "Corvallis"
         attributes.campus = "corvallis"
-        attributes.website = getWebsite(campusMapLocation.id)
+        attributes.website = getCampusmapWebsite(campusMapLocation.id)
     }
 }
