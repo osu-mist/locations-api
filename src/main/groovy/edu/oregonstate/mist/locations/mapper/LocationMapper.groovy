@@ -6,6 +6,8 @@ import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 
+import java.nio.charset.StandardCharsets
+
 class LocationMapper  {
     public static final String CAMPUSMAP = "campusmap"
     public static final String DINING = "dining"
@@ -55,7 +57,7 @@ class LocationMapper  {
             return null
         }
 
-        campusmapImageUrl + image
+        campusmapImageUrl + URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
     }
 
     /**
