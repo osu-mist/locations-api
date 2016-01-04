@@ -44,7 +44,7 @@ class LocationMapper  {
             openHours: diningLocation.openHours
         )
 
-        def id = LocationUtil.getMD5Hash(CAMPUSMAP + diningLocation.calendarId)
+        def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
         new ResourceObject(id: id, type: "locations", attributes: attributes)
     }
 
