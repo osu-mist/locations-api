@@ -18,14 +18,14 @@ class DiningLocation implements Comparable {
     private final Integer LONGITUDE_INDEX = 1
 
     public String getLatitude() {
-        getToken(LATITUDE_INDEX)
+        getCoordToken(LATITUDE_INDEX)
     }
 
     public String getLongitude() {
-        getToken(LONGITUDE_INDEX)
+        getCoordToken(LONGITUDE_INDEX)
     }
 
-    private void getToken(Integer index) {
+    private String getCoordToken(Integer index) {
         if (!conceptCoord) {
             return
         }
