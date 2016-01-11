@@ -4,6 +4,7 @@ import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 
 import java.nio.charset.StandardCharsets
@@ -11,11 +12,13 @@ import java.nio.charset.StandardCharsets
 class LocationMapper  {
     private static final String CAMPUSMAP = "campusmap"
     private static final String DINING = "uhds"
+    private static final String EXTENSION = "extension"
 
     private static final String TYPE_BUILDING = "building"
     private static final String TYPE_DINING = "dining"
 
     private static final String CAMPUS_CORVALLIS = "corvallis"
+    private static final String CAMPUS_EXTENSION = "extension"
 
     String campusmapUrl
     String campusmapImageUrl
@@ -53,6 +56,27 @@ class LocationMapper  {
         )
 
         def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
+        new ResourceObject(id: id, type: "locations", attributes: attributes)
+    }
+
+    public ResourceObject map(ExtensionLocation extensionLocation) {
+        Attributes attributes = new Attributes(
+            name: extensionLocation.groupName,
+            latitude: extensionLocation.latitude,
+            longitude: extensionLocation.longitude,
+            address: extensionLocation.streetAddress,
+            city: extensionLocation.city,
+            state: extensionLocation.state,
+            zip: extensionLocation.zipCode,
+            telephone: extensionLocation.tel,
+            fax: extensionLocation.fax,
+            county: extensionLocation.county,
+            website: extensionLocation.locationUrl,
+            type: TYPE_BUILDING,
+            campus: CAMPUS_EXTENSION,
+        )
+
+        def id = LocationUtil.getMD5Hash(EXTENSION + extensionLocation.guid)
         new ResourceObject(id: id, type: "locations", attributes: attributes)
     }
 

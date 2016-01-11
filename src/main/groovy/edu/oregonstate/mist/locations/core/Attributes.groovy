@@ -11,6 +11,7 @@ class Attributes {
     String city
     String state
     String zip
+    String county
     String telephone
     String fax
     List<String> thumbnails

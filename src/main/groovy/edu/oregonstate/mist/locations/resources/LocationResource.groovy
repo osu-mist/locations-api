@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
+import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
 import io.dropwizard.auth.Auth
@@ -24,11 +26,14 @@ class LocationResource {
     private final CampusMapLocationDAO campusMapLocationDAO
     private final DiningDAO diningDAO
     private final LocationDAO locationDAO
+    private final ExtensionDAO extensionDAO
 
-    LocationResource(CampusMapLocationDAO campusMapLocationDAO, DiningDAO diningDAO, LocationDAO locationDAO) {
+    LocationResource(CampusMapLocationDAO campusMapLocationDAO, DiningDAO diningDAO, LocationDAO locationDAO,
+                     ExtensionDAO extensionDAO) {
         this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
+        this.extensionDAO = extensionDAO
     }
 
     @GET
@@ -56,5 +61,19 @@ class LocationResource {
         }
 
         Response.ok(diningLocations).build()
+    }
+
+    @GET
+    @Path("extension")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response getExtension(@Auth AuthenticatedUser authenticatedUser) {
+        final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
+
+        if (!extensionLocations) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND)
+        }
+
+        Response.ok(extensionLocations).build()
     }
 }
