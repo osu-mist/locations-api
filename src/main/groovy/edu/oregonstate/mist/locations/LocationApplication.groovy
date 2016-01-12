@@ -7,6 +7,8 @@ import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
+import edu.oregonstate.mist.locations.health.DiningHealthCheck
+import edu.oregonstate.mist.locations.health.ExtensionHealthCheck
 import edu.oregonstate.mist.locations.resources.LocationResource
 import edu.oregonstate.mist.locations.resources.SampleResource
 import io.dropwizard.Application
@@ -45,6 +47,11 @@ class LocationApplication extends Application<LocationConfiguration> {
         final DiningDAO diningDAO = new DiningDAO(configuration.locationsConfiguration)
         final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
         final ExtensionDAO extensionDAO = new ExtensionDAO(configuration.locationsConfiguration)
+
+        environment.healthChecks().register("dining",
+                new DiningHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("extension",
+                new ExtensionHealthCheck(configuration.locationsConfiguration))
 
         environment.jersey().register(new SampleResource())
         environment.jersey().register(new LocationResource(campusMapLocationDAO, diningDAO, locationDAO,
