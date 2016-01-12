@@ -41,16 +41,13 @@ public class DiningDAO {
      */
     private final String diningJsonOut
 
-    /**
-     * Working directory where the cache and downloaded / generated files are stored.
-     */
-    private final String cacheDirectory
+    private final LocationUtil locationUtil
 
-    public DiningDAO(Map<String, String> locationConfiguration) {
+    public DiningDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
         uhdsURL = locationConfiguration.get("uhdsUrl")
         icalURL = locationConfiguration.get("icalUrl")
         diningJsonOut = locationConfiguration.get("diningJsonOut")
-        cacheDirectory = locationConfiguration.get("cacheDirectory")
+        this.locationUtil = locationUtil
     }
 
     List<DiningLocation> getDiningLocations() {
@@ -77,7 +74,7 @@ public class DiningDAO {
 
     private String getIcalData(String icalURL, String icalFileName) {
         // @todo: what if it's not new, but the open hours in the calendar are different for next week?
-        getDataFromUrlOrCache(icalURL, icalFileName)
+        locationUtil.getDataFromUrlOrCache(icalURL, icalFileName)
     }
 
     /**
@@ -87,42 +84,7 @@ public class DiningDAO {
      * @return String json format of dining locations
      */
     private String getDiningLocationList() throws Exception{
-        getDataFromUrlOrCache(uhdsURL, diningJsonOut)
-    }
-
-    private String getDataFromUrlOrCache(String URL, String cachedFile) throws Exception {
-        def data
-        def filePath = cacheDirectory + "/" + cachedFile
-        try {
-            data = new URL(URL).getText()
-            if (data && isDataSourceNew(cachedFile, data)) {
-                LOGGER.info("New content found for: ${URL}")
-                createCacheDirectory()
-
-                new File(filePath).write(data)
-            } else {
-                LOGGER.info("No new content for: ${URL}")
-            }
-        } catch (Exception e) {
-            LOGGER.error("Ran into an exception grabbing the URL data", e)
-            data = new File(filePath).getText()
-        }
-
-        data
-    }
-
-    /**
-     * Create cache directory if needed.
-     */
-    private void createCacheDirectory() {
-        // Create a File object representing cache directory
-        def directory = new File(cacheDirectory)
-
-        // If it doesn't exist
-        if( !directory.exists() ) {
-            LOGGER.info("Creating cache directory: ${cacheDirectory}")
-            directory.mkdirs()
-        }
+        locationUtil.getDataFromUrlOrCache(uhdsURL, diningJsonOut)
     }
 
     private HashMap<Integer, List<DayOpenHours>> parseDiningICAL(String icalData) {
@@ -198,19 +160,5 @@ public class DiningDAO {
         }
 
         dayOpenHours.add(eventHours)
-    }
-
-    private boolean isDataSourceNew(String filename, String recentData) {
-        def file = new File(cacheDirectory + "/" + filename)
-        if (!file.exists()) {
-            return true
-        }
-
-        String fileContent = file?.getText()
-        if (!fileContent) {
-            return true
-        }
-
-        LocationUtil.getMD5Hash(fileContent) == LocationUtil.getMD5Hash(recentData)
     }
 }

@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.locations.db
 
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,8 +11,14 @@ class ExtensionDAO {
      */
     private final String extensionUrl
 
-    ExtensionDAO(Map<String, String> locationConfiguration) {
+    private final String extensionXmlOut
+
+    private final LocationUtil locationUtil
+
+    ExtensionDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
         extensionUrl = locationConfiguration.get("extensionUrl")
+        extensionXmlOut = locationConfiguration.get("extensionXmlOut")
+        this.locationUtil = locationUtil
     }
 
     /**
@@ -20,7 +27,7 @@ class ExtensionDAO {
      * @return
      */
     public List<ExtensionLocation> getExtensionLocations() {
-        String extensionXML = new URL(extensionUrl).text
+        String extensionXML = getExtensionData()
         def node = new XmlSlurper().parseText(extensionXML)
         List<ExtensionLocation> extensionLocations = new ArrayList<>()
 
@@ -40,5 +47,9 @@ class ExtensionDAO {
         }
 
         extensionLocations
+    }
+
+    private String getExtensionData() {
+        locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
     }
 }

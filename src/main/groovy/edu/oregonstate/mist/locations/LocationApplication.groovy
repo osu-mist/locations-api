@@ -43,10 +43,12 @@ class LocationApplication extends Application<LocationConfiguration> {
         Resource.loadProperties('resource.properties')
         final DBIFactory factory = new DBIFactory()
         final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
+
         final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
-        final DiningDAO diningDAO = new DiningDAO(configuration.locationsConfiguration)
         final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
-        final ExtensionDAO extensionDAO = new ExtensionDAO(configuration.locationsConfiguration)
+        final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
+        final ExtensionDAO extensionDAO = new ExtensionDAO(configuration.locationsConfiguration, locationUtil)
+        final DiningDAO diningDAO = new DiningDAO(configuration.locationsConfiguration, locationUtil)
 
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))
