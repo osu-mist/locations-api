@@ -76,4 +76,34 @@ class LocationResource {
 
         Response.ok(extensionLocations).build()
     }
+
+    @GET
+    @Path("combined")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response combineSources(@Auth AuthenticatedUser authenticatedUser) {
+        def jsonESInput = new File("locations-combined.json")
+        jsonESInput.write("") // clear out file
+
+        ResultObject resultObject = new ResultObject()
+        final List<CampusMapLocation> campusMapLocations = campusMapLocationDAO.getCampusMapLocations()
+        final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
+        final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
+
+        resultObject.data = locationDAO.convertCampusmap(campusMapLocations)
+        resultObject.data += locationDAO.convertDining(diningLocations) //@todo: what if previous value of data is null/empty?
+        resultObject.data += locationDAO.convertExtension(extensionLocations)
+
+        // @todo: move this somewhere else
+        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+
+        resultObject.data.each {
+            def indexAction = [index: [_id: it.id]]
+            jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
+            jsonESInput << mapper.writeValueAsString(it) + "\n"
+        }
+
+        //@todo: this would just return an empty data array?
+        Response.ok(resultObject).build()
+    }
 }
