@@ -35,8 +35,8 @@ class ExtensionDAOTest {
             assert extensionLocation.fax != null
             assert extensionLocation.locationUrl != null
 
-            assert extensionLocation.latitude.matches("-?\\d+(\\.\\d+)?")
-            assert extensionLocation.longitude.matches("-?\\d+(\\.\\d+)?")
+            assert extensionLocation.latitude.matches(LocationUtil.VALID_LAT_LONG)
+            assert extensionLocation.longitude.matches(LocationUtil.VALID_LAT_LONG)
         }
     }
 }

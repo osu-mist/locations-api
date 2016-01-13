@@ -8,6 +8,8 @@ import java.security.MessageDigest
 class LocationUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationUtil.class)
 
+    public static final String VALID_LAT_LONG = "-?\\d+(\\.\\d+)?"
+
     final Map<String, String> locationConfiguration
 
     /**
