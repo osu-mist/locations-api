@@ -33,29 +33,29 @@ class LocationUtil {
     }
 
     /**
-     * Tries to get the data from the URL. If fetching from the url fails, it retrieves the
+     * Tries to get the data from the url. If fetching from the url fails, it retrieves the
      * data from the cache directory
      *
-     * @param URL
+     * @param url
      * @param cachedFile
      * @return
      * @throws Exception
      */
-    public String getDataFromUrlOrCache(String URL, String cachedFile) throws Exception {
+    public String getDataFromUrlOrCache(String url, String cachedFile) throws Exception {
         def data
         def filePath = cacheDirectory + "/" + cachedFile
         try {
-            data = new URL(URL).getText()
+            data = new URL(url).getText()
             if (data && isDataSourceNew(cachedFile, data)) {
-                LOGGER.info("New content found for: ${URL}")
+                LOGGER.info("New content found for: ${url}")
                 createCacheDirectory()
 
                 new File(filePath).write(data)
             } else {
-                LOGGER.info("No new content for: ${URL}")
+                LOGGER.info("No new content for: ${url}")
             }
         } catch (Exception e) {
-            LOGGER.error("Ran into an exception grabbing the URL data", e)
+            LOGGER.error("Ran into an exception grabbing the url data", e)
             data = new File(filePath).getText()
         }
 
