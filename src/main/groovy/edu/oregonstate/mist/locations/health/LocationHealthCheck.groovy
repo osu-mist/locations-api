@@ -28,7 +28,7 @@ class LocationHealthCheck extends HealthCheck {
             if (urlText) {
                 Result.healthy()
             } else {
-                Result.unhealthy("url (${url}) was empty or null")
+                Result.unhealthy("Content of url: (${url}) was empty or null")
             }
         } catch(Exception e) {
             Result.unhealthy(e.message)

@@ -103,7 +103,7 @@ class LocationUtil {
      * @param recentData
      * @return
      */
-    private boolean isDataSourceNew(String filename, String recentData) {
+    private Boolean isDataSourceNew(String filename, String recentData) {
         def file = new File(getFilePath(filename))
         if (!file.exists()) {
             return true

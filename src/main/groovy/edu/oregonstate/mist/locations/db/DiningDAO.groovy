@@ -121,11 +121,11 @@ public class DiningDAO {
     /**
      * Checks to see if the event's recurrence was excluded using EXDATE.
      *
-     * @param it
+     * @param event
      * @return
      */
-    private boolean isEventExcluded(def it) {
-        PropertyList exDates = it.getProperties(Property.EXDATE)
+    private static boolean isEventExcluded(def event) {
+        PropertyList exDates = event.getProperties(Property.EXDATE)
         exDates.each { ex ->
             ((ExDate) ex).dates.each { oneExDate ->
                 if (new DateTime(oneExDate).toLocalDate().equals(new LocalDate())) {
@@ -137,15 +137,19 @@ public class DiningDAO {
         false
     }
 
-    private void addEventToToday(def it, ArrayList<DayOpenHours> dayOpenHours) {
-        def dtStart = it.getProperties().getProperty(Property.DTSTART)
-        def dtEnd = it.getProperties().getProperty(Property.DTEND)
-        def sequence = it.getProperties().getProperty(Property.SEQUENCE)
-        def uid = it.getProperties().getProperty(Property.UID)
+    private static void addEventToToday(def event, ArrayList<DayOpenHours> dayOpenHours) {
+        def dtStart = event.getProperties().getProperty(Property.DTSTART)
+        def dtEnd = event.getProperties().getProperty(Property.DTEND)
+        def sequence = event.getProperties().getProperty(Property.SEQUENCE)
+        def uid = event.getProperties().getProperty(Property.UID)
 
         // Json annotation in POGO handles utc storage
-        DayOpenHours eventHours = new DayOpenHours([start: dtStart.date, end: dtEnd.date, sequence: sequence.sequenceNo,
-                                             uid  : uid.value])
+        DayOpenHours eventHours = new DayOpenHours(
+                start: dtStart.date,
+                end: dtEnd.date,
+                sequence: sequence.sequenceNo,
+                uid  : uid.value
+        )
 
         def existingUIDEventKey = dayOpenHours.findIndexOf { openHour ->
             openHour.uid == uid.value

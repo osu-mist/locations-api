@@ -1,7 +1,8 @@
 package edu.oregonstate.mist.locations.core
 
+import edu.oregonstate.mist.locations.LocationUtil
+
 class ExtensionLocation {
-    private static final String GEO_LOCATION_REGEX = "-?\\d+(\\.\\d+)?"
     private static final int LATITUDE_INDEX = 1
     private static final int LONGITUDE_INDEX = 0
 
@@ -26,7 +27,7 @@ class ExtensionLocation {
     }
 
     private String getCoordToken(Integer index) {
-        def matcher = geoLocation =~ GEO_LOCATION_REGEX
+        def matcher = geoLocation =~ LocationUtil.VALID_LAT_LONG
         if (matcher.count) {
             matcher[index][0]
         }

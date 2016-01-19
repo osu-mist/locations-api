@@ -64,5 +64,6 @@ public interface CampusMapLocationDAO extends Closeable {
 """)
     List<CampusMapLocation> getCampusMapLocations()
 
+    @Override
     void close()
 }

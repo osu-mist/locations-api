@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations.resources
 import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.AuthenticatedUser
+import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
@@ -16,13 +17,12 @@ import io.dropwizard.auth.Auth
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
-import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/locations")
 @Produces(MediaType.APPLICATION_JSON)
-class LocationResource {
+class LocationResource extends Resource {
     private final CampusMapLocationDAO campusMapLocationDAO
     private final DiningDAO diningDAO
     private final LocationDAO locationDAO
@@ -43,10 +43,10 @@ class LocationResource {
         final List<CampusMapLocation> campusMapLocations = campusMapLocationDAO.getCampusMapLocations()
 
         if (!campusMapLocations) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND)
+            notFound()
         }
 
-        Response.ok(campusMapLocations).build()
+        ok(campusMapLocations).build()
     }
 
     @GET
@@ -57,10 +57,10 @@ class LocationResource {
         final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND)
+            notFound()
         }
 
-        Response.ok(diningLocations).build()
+        ok(diningLocations).build()
     }
 
     @GET
@@ -71,10 +71,10 @@ class LocationResource {
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
 
         if (!extensionLocations) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND)
+            notFound()
         }
 
-        Response.ok(extensionLocations).build()
+        ok(extensionLocations).build()
     }
 
     @GET
@@ -90,9 +90,10 @@ class LocationResource {
         final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
 
-        resultObject.data = locationDAO.convertCampusmap(campusMapLocations)
-        resultObject.data += locationDAO.convertDining(diningLocations) //@todo: what if previous value of data is null/empty?
-        resultObject.data += locationDAO.convertExtension(extensionLocations)
+        resultObject.data = []
+        resultObject.data = locationDAO.convert(campusMapLocations)
+        resultObject.data += locationDAO.convert(diningLocations)
+        resultObject.data += locationDAO.convert(extensionLocations)
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
@@ -104,6 +105,6 @@ class LocationResource {
         }
 
         //@todo: this would just return an empty data array?
-        Response.ok(resultObject).build()
+        ok(resultObject).build()
     }
 }

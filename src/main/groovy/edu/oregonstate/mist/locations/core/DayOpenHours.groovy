@@ -22,14 +22,4 @@ class DayOpenHours {
 
     @JsonIgnore
     Integer sequence
-
-    @Override
-    public String toString() {
-        "OpenHours{" +
-                "start=" + start +
-                ", end=" + end +
-                ", uid='" + uid + '\'' +
-                ", sequence=" + sequence +
-                '}'
-    }
 }

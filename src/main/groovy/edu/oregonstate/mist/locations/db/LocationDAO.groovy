@@ -16,34 +16,18 @@ class LocationDAO {
         )
     }
 
-    //@todo: not DRY :(
-    public def convertCampusmap(List<CampusMapLocation> campusMapLocations) {
-        def resourceObjects = new ArrayList<ResourceObject>()
-
-        campusMapLocations.each {
+    /**
+     * Converts the location objects (dining, campusmap or extension) to a
+     * list of resource objects.
+     *
+     * @param locations
+     * @return
+     */
+    public List<ResourceObject> convert(List locations) {
+        List<ResourceObject> resourceObjects = new ArrayList<ResourceObject>()
+        locations.each {
             resourceObjects.add(locationMapper.map(it))
         }
-
-        resourceObjects
-    }
-
-    public def convertDining(List<DiningLocation> diningLocations) {
-        def resourceObjects = new ArrayList<ResourceObject>()
-
-        diningLocations.each {
-            resourceObjects.add(locationMapper.map(it))
-        }
-
-        resourceObjects
-    }
-
-    public def convertExtension(List<ExtensionLocation> extensionLocations) {
-        def resourceObjects = new ArrayList<ResourceObject>()
-
-        extensionLocations.each {
-            resourceObjects.add(locationMapper.map(it))
-        }
-
         resourceObjects
     }
 }

@@ -36,16 +36,4 @@ class DiningLocation implements Comparable {
     int compareTo(Object o) {
         calendarId <=> o.calendarId
     }
-
-    @Override
-    public String toString() {
-        "DiningLocation{" +
-                "conceptTitle='" + conceptTitle + '\'' +
-                ", zone='" + zone + '\'' +
-                ", calendarId='" + calendarId + '\'' +
-                ", conceptCoord='" + conceptCoord + '\'' +
-                ", start='" + start + '\'' +
-                ", end='" + end + '\'' +
-                '}'
-    }
 }

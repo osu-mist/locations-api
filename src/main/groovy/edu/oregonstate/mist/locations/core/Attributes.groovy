@@ -22,5 +22,5 @@ class Attributes {
     String calendar
     String campus
     String type // used for searching. values: building, dining.
-    HashMap<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
+    Map<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
 }
