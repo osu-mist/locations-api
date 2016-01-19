@@ -45,7 +45,7 @@ class LocationUtil {
      */
     public String getDataFromUrlOrCache(String url, String cachedFile) {
         def data
-        def filePath = cacheDirectory + "/" + cachedFile
+        def filePath = getFilePath(cachedFile)
 
         try {
             // Check that cached file is within the current api directory
@@ -73,6 +73,16 @@ class LocationUtil {
     }
 
     /**
+     * Returns path to file within cacheDirectory
+     *
+     * @param fileName
+     * @return
+     */
+    private String getFilePath(String fileName) {
+        cacheDirectory + "/" + fileName
+    }
+
+    /**
      * Create cache directory if needed.
      */
     private void createCacheDirectory() {
@@ -94,7 +104,7 @@ class LocationUtil {
      * @return
      */
     private boolean isDataSourceNew(String filename, String recentData) {
-        def file = new File(cacheDirectory + "/" + filename)
+        def file = new File(getFilePath(filename))
         if (!file.exists()) {
             return true
         }
