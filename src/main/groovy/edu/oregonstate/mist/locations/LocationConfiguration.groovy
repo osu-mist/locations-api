@@ -17,7 +17,12 @@ class LocationConfiguration extends Configuration {
     @Valid
     @NotNull
     @JsonProperty("database")
-    private DataSourceFactory database = new DataSourceFactory()
+    DataSourceFactory database = new DataSourceFactory()
+
+    @JsonProperty('locations')
+    @NotNull
+    @Valid
+    Map<String, String> locationsConfiguration
 
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {

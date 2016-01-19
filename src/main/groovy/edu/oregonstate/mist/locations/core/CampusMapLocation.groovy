@@ -1,15 +1,17 @@
 package edu.oregonstate.mist.locations.core
 
-class Location {
+class CampusMapLocation {
     Integer id
     String name
     String abbrev
+    String longitude
+    String latitude
+    String layerId
+    String layerNames
+    String address
+    String adaEntrance
     String shortDescription
     String description
-    String address
-    String latitude
-    String longitude
-    String adaEntrance
     String thumbnail
     String largerImage
 }
