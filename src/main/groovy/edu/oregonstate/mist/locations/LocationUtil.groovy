@@ -3,6 +3,8 @@ package edu.oregonstate.mist.locations
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.security.MessageDigest
 
 class LocationUtil {
@@ -41,10 +43,18 @@ class LocationUtil {
      * @return
      * @throws Exception
      */
-    public String getDataFromUrlOrCache(String url, String cachedFile) throws Exception {
+    public String getDataFromUrlOrCache(String url, String cachedFile) {
         def data
         def filePath = cacheDirectory + "/" + cachedFile
+
         try {
+            // Check that cached file is within the current api directory
+            Path child = Paths.get(filePath).toAbsolutePath()
+            def parent = Paths.get(cacheDirectory).toAbsolutePath()
+            if (!child.startsWith(parent)) {
+                throw new Exception("Cache directory is outside of api directory")
+            }
+
             data = new URL(url).getText()
             if (data && isDataSourceNew(cachedFile, data)) {
                 LOGGER.info("New content found for: ${url}")
