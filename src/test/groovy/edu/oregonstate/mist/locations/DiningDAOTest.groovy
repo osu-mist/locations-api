@@ -38,7 +38,7 @@ class DiningDAOTest {
     @Test
     public void testGetDiningLocations() {
         assert !diningLocations.isEmpty()
-        int invalidDiningCount = 0;
+        int invalidDiningCount = 0
 
         diningLocations.each {
             if (isValidDining(it)) {
@@ -76,7 +76,7 @@ class DiningDAOTest {
 
     private static boolean isValidDining(DiningLocation diningLocation) {
         diningLocation.with {
-            return conceptTitle && zone && calendarId && latitude && longitude &&
+            conceptTitle && zone && calendarId && latitude && longitude &&
              latitude.matches(LocationUtil.VALID_LAT_LONG) && longitude.matches(LocationUtil.VALID_LAT_LONG)
         }
     }
