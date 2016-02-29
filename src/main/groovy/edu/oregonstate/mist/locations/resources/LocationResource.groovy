@@ -46,7 +46,10 @@ class LocationResource extends Resource {
             notFound()
         }
 
-        ok(campusMapLocations).build()
+        List<List> locationsList = [ campusMapLocations ]
+        ResultObject resultObject = writeJsonAPIToFile("locations-campusmap.json", locationsList)
+
+        ok(resultObject).build()
     }
 
     @GET
@@ -60,7 +63,10 @@ class LocationResource extends Resource {
             notFound()
         }
 
-        ok(diningLocations).build()
+        List<List> locationsList = [ diningLocations ]
+        ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", locationsList)
+
+        ok(resultObject).build()
     }
 
     @GET
@@ -74,7 +80,10 @@ class LocationResource extends Resource {
             notFound()
         }
 
-        ok(extensionLocations).build()
+        List<List> locationsList = [ extensionLocations ]
+        ResultObject resultObject = writeJsonAPIToFile("locations-extension.json", locationsList)
+
+        ok(resultObject).build()
     }
 
     @GET
@@ -82,18 +91,33 @@ class LocationResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response combineSources(@Auth AuthenticatedUser authenticatedUser) {
-        def jsonESInput = new File("locations-combined.json")
+        List<List> locationsList = []
+        locationsList  += campusMapLocationDAO.getCampusMapLocations()
+        locationsList  += diningDAO.getDiningLocations()
+        locationsList  += extensionDAO.getExtensionLocations()
+
+        ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
+
+        ok(resultObject).build()
+    }
+
+    /**
+     * Converts the locations list to result objects that can be returned via the browser. It
+     * also writes the location object list in a json file to be sent to ES.
+     *
+     * @param filename
+     * @param locationsList
+     * @return
+     */
+    private ResultObject writeJsonAPIToFile(String filename, List<List> locationsList) {
+        ResultObject resultObject = new ResultObject()
+        def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
 
-        ResultObject resultObject = new ResultObject()
-        final List<CampusMapLocation> campusMapLocations = campusMapLocationDAO.getCampusMapLocations()
-        final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
-        final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
-
         resultObject.data = []
-        resultObject.data = locationDAO.convert(campusMapLocations)
-        resultObject.data += locationDAO.convert(diningLocations)
-        resultObject.data += locationDAO.convert(extensionLocations)
+        locationsList.each {
+            resultObject.data += locationDAO.convert(it)
+        }
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
@@ -103,8 +127,6 @@ class LocationResource extends Resource {
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
-
-        //@todo: this would just return an empty data array?
-        ok(resultObject).build()
+        resultObject
     }
 }
