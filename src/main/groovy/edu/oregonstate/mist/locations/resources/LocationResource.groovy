@@ -43,7 +43,7 @@ class LocationResource extends Resource {
         final List<CampusMapLocation> campusMapLocations = campusMapLocationDAO.getCampusMapLocations()
 
         if (!campusMapLocations) {
-            notFound()
+            notFound().build()
         }
 
         List<List> locationsList = [ campusMapLocations ]
@@ -60,7 +60,7 @@ class LocationResource extends Resource {
         final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {
-            notFound()
+            notFound().build()
         }
 
         List<List> locationsList = [ diningLocations ]
@@ -77,7 +77,7 @@ class LocationResource extends Resource {
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
 
         if (!extensionLocations) {
-            notFound()
+            notFound().build()
         }
 
         List<List> locationsList = [ extensionLocations ]
