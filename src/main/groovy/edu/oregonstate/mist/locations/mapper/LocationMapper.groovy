@@ -22,6 +22,7 @@ class LocationMapper  {
 
     String campusmapUrl
     String campusmapImageUrl
+    String apiEndpointUrl
 
     public ResourceObject map(CampusMapLocation campusMapLocation) {
         Attributes attributes = new Attributes(
@@ -41,7 +42,7 @@ class LocationMapper  {
         setCalculatedFields(attributes, campusMapLocation)
 
         def id = LocationUtil.getMD5Hash(CAMPUSMAP + campusMapLocation.id)
-        new ResourceObject(id: id, type: "locations", attributes: attributes)
+        buildResourceObject(id, attributes)
     }
 
     public ResourceObject map(DiningLocation diningLocation) {
@@ -56,7 +57,7 @@ class LocationMapper  {
         )
 
         def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
-        new ResourceObject(id: id, type: "locations", attributes: attributes)
+        buildResourceObject(id, attributes)
     }
 
     public ResourceObject map(ExtensionLocation extensionLocation) {
@@ -78,6 +79,7 @@ class LocationMapper  {
 
         def id = LocationUtil.getMD5Hash(EXTENSION + extensionLocation.guid)
         new ResourceObject(id: id, type: "locations", attributes: attributes)
+        buildResourceObject(id, attributes)
     }
 
     private String getCampusmapWebsite(Integer id) {
@@ -105,5 +107,21 @@ class LocationMapper  {
         attributes.city = "Corvallis"
         attributes.campus = CAMPUS_CORVALLIS
         attributes.website = getCampusmapWebsite(campusMapLocation.id)
+    }
+
+    private void setLinks(ResourceObject resourceObject) {
+        resourceObject.links = ['self': apiEndpointUrl + "/" + resourceObject.id]
+    }
+
+    /**
+     * Builds the ResourceObject and sets the links.self attribute
+     *
+     * @param id
+     * @param attributes
+     */
+    private ResourceObject buildResourceObject(String id, Attributes attributes) {
+        def resourceObject = new ResourceObject(id: id, type: "locations", attributes: attributes)
+        setLinks(resourceObject)
+        resourceObject
     }
 }

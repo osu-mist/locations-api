@@ -12,7 +12,8 @@ class LocationDAO {
     public LocationDAO(Map<String, String> locationConfiguration) {
         locationMapper = new LocationMapper(
                 campusmapUrl: locationConfiguration.get("campusmapUrl"),
-                campusmapImageUrl: locationConfiguration.get("campusmapImageUrl")
+                campusmapImageUrl: locationConfiguration.get("campusmapImageUrl"),
+                apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
     }
 
