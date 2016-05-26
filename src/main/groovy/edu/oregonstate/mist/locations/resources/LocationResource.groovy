@@ -4,9 +4,11 @@ import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.Resource
+import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
+import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
@@ -27,13 +29,15 @@ class LocationResource extends Resource {
     private final DiningDAO diningDAO
     private final LocationDAO locationDAO
     private final ExtensionDAO extensionDAO
+    private final ArcGisDAO arcGisDAO
 
     LocationResource(CampusMapLocationDAO campusMapLocationDAO, DiningDAO diningDAO, LocationDAO locationDAO,
-                     ExtensionDAO extensionDAO) {
+                     ExtensionDAO extensionDAO, ArcGisDAO arcGisDAO) {
         this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
+        this.arcGisDAO = arcGisDAO
     }
 
     @GET
@@ -46,9 +50,8 @@ class LocationResource extends Resource {
             notFound().build()
         }
 
-        List<List> locationsList = [ campusMapLocations ]
-        ResultObject resultObject = writeJsonAPIToFile("locations-campusmap.json", locationsList)
-
+        ResultObject resultObject = writeJsonAPIToFile("locations-campusmap.json", campusMapLocations)
+        locationDAO.writeMapToJson(campusMapLocations)
         ok(resultObject).build()
     }
 
@@ -63,10 +66,34 @@ class LocationResource extends Resource {
             notFound().build()
         }
 
-        List<List> locationsList = [ diningLocations ]
-        ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", locationsList)
-
+        ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", diningLocations)
         ok(resultObject).build()
+    }
+
+    @GET
+    @Path("arcgis")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response getFacilities(@Auth AuthenticatedUser authenticatedUser) {
+        ArrayList mergedData = getArcGisAndMapData()
+
+        if (!mergedData) {
+            return notFound().build()
+        }
+
+        ResultObject resultObject = writeJsonAPIToFile("locations-arcgis.json", mergedData)
+        ok(resultObject).build()
+    }
+
+    /**
+     * Returns the combined data from the arcgis and campusmap.
+     *
+     * @return
+     */
+    private List getArcGisAndMapData() {
+        HashMap<String, ArcGisLocation> arcGisLocations = arcGisDAO.getArcGisLocations()
+        List<CampusMapLocation> campusMapLocationList = locationDAO.getCampusMapFromJson()
+        locationDAO.mergeMapAndArcgis(arcGisLocations, campusMapLocationList)
     }
 
     @GET
@@ -80,9 +107,7 @@ class LocationResource extends Resource {
             notFound().build()
         }
 
-        List<List> locationsList = [ extensionLocations ]
-        ResultObject resultObject = writeJsonAPIToFile("locations-extension.json", locationsList)
-
+        ResultObject resultObject = writeJsonAPIToFile("locations-extension.json", extensionLocations)
         ok(resultObject).build()
     }
 
@@ -92,12 +117,11 @@ class LocationResource extends Resource {
     @Timed
     Response combineSources(@Auth AuthenticatedUser authenticatedUser) {
         List<List> locationsList = []
-        locationsList  += campusMapLocationDAO.getCampusMapLocations()
+        locationsList  += getArcGisAndMapData()
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
-
         ok(resultObject).build()
     }
 
@@ -109,7 +133,7 @@ class LocationResource extends Resource {
      * @param locationsList
      * @return
      */
-    private ResultObject writeJsonAPIToFile(String filename, List<List> locationsList) {
+    private ResultObject writeJsonAPIToFile(String filename, List locationsList) {
         ResultObject resultObject = new ResultObject()
         def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
