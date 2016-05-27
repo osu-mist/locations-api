@@ -3,16 +3,17 @@ package edu.oregonstate.mist.locations
 import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.BasicAuthenticator
 import edu.oregonstate.mist.api.Resource
+import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
+import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
 import edu.oregonstate.mist.locations.health.ExtensionHealthCheck
 import edu.oregonstate.mist.locations.resources.LocationResource
 import edu.oregonstate.mist.locations.resources.SampleResource
 import io.dropwizard.Application
-import io.dropwizard.Configuration
 import io.dropwizard.auth.AuthFactory
 import io.dropwizard.auth.basic.BasicAuthFactory
 import io.dropwizard.jdbi.DBIFactory
@@ -49,15 +50,18 @@ class LocationApplication extends Application<LocationConfiguration> {
         final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
         final ExtensionDAO extensionDAO = new ExtensionDAO(configuration.locationsConfiguration, locationUtil)
         final DiningDAO diningDAO = new DiningDAO(configuration.locationsConfiguration, locationUtil)
+        final ArcGisDAO arcGisDAO = new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
 
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))
         environment.healthChecks().register("extension",
                 new ExtensionHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("arcgis",
+                new ArcGisHealthCheck(configuration.locationsConfiguration))
 
         environment.jersey().register(new SampleResource())
         environment.jersey().register(new LocationResource(campusMapLocationDAO, diningDAO, locationDAO,
-                extensionDAO))
+                extensionDAO, arcGisDAO))
         environment.jersey().register(
                 AuthFactory.binder(
                         new BasicAuthFactory<AuthenticatedUser>(

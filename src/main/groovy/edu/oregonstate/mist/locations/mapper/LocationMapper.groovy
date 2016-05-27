@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.mapper
 
 import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
@@ -13,6 +14,7 @@ class LocationMapper  {
     private static final String CAMPUSMAP = "campusmap"
     private static final String DINING = "uhds"
     private static final String EXTENSION = "extension"
+    private static final String ARCGIS = "arcgis"
 
     private static final String TYPE_BUILDING = "building"
     private static final String TYPE_DINING = "dining"
@@ -78,7 +80,20 @@ class LocationMapper  {
         )
 
         def id = LocationUtil.getMD5Hash(EXTENSION + extensionLocation.guid)
-        new ResourceObject(id: id, type: "locations", attributes: attributes)
+        buildResourceObject(id, attributes)
+    }
+
+    public ResourceObject map(ArcGisLocation arcGisLocation) {
+        Attributes attributes = new Attributes(
+                name: arcGisLocation.bldNam,
+                abbreviation: arcGisLocation.bldNamAbr,
+                latitude: arcGisLocation.latitude,
+                longitude: arcGisLocation.longitude,
+                type: TYPE_BUILDING,
+                campus: CAMPUS_CORVALLIS,
+        )
+
+        def id = LocationUtil.getMD5Hash(ARCGIS + arcGisLocation.bldID)
         buildResourceObject(id, attributes)
     }
 

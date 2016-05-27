@@ -54,6 +54,8 @@ locations:
   extensionUrl: http://example.com/extension_locations.xml
   extensionXmlOut: extension-locations.xml
   apiEndpointUrl: https://api.example.com/v1/
+  arcGisQueryUrl: http://arcgis.example.com/
+  arcGisJsonOut: arcgis.json
 
 database:
   driverClass: com.mysql.jdbc.Driver

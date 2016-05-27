@@ -20,3 +20,6 @@ build.properties
 
 # bin
 bin/
+
+# api cache directory
+cache/
