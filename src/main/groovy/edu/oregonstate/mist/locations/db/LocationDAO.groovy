@@ -77,9 +77,9 @@ class LocationDAO {
         def mergedData = []
         arcGisLocations.each {
             if (mapData[it.key]) {
-                mapData[it.key].name = it.value.BldNam
-                mapData[it.key].latitude = it.value.Latitude
-                mapData[it.key].longitude = it.value.Longitude
+                mapData[it.key].name = it.value.bldNam
+                mapData[it.key].latitude = it.value.latitude
+                mapData[it.key].longitude = it.value.longitude
 
                 mergedData += mapData[it.key]
             } else {

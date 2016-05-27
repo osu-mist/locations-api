@@ -6,13 +6,19 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 
 class ArcGisDAO {
     /**
-     * Url of ArcGIS API. JSON formatted content that includes BldID,
-     * BldNam, BldNamAbr, Latitude, Longitude
+     * Url of ArcGIS API. JSON formatted content that includes bldID,
+     * bldNam, bldNamAbr, latitude, longitude
      */
     private final String arcGisQueryUrl
 
+    /**
+     * File where the arcgis data is downloaded to
+     */
     private final String arcGisJsonOut
 
+    /**
+     * Helper for caching and getting data from web requests
+     */
     private final LocationUtil locationUtil
 
     public ArcGisDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
@@ -34,8 +40,8 @@ class ArcGisDAO {
         def features = mapper.readTree(gisData).get("features")
 
         features.asList().each {
-            def arcBuilding = (ArcGisLocation) mapper.readValue(it.get("properties").toString(), Object.class)
-            data[arcBuilding.BldNamAbr] = arcBuilding
+            def arcBuilding = new ArcGisLocation(mapper.readValue(it.get("properties").toString(), Object.class))
+            data[arcBuilding.bldNamAbr] = arcBuilding
         }
 
         data
