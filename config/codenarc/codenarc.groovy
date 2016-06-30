@@ -24,6 +24,10 @@ ruleset {
                    ^(
                      ([a-z]\\w*$?)*
                    )$'''
+        finalRegex = '''(?x)
+                   ^(
+                     ([a-z]\\w*$?)*
+                   )$'''
         priority = 3
     }
 
