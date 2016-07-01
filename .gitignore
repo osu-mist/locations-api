@@ -23,3 +23,6 @@ bin/
 
 # api cache directory
 cache/
+
+# locations campusmap
+locations-campusmap.json
