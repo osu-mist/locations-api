@@ -35,8 +35,8 @@ class LocationMapper  {
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
-            thumbnails: [getImageUrl(campusMapLocation.thumbnail)],
-            images: [getImageUrl(campusMapLocation.largerImage)],
+            thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
+            images: [getImageUrl(campusMapLocation.largerImage)] - null,
             type: TYPE_BUILDING
         )
 
