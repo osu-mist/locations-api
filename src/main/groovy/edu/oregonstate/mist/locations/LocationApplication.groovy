@@ -43,7 +43,7 @@ class LocationApplication extends Application<LocationConfiguration> {
     public void run(LocationConfiguration configuration, Environment environment) {
         Resource.loadProperties('resource.properties')
         final DBIFactory factory = new DBIFactory()
-        final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
+        final DBI jdbi = factory.build(environment, configuration.getDatabase(), "jdbi")
 
         final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
         final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
