@@ -29,10 +29,10 @@ class LocationDAO {
      */
     public List<CampusMapLocation> getCampusMapFromJson() {
         try {
-            def mapData = mapJsonFile().getText()
+            def mapData = mapJsonFile.getText()
             mapper.readValue(mapData, new TypeReference<List<CampusMapLocation>>() {})
-        } catch(Exception e) {
-            println e
+        } catch (FileNotFoundException) {
+            null
         }
     }
 
@@ -43,7 +43,7 @@ class LocationDAO {
      * @return
      */
     public writeMapToJson(List<CampusMapLocation> campusMapLocations) {
-        def jsonESInput = mapJsonFile()
+        def jsonESInput = mapJsonFile
         def jsonStringList = campusMapLocations.collect { mapper.writeValueAsString(it) }
 
         jsonESInput.write("[" +  jsonStringList.join(",") + "]")
