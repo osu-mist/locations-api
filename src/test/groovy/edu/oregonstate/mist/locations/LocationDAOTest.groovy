@@ -20,10 +20,10 @@ class LocationDAOTest {
         assert LocationDAO.mergeMapAndArcgis([:], [new CampusMapLocation(id: 101)]) == []
 
         // Non-empty arcgis, empty campusmap
-        def arcgis = new ArcGisLocation([BldNamAbr: "FOO"])
+        def arcgis = new ArcGisLocation(BldNamAbr: "FOO")
+        assert arcgis.bldNamAbr != null
         assert LocationDAO.mergeMapAndArcgis(["FOO": arcgis], []) == [arcgis]
     }
-
 
     @Test
     public void testMergeMapAndArcgis_TwoShipsPassingInTheNight() {
@@ -49,23 +49,23 @@ class LocationDAOTest {
         ]
 
         def arcgis = [
-            "FOO": new ArcGisLocation([
+            "FOO": new ArcGisLocation(
                 BldID: "0061",
                 BldNam: "Forrest Observatory",
                 BldNamAbr: "FOO",
                 Latitude: "42.39561",
                 Longitude: "-71.13051",
-            ]),
+            ),
         ]
 
         def expected = [
-            new ArcGisLocation([
+            new ArcGisLocation(
                 BldID: "0061",
                 BldNam: "Forrest Observatory",
                 BldNamAbr: "FOO",
                 Latitude: "42.39561",
                 Longitude: "-71.13051",
-            ]),
+            ),
         ]
 
         assert LocationDAO.mergeMapAndArcgis(arcgis, campusmap) == expected
@@ -94,13 +94,13 @@ class LocationDAOTest {
         ]
 
         def arcgis = [
-            "FOO": new ArcGisLocation([
+            "FOO": new ArcGisLocation(
                 BldID: "0032",
                 BldNam: "Arcgis bldNam",
                 BldNamAbr: "FOO",
                 Latitude: "42",
                 Longitude: "-42",
-            ]),
+            ),
         ]
 
         def expected = [
