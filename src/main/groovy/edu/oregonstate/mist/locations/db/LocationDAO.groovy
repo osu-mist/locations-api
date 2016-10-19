@@ -50,8 +50,10 @@ class LocationDAO {
     }
 
     /**
-     * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data. If a
-     * building is in the map data, but not in arcgis it is not returned.
+     * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data.
+     * If a building is in the map data, but not in arcgis it is not returned.
+     * Two buildings are considered the same if the abbrev field of the
+     * CampusMapLocation matches the bldNamAbr field of the ArcGisLocation.
      *
      * @param arcGisLocations
      * @param campusMapLocationList
