@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.core
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
+@groovy.transform.EqualsAndHashCode
 class ArcGisLocation {
     @JsonProperty("BldID")
     String bldID

@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.locations.core
 
+@groovy.transform.EqualsAndHashCode
 class Attributes {
     String name
     String abbreviation

@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations.core
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 
+@groovy.transform.EqualsAndHashCode
 class DayOpenHours {
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="UTC")
     Date start
