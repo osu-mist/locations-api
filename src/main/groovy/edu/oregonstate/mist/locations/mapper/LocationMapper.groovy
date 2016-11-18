@@ -32,7 +32,7 @@ class LocationMapper  {
             name: campusMapLocation.name,
             abbreviation: campusMapLocation.abbrev,
             geoLocation: createGeoLocation(campusMapLocation.latitude,
-                    campusMapLocation.longitude),
+                                            campusMapLocation.longitude),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -152,8 +152,8 @@ class LocationMapper  {
             null
         } else {
             new GeoLocation(
-                    lat: convertStringToDouble(latitude),
-                    lon: convertStringToDouble(longitude)
+                lat: convertStringToDouble(latitude),
+                lon: convertStringToDouble(longitude)
             )
         }
     }
