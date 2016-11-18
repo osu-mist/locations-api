@@ -31,10 +31,8 @@ class LocationMapper  {
         Attributes attributes = new Attributes(
             name: campusMapLocation.name,
             abbreviation: campusMapLocation.abbrev,
-            geoLocation: new GeoLocation(
-                lat: convertStringToDouble(campusMapLocation.latitude),
-                lon: convertStringToDouble(campusMapLocation.longitude)
-            ),
+            geoLocation: createGeoLocation(campusMapLocation.latitude,
+                    campusMapLocation.longitude),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -53,10 +51,8 @@ class LocationMapper  {
     public ResourceObject map(DiningLocation diningLocation) {
         Attributes attributes = new Attributes(
             name: diningLocation.conceptTitle,
-            geoLocation: new GeoLocation(
-                lat: convertStringToDouble(diningLocation.latitude),
-                lon: convertStringToDouble(diningLocation.longitude)
-            ),
+            geoLocation: createGeoLocation(diningLocation.latitude,
+                                            diningLocation.longitude),
             summary: "Zone: ${diningLocation.zone}", //@todo: move it somewhere else? call it something else?
             type: TYPE_DINING,
             campus: CAMPUS_CORVALLIS,
@@ -70,10 +66,8 @@ class LocationMapper  {
     public ResourceObject map(ExtensionLocation extensionLocation) {
         Attributes attributes = new Attributes(
             name: extensionLocation.groupName,
-            geoLocation: new GeoLocation(
-                lat: convertStringToDouble(extensionLocation.latitude),
-                lon: convertStringToDouble(extensionLocation.longitude)
-            ),
+            geoLocation: createGeoLocation(extensionLocation.latitude,
+                                           extensionLocation.longitude),
             address: extensionLocation.streetAddress,
             city: extensionLocation.city,
             state: extensionLocation.state,
@@ -94,10 +88,8 @@ class LocationMapper  {
         Attributes attributes = new Attributes(
                 name: arcGisLocation.bldNam,
                 abbreviation: arcGisLocation.bldNamAbr,
-                geoLocation: new GeoLocation(
-                    lat: convertStringToDouble(arcGisLocation.latitude),
-                    lon: convertStringToDouble(arcGisLocation.longitude)
-                ),
+                geoLocation: createGeoLocation(arcGisLocation.latitude,
+                                               arcGisLocation.longitude),
                 type: TYPE_BUILDING,
                 campus: CAMPUS_CORVALLIS,
         )
@@ -147,6 +139,23 @@ class LocationMapper  {
         def resourceObject = new ResourceObject(id: id, type: "locations", attributes: attributes)
         setLinks(resourceObject)
         resourceObject
+    }
+
+    /**
+     *  Create a GeoLocation object for Attributes
+     * @param latitude
+     * @param longitude
+     * @return
+     */
+    private GeoLocation createGeoLocation(String latitude, String longitude) {
+        if (convertStringToDouble(latitude) == null || convertStringToDouble(longitude) == null){
+            null
+        } else {
+            new GeoLocation(
+                    lat: convertStringToDouble(latitude),
+                    lon: convertStringToDouble(longitude)
+            )
+        }
     }
 
     /**

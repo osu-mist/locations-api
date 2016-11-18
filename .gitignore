@@ -26,3 +26,4 @@ cache/
 
 # locations campusmap
 locations-campusmap.json
+locations-*.json
