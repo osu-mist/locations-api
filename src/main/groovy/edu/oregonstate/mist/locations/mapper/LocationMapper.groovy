@@ -6,6 +6,7 @@ import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
+import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 
 import java.nio.charset.StandardCharsets
@@ -30,8 +31,10 @@ class LocationMapper  {
         Attributes attributes = new Attributes(
             name: campusMapLocation.name,
             abbreviation: campusMapLocation.abbrev,
-            latitude: campusMapLocation.latitude,
-            longitude: campusMapLocation.longitude,
+            geoLocation: new GeoLocation(
+                lat: convertStringToDouble(campusMapLocation.latitude),
+                lon: convertStringToDouble(campusMapLocation.longitude)
+            ),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -50,8 +53,10 @@ class LocationMapper  {
     public ResourceObject map(DiningLocation diningLocation) {
         Attributes attributes = new Attributes(
             name: diningLocation.conceptTitle,
-            latitude: diningLocation.latitude,
-            longitude: diningLocation.longitude,
+            geoLocation: new GeoLocation(
+                lat: convertStringToDouble(diningLocation.latitude),
+                lon: convertStringToDouble(diningLocation.longitude)
+            ),
             summary: "Zone: ${diningLocation.zone}", //@todo: move it somewhere else? call it something else?
             type: TYPE_DINING,
             campus: CAMPUS_CORVALLIS,
@@ -65,8 +70,10 @@ class LocationMapper  {
     public ResourceObject map(ExtensionLocation extensionLocation) {
         Attributes attributes = new Attributes(
             name: extensionLocation.groupName,
-            latitude: extensionLocation.latitude,
-            longitude: extensionLocation.longitude,
+            geoLocation: new GeoLocation(
+                lat: convertStringToDouble(extensionLocation.latitude),
+                lon: convertStringToDouble(extensionLocation.longitude)
+            ),
             address: extensionLocation.streetAddress,
             city: extensionLocation.city,
             state: extensionLocation.state,
@@ -87,8 +94,10 @@ class LocationMapper  {
         Attributes attributes = new Attributes(
                 name: arcGisLocation.bldNam,
                 abbreviation: arcGisLocation.bldNamAbr,
-                latitude: arcGisLocation.latitude,
-                longitude: arcGisLocation.longitude,
+                geoLocation: new GeoLocation(
+                    lat: convertStringToDouble(arcGisLocation.latitude),
+                    lon: convertStringToDouble(arcGisLocation.longitude)
+                ),
                 type: TYPE_BUILDING,
                 campus: CAMPUS_CORVALLIS,
         )
@@ -138,5 +147,18 @@ class LocationMapper  {
         def resourceObject = new ResourceObject(id: id, type: "locations", attributes: attributes)
         setLinks(resourceObject)
         resourceObject
+    }
+
+    /**
+     * Convert latitude and longitude into decimal
+     * @param doubleString
+     * @return
+     */
+    private Double convertStringToDouble(String doubleString) {
+        if (doubleString != null) {
+            Double.parseDouble(doubleString)
+        } else {
+            null
+        }
     }
 }

@@ -3,8 +3,7 @@ package edu.oregonstate.mist.locations.core
 class Attributes {
     String name
     String abbreviation
-    String latitude
-    String longitude
+    GeoLocation geoLocation
     String summary
     String description
     String address
