@@ -1,0 +1,19 @@
+{
+  "template": "locations",
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "locations": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "geoLocation": {
+              "type": "geo_point"
+            }
+          }
+        }
+      }
+    }
+  }
+}
