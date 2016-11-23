@@ -10,7 +10,102 @@
           "properties": {
             "geoLocation": {
               "type": "geo_point"
-            }
+            },
+            "openHours": {
+                "properties": {
+                  "1": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "2": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "3": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "4": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "5": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "6": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  },
+                  "7": {
+                    "type": "nested",
+                    "properties": {
+                      "end": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      },
+                      "start": {
+                        "type": "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                      }
+                    }
+                  }
+                }
+              }
           }
         }
       }
