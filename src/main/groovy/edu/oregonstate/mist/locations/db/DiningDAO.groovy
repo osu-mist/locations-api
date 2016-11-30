@@ -109,7 +109,7 @@ public class DiningDAO {
 
             eventsToday.each { // put break right here
                 if (!isEventExcluded(it)) { // today was excluded from event recursive rule
-                    addEventToToday(it, dayOpenHours)
+                    addEventToToday(it, singleDay.toDateTime(), dayOpenHours)
                 }
             } // iterate over today's events
 
@@ -137,16 +137,17 @@ public class DiningDAO {
         false
     }
 
-    private static void addEventToToday(def event, ArrayList<DayOpenHours> dayOpenHours) {
-        def dtStart = event.getProperties().getProperty(Property.DTSTART)
-        def dtEnd = event.getProperties().getProperty(Property.DTEND)
+    private static void addEventToToday(def event, DateTime singleDay, ArrayList<DayOpenHours> dayOpenHours) {
+        DateTime dtStart = new DateTime(event.getProperties().getProperty(Property.DTSTART).date)
+        DateTime dtEnd = new DateTime(event.getProperties().getProperty(Property.DTEND).date)
+
         def sequence = event.getProperties().getProperty(Property.SEQUENCE)
         def uid = event.getProperties().getProperty(Property.UID)
 
         // Json annotation in POGO handles utc storage
         DayOpenHours eventHours = new DayOpenHours(
-                start: dtStart.date,
-                end: dtEnd.date,
+                start: combineEventHours(singleDay, dtStart),
+                end: combineEventHours(singleDay, dtEnd),
                 sequence: sequence.sequenceNo,
                 uid  : uid.value
         )
@@ -164,5 +165,18 @@ public class DiningDAO {
         }
 
         dayOpenHours.add(eventHours)
+    }
+
+    /**
+     *
+     * @param currDate
+     * @param eventHour
+     * @return
+     */
+    private static Date combineEventHours(DateTime currDate, DateTime icalHour) {
+        DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
+                icalHour.getHourOfDay(), icalHour.getMinuteOfHour(), icalHour.getSecondOfMinute(), icalHour.getZone())
+
+        eventHour.toDate()
     }
 }
