@@ -169,10 +169,10 @@ public class DiningDAO {
     }
 
     /**
-     *
+     * Use date for current week and the time from the ical to generate the up-to-date eventHour
      * @param currDate
-     * @param eventHour
-     * @return
+     * @param icalHour
+     * @return eventHour
      */
     private static Date combineEventHours(DateTime currDate, DateTime icalHour) {
         DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
