@@ -13,6 +13,7 @@ import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
+import net.fortuna.ical4j.model.TimeZone
 import net.fortuna.ical4j.model.property.ExDate
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
@@ -176,6 +177,11 @@ public class DiningDAO {
     private static Date combineEventHours(DateTime currDate, DateTime icalHour) {
         DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
                 icalHour.getHourOfDay(), icalHour.getMinuteOfHour(), icalHour.getSecondOfMinute(), icalHour.getZone())
+
+        // change 00:00 to 23:59:59
+        if (eventHour.getHourOfDay() == 0 && eventHour.getMinuteOfHour() == 0) {
+            eventHour = eventHour.minusSeconds(1)
+        }
 
         eventHour.toDate()
     }
