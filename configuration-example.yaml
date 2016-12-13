@@ -47,10 +47,10 @@ locations:
   uhdsUrl: http://example.com/path-to-json-file.json
   icalUrl: https://www.google.com/calendar/ical/calendar-id%40group.calendar.google.com/public/basic.ics
   diningJsonOut: change-me.json
-  icalOut: dining-changeme.ical
   cacheDirectory: cache
   campusmapUrl: http://campusmap.example.com?id=
   campusmapImageUrl: http://campusmap.example.com/images/
+  campusmapJsonOut: campusmap.json
   extensionUrl: http://example.com/extension_locations.xml
   extensionXmlOut: extension-locations.xml
   apiEndpointUrl: https://api.example.com/v1/
@@ -61,7 +61,7 @@ database:
   driverClass: com.mysql.jdbc.Driver
   user: secret
   password: sauce
-  url: jdbc:mysql://example.com:1234/dbname?useUnicode=true&amp;characterEncoding=UTF-8
+  url: jdbc:mysql://example.com:1234/dbname?useUnicode=true&characterEncoding=UTF-8
   initialSize: 2
   minSize: 1
   maxSize: 4

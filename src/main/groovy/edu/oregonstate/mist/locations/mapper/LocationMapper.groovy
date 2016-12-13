@@ -85,12 +85,12 @@ class LocationMapper  {
 
     public ResourceObject map(ArcGisLocation arcGisLocation) {
         Attributes attributes = new Attributes(
-                name: arcGisLocation.bldNam,
-                abbreviation: arcGisLocation.bldNamAbr,
-                latitude: arcGisLocation.latitude,
-                longitude: arcGisLocation.longitude,
-                type: TYPE_BUILDING,
-                campus: CAMPUS_CORVALLIS,
+            name: arcGisLocation.bldNam,
+            abbreviation: arcGisLocation.bldNamAbr,
+            latitude: arcGisLocation.latitude,
+            longitude: arcGisLocation.longitude,
+            type: TYPE_BUILDING,
+            campus: CAMPUS_CORVALLIS,
         )
 
         def id = LocationUtil.getMD5Hash(ARCGIS + arcGisLocation.bldID)

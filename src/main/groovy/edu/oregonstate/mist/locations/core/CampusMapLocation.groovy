@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.locations.core
 
+@groovy.transform.EqualsAndHashCode
 class CampusMapLocation {
     Integer id
     String name
