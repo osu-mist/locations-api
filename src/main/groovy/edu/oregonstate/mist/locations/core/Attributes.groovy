@@ -15,8 +15,8 @@ class Attributes {
     String county
     String telephone
     String fax
-    List<String> thumbnails
-    List<String> images
+    List<String> thumbnails = []
+    List<String> images = []
     List<String> departments
     String website
     Integer sqft
