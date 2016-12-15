@@ -25,5 +25,5 @@ bin/
 cache/
 
 # locations campusmap
-locations-campusmap.json
+campusmap.json
 locations-*.json
