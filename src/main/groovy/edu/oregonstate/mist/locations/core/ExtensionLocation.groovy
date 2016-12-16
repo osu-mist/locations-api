@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.core
 
 import edu.oregonstate.mist.locations.LocationUtil
 
+@groovy.transform.EqualsAndHashCode
 class ExtensionLocation {
     private static final int LATITUDE_INDEX = 1
     private static final int LONGITUDE_INDEX = 0

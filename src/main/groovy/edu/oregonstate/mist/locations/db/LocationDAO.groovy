@@ -9,18 +9,17 @@ import edu.oregonstate.mist.locations.mapper.LocationMapper
 
 class LocationDAO {
     private final LocationMapper locationMapper
-    private final Map<String, String> locationConfiguration
     private ObjectMapper mapper
+    private File mapJsonFile
 
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
-        this.locationConfiguration = locationConfiguration
-
         locationMapper = new LocationMapper(
                 campusmapUrl: locationConfiguration.get("campusmapUrl"),
                 campusmapImageUrl: locationConfiguration.get("campusmapImageUrl"),
                 apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
+        mapJsonFile = new File(locationConfiguration.get("campusmapJsonOut"))
     }
 
     /**
@@ -30,10 +29,10 @@ class LocationDAO {
      */
     public List<CampusMapLocation> getCampusMapFromJson() {
         try {
-            def mapData = getMapJsonFile().getText()
+            def mapData = mapJsonFile.getText()
             mapper.readValue(mapData, new TypeReference<List<CampusMapLocation>>() {})
-        } catch(Exception e) {
-            println e
+        } catch (FileNotFoundException) {
+            null
         }
     }
 
@@ -44,24 +43,17 @@ class LocationDAO {
      * @return
      */
     public writeMapToJson(List<CampusMapLocation> campusMapLocations) {
-        def jsonESInput = getMapJsonFile()
+        def jsonESInput = mapJsonFile
         def jsonStringList = campusMapLocations.collect { mapper.writeValueAsString(it) }
 
         jsonESInput.write("[" +  jsonStringList.join(",") + "]")
     }
 
     /**
-     * Gets map json filename from configuration and returns file object
-     *
-     * @return
-     */
-    private File getMapJsonFile() {
-        new File(locationConfiguration.get("campusmapJsonOut"))
-    }
-
-    /**
-     * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data. If a
-     * building is in the map data, but not in arcgis it is not returned.
+     * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data.
+     * If a building is in the map data, but not in arcgis it is not returned.
+     * Two buildings are considered the same if the abbrev field of the
+     * CampusMapLocation matches the bldNamAbr field of the ArcGisLocation.
      *
      * @param arcGisLocations
      * @param campusMapLocationList
