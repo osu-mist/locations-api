@@ -147,27 +147,12 @@ class LocationMapper  {
      * @param longitude
      * @return
      */
-    private GeoLocation createGeoLocation(String latitude, String longitude) {
-        if (convertStringToDouble(latitude) == null || convertStringToDouble(longitude) == null){
-            null
-        } else {
-            new GeoLocation(
-                lat: convertStringToDouble(latitude),
-                lon: convertStringToDouble(longitude)
+    private static GeoLocation createGeoLocation(String latitude, String longitude) {
+        if (latitude != null && longitude != null && latitude.isDouble() && longitude.isDouble()){
+            return new GeoLocation(
+                    lat: latitude as Double,
+                    lon: longitude as Double
             )
-        }
-    }
-
-    /**
-     * Convert latitude and longitude into decimal
-     * @param doubleString
-     * @return
-     */
-    private Double convertStringToDouble(String doubleString) {
-        if (doubleString != null) {
-            Double.parseDouble(doubleString)
-        } else {
-            null
         }
     }
 }
