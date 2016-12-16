@@ -13,14 +13,24 @@ class LocationConfiguration extends Configuration {
     @NotNull
     @Valid
     List<Credentials> credentialsList
-
-    @Valid
-    @NotNull
-    @JsonProperty("database")
-    DataSourceFactory database = new DataSourceFactory()
+//
+//    @Valid
+//    @NotNull
+//    @JsonProperty("database")
+//    DataSourceFactory database = new DataSourceFactory()
 
     @JsonProperty('locations')
     @NotNull
     @Valid
     Map<String, String> locationsConfiguration
+
+//    @JsonProperty("database")
+//    public DataSourceFactory getDataSourceFactory() {
+//        database
+//    }
+//
+//    @JsonProperty("database")
+//    public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
+//        this.database = dataSourceFactory
+//    }
 }
