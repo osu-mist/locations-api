@@ -54,6 +54,7 @@ class DiningDAOTest {
         assert invalidDiningCount <= MAXIMUM_NUMBER_OF_INVALID_LOCATIONS
     }
 
+/*
     @Test
     public void testOpenHoursUTC() {
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
@@ -73,6 +74,7 @@ class DiningDAOTest {
         assert endJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
         assert startJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
     }
+*/
 
     private static boolean isValidDining(DiningLocation diningLocation) {
         diningLocation.with {
