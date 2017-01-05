@@ -108,33 +108,12 @@ public class DiningDAO {
             List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
             eventsToday.each { // put break right here
-                if (!isEventExcluded(it)) { // today was excluded from event recursive rule
-                    addEventToToday(it, dayOpenHours)
-                }
+                addEventToToday(it, dayOpenHours)
             } // iterate over today's events
 
             weekOpenHours.put(singleDay.dayOfWeek, dayOpenHours)
         } // iterate over weekday
         weekOpenHours
-    }
-
-    /**
-     * Checks to see if the event's recurrence was excluded using EXDATE.
-     *
-     * @param event
-     * @return
-     */
-    private static boolean isEventExcluded(def event) {
-        PropertyList exDates = event.getProperties(Property.EXDATE)
-        exDates.each { ex ->
-            ((ExDate) ex).dates.each { oneExDate ->
-                if (new DateTime(oneExDate).toLocalDate().equals(new LocalDate())) {
-                    return true
-                }
-            }
-        }
-
-        false
     }
 
     private static void addEventToToday(def event, ArrayList<DayOpenHours> dayOpenHours) {
