@@ -99,7 +99,7 @@ public class DiningDAO {
 
         (0..6).each { // iterate over a week to find out next 7 days of open hours
             def singleDay = today.plusDays(it)
-            def dayOpenHours = new ArrayList<DayOpenHours>()
+            def dayOpenHoursList = new ArrayList<DayOpenHours>()
 
             // filter out so that only events for the current day are retrieved
             def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
@@ -108,40 +108,76 @@ public class DiningDAO {
             List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
             eventsToday.each { // put break right here
-                addEventToToday(it, dayOpenHours)
+                addEventToToday(it, dayOpenHoursList)
             } // iterate over today's events
 
-            weekOpenHours.put(singleDay.dayOfWeek, dayOpenHours)
+            weekOpenHours.put(singleDay.dayOfWeek, dayOpenHoursList)
         } // iterate over weekday
         weekOpenHours
     }
 
-    private static void addEventToToday(def event, ArrayList<DayOpenHours> dayOpenHours) {
-        def dtStart = event.getProperties().getProperty(Property.DTSTART)
-        def dtEnd = event.getProperties().getProperty(Property.DTEND)
-        def sequence = event.getProperties().getProperty(Property.SEQUENCE)
-        def uid = event.getProperties().getProperty(Property.UID)
+    private static void addEventToToday(def event, ArrayList<DayOpenHours> dayOpenHoursList) {
+        def dtStart = event.getStartDate()
+        def dtEnd = event.getEndDate()
+        def sequence = event.getSequence()
+        def uid = event.getUid()
+        def recurrenceId = event.getRecurrenceId()
+        def lastModified = event.getLastModified()
 
         // Json annotation in POGO handles utc storage
         DayOpenHours eventHours = new DayOpenHours(
                 start: dtStart.date,
                 end: dtEnd.date,
-                sequence: sequence.sequenceNo,
-                uid  : uid.value
+                uid: uid.value,
+                sequence: sequence?.sequenceNo,
+                recurrenceId: recurrenceId?.value,
+                lastModified: lastModified.date,
         )
 
-        def existingUIDEventKey = dayOpenHours.findIndexOf { openHour ->
+        def existingUIDEventKey = dayOpenHoursList.findIndexOf { openHour ->
             openHour.uid == uid.value
         }
 
         if (existingUIDEventKey != -1) {
-            if (dayOpenHours.get(existingUIDEventKey).sequence > eventHours.sequence) {
-                return // existing event in the dayOpenHours takes precedence
+            DayOpenHours existingEventHours = dayOpenHoursList.get(existingUIDEventKey)
+            if (supersedesEvent(eventHours, existingEventHours)) {
+                // removing previous event since new event overwrites it
+                dayOpenHoursList.remove(existingUIDEventKey)
             } else {
-                dayOpenHours.remove(existingUIDEventKey) // removing previous event since new event overwrites it
+                // existing event in the dayOpenHours list takes precedence
+                return
             }
         }
 
-        dayOpenHours.add(eventHours)
+        dayOpenHoursList.add(eventHours)
+    }
+
+    /**
+     * Reports whether event x should supersede event y with the same uid.
+     */
+    private static boolean supersedesEvent(DayOpenHours x, DayOpenHours y) {
+        // Sanity check: the two events must have the same uid
+        if (x.uid != y.uid) {
+            LOGGER.log("attempted to check whether two events with different uids conflict")
+            return false
+        }
+
+        // Prefer an instance of a recurring event over the
+        // definition of the recurring event
+        // (that is, prefer an event with a RECURRENCE-ID over one without)
+        if (x.recurrenceId != null && y.recurrenceId == null) {
+            return true
+        }
+        if (x.recurrenceId == null && y.recurrenceId != null) {
+            return false
+        }
+
+        // Prefer an event with a higher sequence number
+        if (x.sequence != y.sequence) {
+            return x.sequence > y.sequence
+        }
+
+        // Last resort: prefer the event that has been modified most recently
+        return !x.lastModified.before(y.lastModified)
     }
 }
