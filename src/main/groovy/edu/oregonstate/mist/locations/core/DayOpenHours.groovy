@@ -23,4 +23,10 @@ class DayOpenHours {
 
     @JsonIgnore
     Integer sequence
+
+    @JsonIgnore
+    String recurrenceId
+
+    @JsonIgnore
+    Date lastModified
 }
