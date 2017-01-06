@@ -8,12 +8,12 @@ import edu.oregonstate.mist.locations.core.DayOpenHours
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.filter.Filter
 import net.fortuna.ical4j.filter.PeriodRule
+import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.PropertyList
-import net.fortuna.ical4j.model.property.ExDate
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.slf4j.Logger
@@ -91,11 +91,11 @@ public class DiningDAO {
         // setup ical4j calendar and parse it
         CalendarBuilder builder = new CalendarBuilder()
         def stream = new ByteArrayInputStream(icalData.getBytes())
-        net.fortuna.ical4j.model.Calendar calendar = builder.build(stream)
+        Calendar calendar = builder.build(stream)
 
         // setup jodatime varaibles
         Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
-        DateTime today = new DateTime().withTimeAtStartOfDay()
+        DateTime today = new DateTime().withTimeAtStartOfDay().plusSeconds(1)
 
         (0..6).each { // iterate over a week to find out next 7 days of open hours
             def singleDay = today.plusDays(it)
@@ -103,7 +103,7 @@ public class DiningDAO {
 
             // filter out so that only events for the current day are retrieved
             def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
-            Period period = new Period(ical4jToday, new Dur(1, 0, 0, 0))
+            Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
             Filter filter = new Filter(new PeriodRule(period))
             List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
