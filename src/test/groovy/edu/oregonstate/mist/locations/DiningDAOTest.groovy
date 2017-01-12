@@ -20,7 +20,7 @@ class DiningDAOTest {
     private static List<DiningLocation> diningLocations
     private static def VALID_DAY_RANGE = 1..7
     private static int MINIMUM_NUMBER_OF_VALID_DAYS = 3
-    private static int MAXIMUM_NUMBER_OF_INVALID_LOCATIONS = 1
+    private static int MAXIMUM_NUMBER_OF_INVALID_LOCATIONS = 2
 
     @ClassRule
     public static final DropwizardAppRule<LocationConfiguration> APPLICATION =
