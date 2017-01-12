@@ -35,51 +35,53 @@ class DiningDAOTest {
         diningLocations = diningDAO.getDiningLocations()
     }
 
-//    @Test
-//    public void testGetDiningLocations() {
-//        assert !diningLocations.isEmpty()
-//        int invalidDiningCount = 0
-//
-//        diningLocations.each {
-//            if (isValidDining(it)) {
-//                if (!hasValidOpenHours(it)) {
-//                    invalidDiningCount++
-//                }
-//            } else {
-//                invalidDiningCount++
-//            }
-//        }
-//
-//        LOGGER.error("invalid dining locations: ${invalidDiningCount}")
-//        assert invalidDiningCount <= MAXIMUM_NUMBER_OF_INVALID_LOCATIONS
-//    }
+    @Test
+    public void testGetDiningLocations() {
+        assert !diningLocations.isEmpty()
+        int invalidDiningCount = 0
 
-//    @Test
-//    public void testOpenHoursUTC() {
-//        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
-//        assert !diningLocations.isEmpty()
-//
-//        int testDiningLocationIndex = diningLocations.findIndexOf { hasValidOpenHours(it) }
-//        DiningLocation diningLocation = diningLocations.get(testDiningLocationIndex)
-//
-//        LOGGER.error("diningLocation: ${diningLocation.conceptTitle}")
-//        List<DayOpenHours> dayOpenHours = diningLocation?.openHours?.find { it.value } ?.value
-//
-//        JsonNode node = mapper.valueToTree(dayOpenHours.get(0))
-//
-//        String startJSONText = node.get("start").asText()
-//        String endJSONText = node.get("end").asText()
-//
-//        assert endJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
-//        assert startJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
-//    }
-//
-//    private static boolean isValidDining(DiningLocation diningLocation) {
-//        diningLocation.with {
-//            conceptTitle && zone && calendarId && latitude && longitude &&
-//             latitude.matches(LocationUtil.VALID_LAT_LONG) && longitude.matches(LocationUtil.VALID_LAT_LONG)
-//        }
-//    }
+        diningLocations.each {
+            if (isValidDining(it)) {
+                if (!hasValidOpenHours(it)) {
+                    invalidDiningCount++
+                }
+            } else {
+                invalidDiningCount++
+            }
+        }
+
+        LOGGER.info("invalid dining locations: ${invalidDiningCount}")
+        assert invalidDiningCount <= MAXIMUM_NUMBER_OF_INVALID_LOCATIONS
+    }
+
+    @Test
+    public void testOpenHoursUTC() {
+        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+        assert !diningLocations.isEmpty()
+
+        int testDiningLocationIndex = diningLocations.findIndexOf { hasValidOpenHours(it) }
+        DiningLocation diningLocation = diningLocations.get(testDiningLocationIndex)
+
+        println diningLocation
+
+        LOGGER.info("diningLocation: ${diningLocation.conceptTitle}")
+        List<DayOpenHours> dayOpenHours = diningLocation?.openHours?.find { it.value } ?.value
+
+        JsonNode node = mapper.valueToTree(dayOpenHours.get(0))
+
+        String startJSONText = node.get("start").asText()
+        String endJSONText = node.get("end").asText()
+
+        assert endJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
+        assert startJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
+    }
+
+    private static boolean isValidDining(DiningLocation diningLocation) {
+        diningLocation.with {
+            conceptTitle && zone && calendarId && latitude && longitude &&
+             latitude.matches(LocationUtil.VALID_LAT_LONG) && longitude.matches(LocationUtil.VALID_LAT_LONG)
+        }
+    }
 
     /**
      * Checks the validity of the openHours in a dining location. Along the properties it
@@ -104,6 +106,6 @@ class DiningDAOTest {
         }
 
         LOGGER.error("${diningLocation.conceptTitle} - invalidDays: ${invalidDays} - emptyOpenHours: ${emptyOpenHours}")
-        invalidDays > MINIMUM_NUMBER_OF_VALID_DAYS || !emptyOpenHours
+        !emptyOpenHours && (7 - invalidDays) >= MINIMUM_NUMBER_OF_VALID_DAYS
     }
 }
