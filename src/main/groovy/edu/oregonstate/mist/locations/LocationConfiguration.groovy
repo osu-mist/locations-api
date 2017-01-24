@@ -24,7 +24,6 @@ class LocationConfiguration extends Configuration {
     @Valid
     Map<String, String> locationsConfiguration
 
-
 //    @JsonProperty("database")
 //    public DataSourceFactory getDataSourceFactory() {
 //        database

@@ -8,15 +8,12 @@ import edu.oregonstate.mist.locations.core.DayOpenHours
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.filter.Filter
 import net.fortuna.ical4j.filter.PeriodRule
+import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
 import net.fortuna.ical4j.model.Property
-import net.fortuna.ical4j.model.PropertyList
-import net.fortuna.ical4j.model.TimeZone
-import net.fortuna.ical4j.model.property.ExDate
 import org.joda.time.DateTime
-import org.joda.time.LocalDate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -25,6 +22,7 @@ import org.slf4j.LoggerFactory
  */
 public class DiningDAO {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiningDAO.class)
+    private static final ObjectMapper MAPPER = new ObjectMapper()
 
     /**
      * Url of Dining API. JSON formatted content that includes lat/long,
@@ -54,8 +52,7 @@ public class DiningDAO {
     List<DiningLocation> getDiningLocations() {
         String diningData = getDiningLocationList()
 
-        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
-        List<DiningLocation> diners = mapper.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
+        List<DiningLocation> diners = MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
         diners.unique(true) // the json datasource lists the location multiple time if it's open twice a day
 
         diners.each {
@@ -68,7 +65,7 @@ public class DiningDAO {
         }
         //@todo: how to deal with html in title?
 
-        //@todo: need a flag to know if it's the first time in the day taht we have flagged
+        //@todo: need a flag to know if it's the first time in the day that we have flagged
 
         diners
     }
@@ -79,12 +76,13 @@ public class DiningDAO {
     }
 
     /**
-     * Gets the list of dining locations from UHDS. Tries to get the data from the web, if it fails
+     * Gets the list of dining locations from UHDS.
+     * Tries to get the data from the web, if it fails
      * it reads it from the cache.
      *
      * @return String json format of dining locations
      */
-    private String getDiningLocationList() throws Exception{
+    private String getDiningLocationList() throws Exception {
         locationUtil.getDataFromUrlOrCache(uhdsURL, diningJsonOut)
     }
 
@@ -92,50 +90,94 @@ public class DiningDAO {
         // setup ical4j calendar and parse it
         CalendarBuilder builder = new CalendarBuilder()
         def stream = new ByteArrayInputStream(icalData.getBytes())
-        net.fortuna.ical4j.model.Calendar calendar = builder.build(stream)
+        Calendar calendar = builder.build(stream)
 
         // setup jodatime varaibles
         Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
-        DateTime today = new DateTime().withTimeAtStartOfDay()
+        DateTime today = new DateTime()
 
-        (0..6).each { // iterate over a week to find out next 7 days of open hours
-            def singleDay = today.plusDays(it)
-            def dayOpenHours = new ArrayList<DayOpenHours>()
 
-            // filter out so that only events for the current day are retrieved
-            def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
-            Period period = new Period(ical4jToday, new Dur(1, 0, 0, 0))
-            Filter filter = new Filter(new PeriodRule(period))
-            List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
+//        (0..6).each { // iterate over a week to find out next 7 days of open hours
+//            def singleDay = today.plusDays(it)
+//            def dayOpenHours = new ArrayList<DayOpenHours>()
+//
+//            // filter out so that only events for the current day are retrieved
+//            def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
+//            Period period = new Period(ical4jToday, new Dur(1, 0, 0, 0))
+//            Filter filter = new Filter(new PeriodRule(period))
+//            List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
+//
+//            eventsToday.each { // put break right here
+//                if (!isEventExcluded(it)) { // today was excluded from event recursive rule
+//                    addEventToToday(it, singleDay.toDateTime(), dayOpenHours)
+//                }
+//            } // iterate over today's events
 
-            eventsToday.each { // put break right here
-                if (!isEventExcluded(it)) { // today was excluded from event recursive rule
-                    addEventToToday(it, singleDay.toDateTime(), dayOpenHours)
+//         iterate over a week to find out next 7 days of open hours
+                (0..6).each { days ->
+                    def singleDay = today.plusDays(days)
+                    def events = getEventsForDay(calendar, singleDay)
+                    weekOpenHours.put(singleDay.dayOfWeek, events)
                 }
-            } // iterate over today's events
 
-            weekOpenHours.put(singleDay.dayOfWeek, dayOpenHours)
-        } // iterate over weekday
         weekOpenHours
     }
 
     /**
-     * Checks to see if the event's recurrence was excluded using EXDATE.
-     *
-     * @param event
-     * @return
+     * GetEventsForDay filters the events in a Calendar to those on a given
+     * day. This method is public for testing purposes only.
      */
-    private static boolean isEventExcluded(def event) {
-        PropertyList exDates = event.getProperties(Property.EXDATE)
-        exDates.each { ex ->
-            ((ExDate) ex).dates.each { oneExDate ->
-                if (new DateTime(oneExDate).toLocalDate().equals(new LocalDate())) {
-                    return true
+    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime date) {
+        def dayOpenHoursList = new ArrayList<DayOpenHours>()
+
+        // filter out so that only events for the current day are retrieved
+        date = date.withTimeAtStartOfDay().plusSeconds(1)
+        def ical4jToday = new net.fortuna.ical4j.model.DateTime(date.toDate())
+        Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
+        Filter filter = new Filter(new PeriodRule(period))
+        List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
+
+        eventsToday.each { event ->
+            def dtStart = event.getStartDate()
+            def dtEnd = event.getEndDate()
+            def sequence = event.getSequence()
+            def uid = event.getUid()
+            def recurrenceId = event.getRecurrenceId()
+            def lastModified = event.getLastModified()
+
+            // Json annotation in POGO handles utc storage
+            DayOpenHours eventHours = new DayOpenHours(
+                start: dtStart.date,
+                end: dtEnd.date,
+                uid: uid.value,
+                sequence: sequence?.sequenceNo,
+                recurrenceId: recurrenceId?.value,
+                lastModified: lastModified.date,
+            )
+
+            // Add event to the list, or not, depending on whether it conflicts
+            // with the UID of another event
+
+            def existingUIDEventKey = dayOpenHoursList.findIndexOf { openHour ->
+                openHour.uid == uid.value
+            }
+
+            if (existingUIDEventKey != -1) {
+                DayOpenHours existingEventHours = dayOpenHoursList.get(existingUIDEventKey)
+                if (supersedesEvent(eventHours, existingEventHours)) {
+                    // removing previous event since new event overwrites it
+                    dayOpenHoursList.remove(existingUIDEventKey)
+                    dayOpenHoursList.add(eventHours)
+                } else {
+                    // existing event in the dayOpenHours list takes precedence;
+                    // do nothing
                 }
+            } else {
+                dayOpenHoursList.add(eventHours)
             }
         }
 
-        false
+        dayOpenHoursList
     }
 
     private static void addEventToToday(def event, DateTime singleDay, ArrayList<DayOpenHours> dayOpenHours) {
@@ -150,22 +192,38 @@ public class DiningDAO {
                 start: combineEventHours(singleDay, dtStart),
                 end: combineEventHours(singleDay, dtEnd),
                 sequence: sequence.sequenceNo,
-                uid  : uid.value
+                uid: uid.value
         )
+    }
 
-        def existingUIDEventKey = dayOpenHours.findIndexOf { openHour ->
-            openHour.uid == uid.value
+    /**
+     * Reports whether event x should supersede event y with the same uid.
+     */
+    private static boolean supersedesEvent(DayOpenHours x, DayOpenHours y) {
+        // Sanity check: the two events must have the same uid
+        if (x.uid != y.uid) {
+            LOGGER.log("attempted to check whether two events with different uids conflict")
+            return false
         }
 
-        if (existingUIDEventKey != -1) {
-            if (dayOpenHours.get(existingUIDEventKey).sequence > eventHours.sequence) {
-                return // existing event in the dayOpenHours takes precedence
-            } else {
-                dayOpenHours.remove(existingUIDEventKey) // removing previous event since new event overwrites it
-            }
+
+        // Prefer an instance of a recurring event over the
+        // definition of the recurring event
+        // (that is, prefer an event with a RECURRENCE-ID over one without)
+        if (x.recurrenceId != null && y.recurrenceId == null) {
+            return true
+        }
+        if (x.recurrenceId == null && y.recurrenceId != null) {
+            return false
         }
 
-        dayOpenHours.add(eventHours)
+        // Prefer an event with a higher sequence number
+        if (x.sequence != y.sequence) {
+            return x.sequence > y.sequence
+        }
+
+        // Last resort: prefer the event that has been modified most recently
+        return !x.lastModified.before(y.lastModified)
     }
 
     /**
