@@ -96,28 +96,11 @@ public class DiningDAO {
         Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
         DateTime today = new DateTime()
 
-
-//        (0..6).each { // iterate over a week to find out next 7 days of open hours
-//            def singleDay = today.plusDays(it)
-//            def dayOpenHours = new ArrayList<DayOpenHours>()
-//
-//            // filter out so that only events for the current day are retrieved
-//            def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
-//            Period period = new Period(ical4jToday, new Dur(1, 0, 0, 0))
-//            Filter filter = new Filter(new PeriodRule(period))
-//            List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
-//
-//            eventsToday.each { // put break right here
-//                if (!isEventExcluded(it)) { // today was excluded from event recursive rule
-//                    addEventToToday(it, singleDay.toDateTime(), dayOpenHours)
-//                }
-//            } // iterate over today's events
-
-//         iterate over a week to find out next 7 days of open hours
+//        iterate over a week to find out next 7 days of open hours
                 (0..6).each { days ->
-                    def singleDay = today.plusDays(days)
-                    def events = getEventsForDay(calendar, singleDay)
-                    weekOpenHours.put(singleDay.dayOfWeek, events)
+                    def currentDay = today.plusDays(days)
+                    def events = getEventsForDay(calendar, currentDay)
+                    weekOpenHours.put(currentDay.dayOfWeek, events)
                 }
 
         weekOpenHours
@@ -127,19 +110,20 @@ public class DiningDAO {
      * GetEventsForDay filters the events in a Calendar to those on a given
      * day. This method is public for testing purposes only.
      */
-    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime date) {
+    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime currentDay) {
         def dayOpenHoursList = new ArrayList<DayOpenHours>()
 
         // filter out so that only events for the current day are retrieved
-        date = date.withTimeAtStartOfDay().plusSeconds(1)
-        def ical4jToday = new net.fortuna.ical4j.model.DateTime(date.toDate())
+        currentDay = currentDay.withTimeAtStartOfDay().plusSeconds(1)
+        def ical4jToday = new net.fortuna.ical4j.model.DateTime(currentDay.toDate())
         Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
         Filter filter = new Filter(new PeriodRule(period))
         List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
         eventsToday.each { event ->
-            def dtStart = event.getStartDate()
-            def dtEnd = event.getEndDate()
+
+            def dtStart = new DateTime(event.getStartDate().date)
+            def dtEnd = new DateTime(event.getEndDate().date)
             def sequence = event.getSequence()
             def uid = event.getUid()
             def recurrenceId = event.getRecurrenceId()
@@ -147,8 +131,8 @@ public class DiningDAO {
 
             // Json annotation in POGO handles utc storage
             DayOpenHours eventHours = new DayOpenHours(
-                start: dtStart.date,
-                end: dtEnd.date,
+                start: combineEventHours(currentDay, dtStart),
+                end: combineEventHours(currentDay, dtEnd),
                 uid: uid.value,
                 sequence: sequence?.sequenceNo,
                 recurrenceId: recurrenceId?.value,
@@ -178,22 +162,6 @@ public class DiningDAO {
         }
 
         dayOpenHoursList
-    }
-
-    private static void addEventToToday(def event, DateTime singleDay, ArrayList<DayOpenHours> dayOpenHours) {
-        DateTime dtStart = new DateTime(event.getProperties().getProperty(Property.DTSTART).date)
-        DateTime dtEnd = new DateTime(event.getProperties().getProperty(Property.DTEND).date)
-
-        def sequence = event.getProperties().getProperty(Property.SEQUENCE)
-        def uid = event.getProperties().getProperty(Property.UID)
-
-        // Json annotation in POGO handles utc storage
-        DayOpenHours eventHours = new DayOpenHours(
-                start: combineEventHours(singleDay, dtStart),
-                end: combineEventHours(singleDay, dtEnd),
-                sequence: sequence.sequenceNo,
-                uid: uid.value
-        )
     }
 
     /**
@@ -232,7 +200,7 @@ public class DiningDAO {
      * @param icalHour
      * @return eventHour
      */
-    private static Date combineEventHours(DateTime currDate, DateTime icalHour) {
+    public static Date combineEventHours(DateTime currDate, DateTime icalHour) {
         DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
                 icalHour.getHourOfDay(), icalHour.getMinuteOfHour(), icalHour.getSecondOfMinute(), icalHour.getZone())
 
