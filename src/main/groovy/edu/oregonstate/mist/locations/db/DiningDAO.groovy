@@ -14,6 +14,9 @@ import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
 import net.fortuna.ical4j.model.Property
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.Days
+import org.joda.time.Weeks
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -201,14 +204,18 @@ public class DiningDAO {
      * @return eventHour
      */
     public static Date combineEventHours(DateTime currDate, DateTime icalHour) {
+
         DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
-                icalHour.getHourOfDay(), icalHour.getMinuteOfHour(), icalHour.getSecondOfMinute(), icalHour.getZone())
+                                          icalHour.getHourOfDay(), icalHour.getMinuteOfHour(),
+                                          icalHour.getSecondOfMinute(), icalHour.getZone())
 
         // change 00:00 to 23:59:59
-        if (eventHour.getHourOfDay() == 0 && eventHour.getMinuteOfHour() == 0) {
-            eventHour = eventHour.minusSeconds(1)
+        if (eventHour.getHourOfDay() == 0 ) {
+            eventHour = eventHour.plusDays(1)
+            if (eventHour.getMinuteOfHour() == 0 ) {
+                eventHour = eventHour.minusSeconds(1)
+            }
         }
-
         eventHour.toDate()
     }
 }
