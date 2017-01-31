@@ -132,10 +132,8 @@ class DiningDAOTest {
         // Expected result?
         assert events == [
             new DayOpenHours(
-                start: diningDAO.combineEventHours(day, new DateTime(
-                        new net.fortuna.ical4j.model.DateTime("20170106T073000"))),
-                end:   diningDAO.combineEventHours(day, new DateTime(
-                        new net.fortuna.ical4j.model.DateTime("20170106T150000"))),
+                start: new net.fortuna.ical4j.model.DateTime("20170106T073000"),
+                end:  new net.fortuna.ical4j.model.DateTime("20170106T150000"),
                 uid: "jvspu68dcau21vdtpj49li6d1o@google.com",
                 sequence: 0,
                 recurrenceId: "20170106T073000",
@@ -156,10 +154,8 @@ class DiningDAOTest {
         assert events.size() == 1
         assert events == [
             new DayOpenHours(
-                start: diningDAO.combineEventHours(day, new DateTime(
-                        new net.fortuna.ical4j.model.DateTime("20160929T073000"))),
-                end:   diningDAO.combineEventHours(day, new DateTime(
-                        new net.fortuna.ical4j.model.DateTime("20160929T230000"))),
+                start: new net.fortuna.ical4j.model.DateTime("20170112T073000"),
+                end: new net.fortuna.ical4j.model.DateTime("20170112T230000"),
                 uid:   "ruq45d78ag0km1m83i5b5flaoc@google.com",
                 sequence: 0,
                 recurrenceId: null,

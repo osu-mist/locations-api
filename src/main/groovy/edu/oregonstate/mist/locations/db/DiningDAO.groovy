@@ -12,10 +12,12 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
+import net.fortuna.ical4j.model.PeriodList
 import net.fortuna.ical4j.model.Property
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Days
+import org.joda.time.Hours
 import org.joda.time.Weeks
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -124,9 +126,9 @@ public class DiningDAO {
         List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
         eventsToday.each { event ->
-
-            def dtStart = new DateTime(event.getStartDate().date)
-            def dtEnd = new DateTime(event.getEndDate().date)
+            PeriodList periodList = event.calculateRecurrenceSet(period)
+            def dtStart = periodList.getAt(0).getRangeStart()
+            def dtEnd = periodList.getAt(0).getRangeEnd()
             def sequence = event.getSequence()
             def uid = event.getUid()
             def recurrenceId = event.getRecurrenceId()
@@ -134,8 +136,8 @@ public class DiningDAO {
 
             // Json annotation in POGO handles utc storage
             DayOpenHours eventHours = new DayOpenHours(
-                start: combineEventHours(currentDay, dtStart),
-                end: combineEventHours(currentDay, dtEnd),
+                start: dtStart,
+                end: dtEnd,
                 uid: uid.value,
                 sequence: sequence?.sequenceNo,
                 recurrenceId: recurrenceId?.value,
@@ -177,7 +179,6 @@ public class DiningDAO {
             return false
         }
 
-
         // Prefer an instance of a recurring event over the
         // definition of the recurring event
         // (that is, prefer an event with a RECURRENCE-ID over one without)
@@ -198,24 +199,15 @@ public class DiningDAO {
     }
 
     /**
-     * Use date for current week and the time from the ical to generate the up-to-date eventHour
-     * @param currDate
-     * @param icalHour
-     * @return eventHour
+     * Change 00:00:00 to 23:59:59
+     * 
+     * @param date
+     * @return
      */
-    public static Date combineEventHours(DateTime currDate, DateTime icalHour) {
-
-        DateTime eventHour = new DateTime(currDate.year, currDate.monthOfYear, currDate.dayOfMonth,
-                                          icalHour.getHourOfDay(), icalHour.getMinuteOfHour(),
-                                          icalHour.getSecondOfMinute(), icalHour.getZone())
-
-        // change 00:00 to 23:59:59
-        if (eventHour.getHourOfDay() == 0 ) {
-            eventHour = eventHour.plusDays(1)
-            if (eventHour.getMinuteOfHour() == 0 ) {
-                eventHour = eventHour.minusSeconds(1)
-            }
+    public static Date minusSecFromMidnight(DateTime date) {
+        if (date.getHourOfDay() == 0 && date.getMinuteOfHour() == 0){
+            date = date.minusSeconds(1)
         }
-        eventHour.toDate()
+        new net.fortuna.ical4j.model.DateTime(date.toDate())
     }
 }
