@@ -198,16 +198,4 @@ public class DiningDAO {
         return !x.lastModified.before(y.lastModified)
     }
 
-    /**
-     * Change 00:00:00 to 23:59:59
-     * 
-     * @param date
-     * @return
-     */
-    public static Date minusSecFromMidnight(DateTime date) {
-        if (date.getHourOfDay() == 0 && date.getMinuteOfHour() == 0){
-            date = date.minusSeconds(1)
-        }
-        new net.fortuna.ical4j.model.DateTime(date.toDate())
-    }
 }
