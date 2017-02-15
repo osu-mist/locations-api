@@ -64,3 +64,19 @@ This resource returns all dining information and generates locations-dining.json
             ...]
 }
 ```
+
+## Post to Elasticsearch
+
+Elasticsearch won't be aware of Geo location and date type if the index template is not posted. This is also required to allow frontend api to use query parameters like lat/lon, isOpen.
+
+Follow the below steps to post locations data to Elasticsearch
+
+```bash
+# Delete the existed index:
+curl -s -XDELETE http://localhost:9200/locations/ ; echo
+
+#Post index template:
+curl -s -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
+
+#Fetch dining/arcgis/extension JSON and post them to ES.
+```
