@@ -14,10 +14,10 @@ class LocationConfiguration extends Configuration {
     @Valid
     List<Credentials> credentialsList
 
-//    @Valid
-//    @NotNull
-//    @JsonProperty("database")
-//    DataSourceFactory database = new DataSourceFactory()
+    //@Valid
+    //@NotNull
+    @JsonProperty("database")
+    DataSourceFactory database = new DataSourceFactory()
 
     @JsonProperty('locations')
     @NotNull

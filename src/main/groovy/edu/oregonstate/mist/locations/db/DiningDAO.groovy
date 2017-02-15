@@ -13,12 +13,7 @@ import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
 import net.fortuna.ical4j.model.PeriodList
-import net.fortuna.ical4j.model.Property
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.Days
-import org.joda.time.Hours
-import org.joda.time.Weeks
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -101,12 +96,12 @@ public class DiningDAO {
         Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
         DateTime today = new DateTime()
 
-//        iterate over a week to find out next 7 days of open hours
-                (0..6).each { days ->
-                    def currentDay = today.plusDays(days)
-                    def events = getEventsForDay(calendar, currentDay)
-                    weekOpenHours.put(currentDay.dayOfWeek, events)
-                }
+        // iterate over a week to find out next 7 days of open hours
+        (0..6).each { days ->
+            def singleDay = today.plusDays(days)
+            def events = getEventsForDay(calendar, singleDay)
+            weekOpenHours.put(singleDay.dayOfWeek, events)
+        }
 
         weekOpenHours
     }
@@ -115,12 +110,12 @@ public class DiningDAO {
      * GetEventsForDay filters the events in a Calendar to those on a given
      * day. This method is public for testing purposes only.
      */
-    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime currentDay) {
+    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime singleDay) {
         def dayOpenHoursList = new ArrayList<DayOpenHours>()
 
         // filter out so that only events for the current day are retrieved
-        currentDay = currentDay.withTimeAtStartOfDay().plusSeconds(1)
-        def ical4jToday = new net.fortuna.ical4j.model.DateTime(currentDay.toDate())
+        singleDay = singleDay.withTimeAtStartOfDay().plusSeconds(1)
+        def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
         Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
         Filter filter = new Filter(new PeriodRule(period))
         List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
