@@ -24,5 +24,9 @@ bin/
 # api cache directory
 cache/
 
-# locations campusmap
+# locations output
 locations-campusmap.json
+locations-dining.json
+locations-arcgis.json
+locations-extension.json
+locations-combined.json
