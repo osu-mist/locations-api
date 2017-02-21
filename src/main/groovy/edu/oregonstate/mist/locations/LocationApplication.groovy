@@ -12,7 +12,6 @@ import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
 import edu.oregonstate.mist.locations.health.ExtensionHealthCheck
 import edu.oregonstate.mist.locations.resources.LocationResource
-import edu.oregonstate.mist.locations.resources.SampleResource
 import io.dropwizard.Application
 import io.dropwizard.auth.AuthFactory
 import io.dropwizard.auth.basic.BasicAuthFactory
@@ -58,7 +57,6 @@ class LocationApplication extends Application<LocationConfiguration> {
         environment.healthChecks().register("arcgis",
                 new ArcGisHealthCheck(configuration.locationsConfiguration))
 
-        environment.jersey().register(new SampleResource())
         environment.jersey().register(new LocationResource(null, diningDAO, locationDAO,
                 extensionDAO, arcGisDAO))
         environment.jersey().register(
