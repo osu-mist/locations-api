@@ -78,7 +78,8 @@ class DiningDAOTest {
     private static boolean isValidDining(DiningLocation diningLocation) {
         diningLocation.with {
             conceptTitle && zone && calendarId && latitude && longitude &&
-             latitude.matches(LocationUtil.VALID_LAT_LONG) && longitude.matches(LocationUtil.VALID_LAT_LONG)
+             latitude.matches(LocationUtil.VALID_LAT_LONG) &&
+                    longitude.matches(LocationUtil.VALID_LAT_LONG)
         }
     }
 
@@ -104,7 +105,8 @@ class DiningDAOTest {
             }
         }
 
-        LOGGER.info("${diningLocation.conceptTitle} - invalidDays: ${invalidDays} - emptyOpenHours: ${emptyOpenHours}")
+        LOGGER.info("${diningLocation.conceptTitle} - invalidDays: ${invalidDays} " +
+                "- emptyOpenHours: ${emptyOpenHours}")
         !emptyOpenHours && (7 - invalidDays) >= MINIMUM_NUMBER_OF_VALID_DAYS
     }
 
@@ -117,7 +119,6 @@ class DiningDAOTest {
         }
         CalendarBuilder builder = new CalendarBuilder()
         Calendar calendar = builder.build(stream)
-
 
         // Test that modified recurrence events correctly override
         // the base event (see ECSPCS-311)
@@ -162,7 +163,5 @@ class DiningDAOTest {
                 lastModified: new net.fortuna.ical4j.model.DateTime("20160913T191159Z"),
             )
         ]
-
-
     }
 }

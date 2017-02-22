@@ -149,8 +149,31 @@ class LocationDAOTest {
                     layerNames: "Buildings Map",
                     address: "351 SW 30th Street",
                     adaEntrance: "",
-                    shortDescription: "Marketplace West houses seven distinctive restaurant locations combining the cuisine of the world with traditional American favorites.  Marketplace West accepts UHDS Dining Dollars, OSU Card Cash, Visa and MasterCard, checks and cash.",
-                    description: "<p>The cuisine of Marketplace West covers many global regions, designed in the style of an open air market.  The seven restaurant locations offer fresh Latin, Pacific Rim fare, classic Oregon Natural Beef burgers and hand-dipped shakes, fresh salads and deli sandwiches, pizza, pasta, and coffee.</p><ul><li><a href=\"../../uhds/dining/menus/calabaloos.php\">Calabaloo's Gourmet Burgers™</a><br /></li><li><a href=\"../../uhds/dining/menus/clubhouse_deli.php\">Clubhouse Deli</a><br /></li><li><a href=\"../../uhds/dining/menus/ebgbs.php\">EBGB's</a> (Every Bean's a Good Bean) <br /></li><li><a href=\"../../uhds/dining/menus/four_corners.php\">Four Corners</a><br /></li><li><a href=\"../../uhds/dining/menus/ring_of_fire.php\">Ring of Fire</a><br /></li><li><a href=\"../../uhds/dining/menus/serrano_grill.php\">Serrano Grill™</a><br /></li><li><a href=\"../../uhds/dining/menus/tomassitos.php\">Tomassito's Italian Cafe</a><br /></li></ul><p>For hours of operation, please visit the <a href=\"../../foodatosu/hours/\">food @ OSU</a> website, and for more general housing information, please visit the <a href=\"../../uhds/\">Housing and Dining Services</a> website.</p>",
+                    shortDescription: "Marketplace West houses seven distinctive restaurant " +
+                            "locations combining the cuisine of the world with traditional " +
+                            "American favorites.  Marketplace West accepts UHDS Dining Dollars, " +
+                            "OSU Card Cash, Visa and MasterCard, checks and cash.",
+                    description: "<p>The cuisine of Marketplace West covers many global regions, " +
+                            "designed in the style of an open air market. The seven restaurant " +
+                            "locations offer fresh Latin, Pacific Rim fare, classic Oregon " +
+                            "Natural Beef burgers and hand-dipped shakes, fresh salads and deli " +
+                            "sandwiches, pizza, pasta, and coffee.</p><ul><li><a " +
+                            "href=\"../../uhds/dining/menus/calabaloos.php\">Calabaloo's Gourmet " +
+                            "Burgers™</a><br /></li><li><a " +
+                            "href=\"../../uhds/dining/menus/clubhouse_deli.php\">Clubhouse Deli" +
+                            "</a><br /></li><li><a href=\"../../uhds/dining/menus/ebgbs.php\">" +
+                            "EBGB's</a> (Every Bean's a Good Bean) <br /></li><li>" +
+                            "<a href=\"../../uhds/dining/menus/four_corners.php\">Four Corners" +
+                            "</a><br /></li><li>" +
+                            "<a href=\"../../uhds/dining/menus/ring_of_fire.php\">Ring of Fire" +
+                            "</a><br /></li><li>" +
+                            "<a href=\"../../uhds/dining/menus/serrano_grill.php\">Serrano Grill™" +
+                            "</a><br /></li><li>" +
+                            "<a href=\"../../uhds/dining/menus/tomassitos.php\">Tomassito's " +
+                            "Italian Cafe</a><br /></li></ul><p>For hours of operation, please " +
+                            "visit the <a href=\"../../foodatosu/hours/\">food @ OSU</a> " +
+                            "website, and for more general housing information, please visit the " +
+                            "<a href=\"../../uhds/\">Housing and Dining Services</a> website.</p>",
                     thumbnail: "wsdn002.jpg",
                     largerImage: "",
                 ),
