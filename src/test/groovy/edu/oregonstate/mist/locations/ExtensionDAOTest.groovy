@@ -21,7 +21,8 @@ class ExtensionDAOTest {
     @BeforeClass
     public static void setUpClass() {
         locationUtil = new LocationUtil(APPLICATION.configuration.locationsConfiguration)
-        extensionDAO = new ExtensionDAO(APPLICATION.configuration.locationsConfiguration, locationUtil)
+        extensionDAO = new ExtensionDAO(APPLICATION.configuration.locationsConfiguration,
+                locationUtil)
         extensionLocations = extensionDAO.getExtensionLocations()
     }
 

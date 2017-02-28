@@ -24,7 +24,7 @@ class DiningDAOTest {
     private static List<DiningLocation> diningLocations
     private static def VALID_DAY_RANGE = 1..7
     private static int MINIMUM_NUMBER_OF_VALID_DAYS = 3
-    private static int MAXIMUM_NUMBER_OF_INVALID_LOCATIONS = 2
+    private static int MAXIMUM_NUMBER_OF_INVALID_LOCATIONS = 3
 
     @ClassRule
     public static final DropwizardAppRule<LocationConfiguration> APPLICATION =
@@ -78,7 +78,8 @@ class DiningDAOTest {
     private static boolean isValidDining(DiningLocation diningLocation) {
         diningLocation.with {
             conceptTitle && zone && calendarId && latitude && longitude &&
-             latitude.matches(LocationUtil.VALID_LAT_LONG) && longitude.matches(LocationUtil.VALID_LAT_LONG)
+             latitude.matches(LocationUtil.VALID_LAT_LONG) &&
+                    longitude.matches(LocationUtil.VALID_LAT_LONG)
         }
     }
 
@@ -104,7 +105,8 @@ class DiningDAOTest {
             }
         }
 
-        LOGGER.info("${diningLocation.conceptTitle} - invalidDays: ${invalidDays} - emptyOpenHours: ${emptyOpenHours}")
+        LOGGER.info("${diningLocation.conceptTitle} - invalidDays: ${invalidDays} " +
+                "- emptyOpenHours: ${emptyOpenHours}")
         !emptyOpenHours && (7 - invalidDays) >= MINIMUM_NUMBER_OF_VALID_DAYS
     }
 
@@ -117,7 +119,6 @@ class DiningDAOTest {
         }
         CalendarBuilder builder = new CalendarBuilder()
         Calendar calendar = builder.build(stream)
-
 
         // Test that modified recurrence events correctly override
         // the base event (see ECSPCS-311)
@@ -133,7 +134,7 @@ class DiningDAOTest {
         assert events == [
             new DayOpenHours(
                 start: new net.fortuna.ical4j.model.DateTime("20170106T073000"),
-                end:   new net.fortuna.ical4j.model.DateTime("20170106T150000"),
+                end:  new net.fortuna.ical4j.model.DateTime("20170106T150000"),
                 uid: "jvspu68dcau21vdtpj49li6d1o@google.com",
                 sequence: 0,
                 recurrenceId: "20170106T073000",
@@ -154,15 +155,13 @@ class DiningDAOTest {
         assert events.size() == 1
         assert events == [
             new DayOpenHours(
-                start: new net.fortuna.ical4j.model.DateTime("20160929T073000"),
-                end:   new net.fortuna.ical4j.model.DateTime("20160929T230000"),
+                start: new net.fortuna.ical4j.model.DateTime("20170112T073000"),
+                end: new net.fortuna.ical4j.model.DateTime("20170112T230000"),
                 uid:   "ruq45d78ag0km1m83i5b5flaoc@google.com",
                 sequence: 0,
                 recurrenceId: null,
                 lastModified: new net.fortuna.ical4j.model.DateTime("20160913T191159Z"),
             )
         ]
-
-
     }
 }

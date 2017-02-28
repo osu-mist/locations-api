@@ -12,10 +12,8 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.Dur
 import net.fortuna.ical4j.model.Period
-import net.fortuna.ical4j.model.Property
-import net.fortuna.ical4j.model.PropertyList
+import net.fortuna.ical4j.model.PeriodList
 import org.joda.time.DateTime
-import org.joda.time.LocalDate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -54,8 +52,10 @@ public class DiningDAO {
     List<DiningLocation> getDiningLocations() {
         String diningData = getDiningLocationList()
 
-        List<DiningLocation> diners = MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
-        diners.unique(true) // the json datasource lists the location multiple time if it's open twice a day
+        List<DiningLocation> diners =
+                MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
+        // the json datasource lists the location multiple time if it's open twice a day
+        diners.unique(true)
 
         diners.each {
             def icalURL = icalURL.replace("calendar-id", "${it.calendarId}")
@@ -73,7 +73,7 @@ public class DiningDAO {
     }
 
     private String getIcalData(String icalURL, String icalFileName) {
-        // @todo: what if it's not new, but the open hours in the calendar are different for next week?
+        // @todo: what if it's not new, but the open hours in calendar are different for next week?
         locationUtil.getDataFromUrlOrCache(icalURL, icalFileName)
     }
 
@@ -112,19 +112,20 @@ public class DiningDAO {
      * GetEventsForDay filters the events in a Calendar to those on a given
      * day. This method is public for testing purposes only.
      */
-    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime date) {
+    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime singleDay) {
         def dayOpenHoursList = new ArrayList<DayOpenHours>()
 
         // filter out so that only events for the current day are retrieved
-        date = date.withTimeAtStartOfDay().plusSeconds(1)
-        def ical4jToday = new net.fortuna.ical4j.model.DateTime(date.toDate())
+        singleDay = singleDay.withTimeAtStartOfDay().plusSeconds(1)
+        def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
         Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
         Filter filter = new Filter(new PeriodRule(period))
         List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
 
         eventsToday.each { event ->
-            def dtStart = event.getStartDate()
-            def dtEnd = event.getEndDate()
+            PeriodList periodList = event.calculateRecurrenceSet(period)
+            def dtStart = periodList.getAt(0).getRangeStart()
+            def dtEnd = periodList.getAt(0).getRangeEnd()
             def sequence = event.getSequence()
             def uid = event.getUid()
             def recurrenceId = event.getRecurrenceId()
@@ -132,8 +133,8 @@ public class DiningDAO {
 
             // Json annotation in POGO handles utc storage
             DayOpenHours eventHours = new DayOpenHours(
-                start: dtStart.date,
-                end: dtEnd.date,
+                start: dtStart,
+                end: dtEnd,
                 uid: uid.value,
                 sequence: sequence?.sequenceNo,
                 recurrenceId: recurrenceId?.value,
@@ -191,6 +192,7 @@ public class DiningDAO {
         }
 
         // Last resort: prefer the event that has been modified most recently
-        return !x.lastModified.before(y.lastModified)
+        !x.lastModified.before(y.lastModified)
     }
+
 }

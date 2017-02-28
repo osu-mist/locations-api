@@ -1,6 +1,9 @@
 # Gradle
 .gradle/
 
+# Extra dependencies (database drivers)
+bin/
+
 # Dropwizard
 build/
 logs/
@@ -11,6 +14,7 @@ configuration.yaml
 *.ipr
 *.iws
 .idea/
+out/
 
 # Mac OS X
 .DS_Store
@@ -18,15 +22,17 @@ configuration.yaml
 # Build Properties
 build.properties
 
-# bin
-bin/
-
 # api cache directory
 cache/
 
-# locations output
-locations-campusmap.json
-locations-dining.json
-locations-arcgis.json
-locations-extension.json
-locations-combined.json
+# locations campusmap
+campusmap.json
+
+# locations output json
+locations-*.json
+
+# Keytool Files
+*.pem
+*.cer
+*.keystore
+*.truststore
