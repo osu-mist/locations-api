@@ -40,7 +40,8 @@ class ArcGisDAO {
         def features = mapper.readTree(gisData).get("features")
 
         features.asList().each {
-            def arcBuilding = new ArcGisLocation(mapper.readValue(it.get("properties").toString(), Object.class))
+            def arcBuilding = new ArcGisLocation(mapper.readValue(it.get("properties").toString(),
+                    Object.class))
             data[arcBuilding.bldNamAbr] = arcBuilding
         }
 

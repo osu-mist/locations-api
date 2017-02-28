@@ -53,7 +53,8 @@ class LocationMapper  {
             name: diningLocation.conceptTitle,
             geoLocation: createGeoLocation(diningLocation.latitude,
                                             diningLocation.longitude),
-            summary: "Zone: ${diningLocation.zone}", //@todo: move it somewhere else? call it something else?
+            //@todo: move it somewhere else? call it something else?
+            summary: "Zone: ${diningLocation.zone}",
             type: TYPE_DINING,
             campus: CAMPUS_CORVALLIS,
             openHours: diningLocation.openHours
@@ -148,7 +149,7 @@ class LocationMapper  {
      * @return
      */
     private static GeoLocation createGeoLocation(String latitude, String longitude) {
-        if (latitude != null && longitude != null && latitude.isDouble() && longitude.isDouble()){
+        if (latitude != null && longitude != null && latitude.isDouble() && longitude.isDouble()) {
             return new GeoLocation(
                     lat: latitude as Double,
                     lon: longitude as Double

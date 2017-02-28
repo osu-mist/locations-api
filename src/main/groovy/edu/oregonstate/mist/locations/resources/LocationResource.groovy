@@ -31,8 +31,11 @@ class LocationResource extends Resource {
     private final ExtensionDAO extensionDAO
     private final ArcGisDAO arcGisDAO
 
-    LocationResource(CampusMapLocationDAO campusMapLocationDAO, DiningDAO diningDAO, LocationDAO locationDAO,
-                     ExtensionDAO extensionDAO, ArcGisDAO arcGisDAO) {
+    LocationResource(CampusMapLocationDAO campusMapLocationDAO,
+                     DiningDAO diningDAO,
+                     LocationDAO locationDAO,
+                     ExtensionDAO extensionDAO,
+                     ArcGisDAO arcGisDAO) {
         this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
@@ -44,13 +47,15 @@ class LocationResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getCampusMap(@Auth AuthenticatedUser authenticatedUser) {
-        final List<CampusMapLocation> campusMapLocations = campusMapLocationDAO.getCampusMapLocations()
+        final List<CampusMapLocation> campusMapLocations =
+                campusMapLocationDAO.getCampusMapLocations()
 
         if (!campusMapLocations) {
             return notFound().build()
         }
 
-        ResultObject resultObject = writeJsonAPIToFile("locations-campusmap.json", campusMapLocations)
+        ResultObject resultObject =
+                writeJsonAPIToFile("locations-campusmap.json", campusMapLocations)
         locationDAO.writeMapToJson(campusMapLocations)
         ok(resultObject).build()
     }
@@ -107,7 +112,8 @@ class LocationResource extends Resource {
             return notFound().build()
         }
 
-        ResultObject resultObject = writeJsonAPIToFile("locations-extension.json", extensionLocations)
+        ResultObject resultObject =
+                writeJsonAPIToFile("locations-extension.json", extensionLocations)
         ok(resultObject).build()
     }
 

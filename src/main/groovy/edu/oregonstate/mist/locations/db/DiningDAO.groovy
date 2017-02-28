@@ -52,8 +52,10 @@ public class DiningDAO {
     List<DiningLocation> getDiningLocations() {
         String diningData = getDiningLocationList()
 
-        List<DiningLocation> diners = MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
-        diners.unique(true) // the json datasource lists the location multiple time if it's open twice a day
+        List<DiningLocation> diners =
+                MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
+        // the json datasource lists the location multiple time if it's open twice a day
+        diners.unique(true)
 
         diners.each {
             def icalURL = icalURL.replace("calendar-id", "${it.calendarId}")
@@ -71,7 +73,7 @@ public class DiningDAO {
     }
 
     private String getIcalData(String icalURL, String icalFileName) {
-        // @todo: what if it's not new, but the open hours in the calendar are different for next week?
+        // @todo: what if it's not new, but the open hours in calendar are different for next week?
         locationUtil.getDataFromUrlOrCache(icalURL, icalFileName)
     }
 
@@ -190,7 +192,7 @@ public class DiningDAO {
         }
 
         // Last resort: prefer the event that has been modified most recently
-        return !x.lastModified.before(y.lastModified)
+        !x.lastModified.before(y.lastModified)
     }
 
 }

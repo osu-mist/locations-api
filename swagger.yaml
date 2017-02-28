@@ -22,62 +22,54 @@ paths:
     get:
       summary: Get information
       description: Build and runtime information about the application.
+      parameters:
+        - $ref: '#/parameters/pretty'
       responses:
         200:
           description: Object containing information
           schema:
             $ref: '#/definitions/Info'
-  /sample:
-    get:
-      summary: Get message
-      description: This is a sample resource that returns a short message.
-      responses:
-        200:
-          description: A short message
-          schema:
-            type: string
-        404:
-          description: Not found
-          schema:
-            $ref: '#/definitions/Error'
-    post:
-      summary: Post message
-      description: This is a sample resource that returns the message it receives.
-      parameters:
-        - name: message
-          in: body
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: The message received
-          schema:
-            type: string
-        404:
-          description: Not found
-          schema:
-            $ref: '#/definitions/Error'
+
+parameters:
+  pretty:
+    name: pretty
+    in: query
+    type: boolean
+    required: false
+    description: If true, JSON response will be pretty-printed
+
 definitions:
   Info:
     properties:
       name:
         type: string
+        description: Name of the API.
       time:
+        type: string
+        description: Build time in ISO 8601 format.
+      unixTime:
         type: integer
+        description: Build time as milliseconds since the unix epoch.
       commit:
         type: string
+        description: Git commit hash of the revision which was built.
       documentation:
         type: string
+        description: Filename of the swagger specification for the API.
   Error:
     properties:
       status:
         type: integer
+        description: HTTP status code.
       developerMessage:
         type: string
+        description: An error string aimed at developers.
       userMesage:
         type: string
+        description: An error string aimed at end users.
       code:
         type: integer
+        description: Error code.
       details:
         type: string
+        description: A link to further information about the error.
