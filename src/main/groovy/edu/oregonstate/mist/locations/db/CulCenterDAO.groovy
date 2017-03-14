@@ -53,13 +53,6 @@ public class CulCenterDAO {
 
         String culCenterData = getCulCenterLocationList()
 
-        // need to check this part. function will end while enter readValue and return nothing
-//        println("==================")
-//        println(culCenterData)
-//        println("--------")
-//        println(new TypeReference<List<ServiceLocation>>(){})
-//        println("==================")
-
         List<ServiceLocation> culCenters =
                 MAPPER.readValue(culCenterData, new TypeReference<List<ServiceLocation>>(){})
         // the json datasource lists the location multiple time if it's open twice a day
