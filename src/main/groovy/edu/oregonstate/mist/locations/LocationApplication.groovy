@@ -8,6 +8,7 @@ import edu.oregonstate.mist.api.Configuration
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.InfoResource
 import edu.oregonstate.mist.locations.db.ArcGisDAO
+import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
@@ -85,6 +86,8 @@ class LocationApplication extends Application<LocationConfiguration> {
                 new DiningDAO(configuration.locationsConfiguration, locationUtil)
         final ArcGisDAO arcGisDAO =
                 new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
+        final CulCenterDAO culCenterDAO =
+                new CulCenterDAO(configuration.locationsConfiguration, locationUtil)
 
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))
@@ -94,7 +97,7 @@ class LocationApplication extends Application<LocationConfiguration> {
                 new ArcGisHealthCheck(configuration.locationsConfiguration))
 
         environment.jersey().register(new LocationResource(null, diningDAO, locationDAO,
-                extensionDAO, arcGisDAO))
+                extensionDAO, arcGisDAO, culCenterDAO))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()

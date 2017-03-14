@@ -8,8 +8,10 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
+import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
@@ -30,17 +32,20 @@ class LocationResource extends Resource {
     private final LocationDAO locationDAO
     private final ExtensionDAO extensionDAO
     private final ArcGisDAO arcGisDAO
+    private final CulCenterDAO culCenterDAO
 
     LocationResource(CampusMapLocationDAO campusMapLocationDAO,
                      DiningDAO diningDAO,
                      LocationDAO locationDAO,
                      ExtensionDAO extensionDAO,
-                     ArcGisDAO arcGisDAO) {
+                     ArcGisDAO arcGisDAO,
+                     CulCenterDAO culCenterDAO) {
         this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
         this.arcGisDAO = arcGisDAO
+        this.culCenterDAO = culCenterDAO
     }
 
     @GET
@@ -72,6 +77,23 @@ class LocationResource extends Resource {
         }
 
         ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", diningLocations)
+        ok(resultObject).build()
+    }
+
+    @GET
+    @Path("culcenter")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response getCulCenter(@Auth AuthenticatedUser authenticatedUser) {
+
+        final List<ServiceLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
+
+        if (!culCenterLocations) {
+            return notFound().build()
+        }
+
+        ResultObject resultObject =
+                writeJsonAPIToFile("locations-culcenter.json", culCenterLocations)
         ok(resultObject).build()
     }
 
