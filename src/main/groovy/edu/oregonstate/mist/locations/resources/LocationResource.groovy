@@ -6,7 +6,7 @@ import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
@@ -69,7 +69,7 @@ class LocationResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getDining(@Auth AuthenticatedUser authenticatedUser) {
-        final List<DiningLocation> diningLocations = diningDAO.getDiningLocations()
+        final List<ServiceLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {
             return notFound().build()
@@ -85,7 +85,7 @@ class LocationResource extends Resource {
     @Timed
     Response getCulCenter(@Auth AuthenticatedUser authenticatedUser) {
 
-        final List<DiningLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
+        final List<ServiceLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
 
         if (!culCenterLocations) {
             return notFound().build()

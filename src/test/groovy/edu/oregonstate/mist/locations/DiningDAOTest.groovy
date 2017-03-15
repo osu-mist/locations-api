@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.DayOpenHours
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.IcalUtil
 import io.dropwizard.testing.junit.DropwizardAppRule
@@ -22,7 +22,7 @@ class DiningDAOTest {
 
     private static DiningDAO diningDAO
     private static LocationUtil locationUtil
-    private static List<DiningLocation> diningLocations
+    private static List<ServiceLocation> diningLocations
     private static def VALID_DAY_RANGE = 1..7
     private static int MINIMUM_NUMBER_OF_VALID_DAYS = 3
     private static int MAXIMUM_NUMBER_OF_INVALID_LOCATIONS = 3
@@ -61,7 +61,7 @@ class DiningDAOTest {
         assert !diningLocations.isEmpty()
 
         int testDiningLocationIndex = diningLocations.findIndexOf { hasValidOpenHours(it) }
-        DiningLocation diningLocation = diningLocations.get(testDiningLocationIndex)
+        ServiceLocation diningLocation = diningLocations.get(testDiningLocationIndex)
         LOGGER.info("diningLocation: ${diningLocation.conceptTitle}")
 
         // Find a day that has open hours
@@ -76,7 +76,7 @@ class DiningDAOTest {
         assert startJSONText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]")
     }
 
-    private static boolean isValidDining(DiningLocation diningLocation) {
+    private static boolean isValidDining(ServiceLocation diningLocation) {
         diningLocation.with {
             conceptTitle && zone && calendarId && latitude && longitude &&
              latitude.matches(LocationUtil.VALID_LAT_LONG) &&
@@ -92,7 +92,7 @@ class DiningDAOTest {
      * @param diningLocation
      * @return
      */
-    private static boolean hasValidOpenHours(DiningLocation diningLocation) {
+    private static boolean hasValidOpenHours(ServiceLocation diningLocation) {
         boolean validDayIndex = false
         boolean emptyOpenHours = diningLocation?.openHours?.isEmpty()
         int invalidDays = 0

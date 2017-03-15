@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations.db
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.DayOpenHours
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.filter.Filter
 import net.fortuna.ical4j.filter.PeriodRule
@@ -20,9 +20,9 @@ class IcalUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(IcalUtil.class)
     private static final ObjectMapper MAPPER = new ObjectMapper()
 
-    public static List<DiningLocation> getLocationsHours(List<DiningLocation> diners,
-                                                  String icalURLTemplate,
-                                                         LocationUtil locationUtil) {
+    public static List<ServiceLocation> getLocationsHours(List<ServiceLocation> diners,
+                                                          String icalURLTemplate,
+                                                          LocationUtil locationUtil) {
         diners.each {
             def icalURL = icalURLTemplate.replace("calendar-id", "${it.calendarId}")
             def icalFileName = it.calendarId + ".ics"

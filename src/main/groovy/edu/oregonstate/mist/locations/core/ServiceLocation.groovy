@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations.core
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class DiningLocation implements Comparable {
+class ServiceLocation implements Comparable {
     @JsonProperty("concept_title")
     String conceptTitle
     String zone

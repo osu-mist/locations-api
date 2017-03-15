@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import edu.oregonstate.mist.locations.LocationUtil
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
 
 /**
@@ -18,15 +18,15 @@ public class CulCenterDAO extends IcalDAO {
     //@todo: need a way to specify uhdsUrl and jsonOut specific to dao
     //@todo: need to rename dininglocation to a icalLocation??
 
-    List<DiningLocation> getCulCenterLocations() {
+    List<ServiceLocation> getCulCenterLocations() {
         getCulCenterLocations(locationUtil)
     }
 
-    List<DiningLocation> getCulCenterLocations(LocationUtil locationUtil) {
+    List<ServiceLocation> getCulCenterLocations(LocationUtil locationUtil) {
         String plainData = getCulCenterLocationList()
 
-        List<DiningLocation> centers =
-                MAPPER.readValue(plainData, new TypeReference<List<DiningLocation>>(){})
+        List<ServiceLocation> centers =
+                MAPPER.readValue(plainData, new TypeReference<List<ServiceLocation>>(){})
 
         // the json datasource lists the location multiple time if it's open twice a day
         centers.unique(true)

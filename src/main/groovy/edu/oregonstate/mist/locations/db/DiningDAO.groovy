@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import edu.oregonstate.mist.locations.LocationUtil
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
 
 /**
@@ -10,15 +10,15 @@ import groovy.transform.InheritConstructors
  */
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
-    List<DiningLocation> getDiningLocations() {
+    List<ServiceLocation> getDiningLocations() {
         getDiningLocations(locationUtil)
     }
 
-    List<DiningLocation> getDiningLocations(LocationUtil locationUtil) {
+    List<ServiceLocation> getDiningLocations(LocationUtil locationUtil) {
         String diningData = getDiningLocationList()
 
-        List<DiningLocation> diners =
-                MAPPER.readValue(diningData, new TypeReference<List<DiningLocation>>(){})
+        List<ServiceLocation> diners =
+                MAPPER.readValue(diningData, new TypeReference<List<ServiceLocation>>(){})
 
         // the json datasource lists the location multiple time if it's open twice a day
         diners.unique(true)
