@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.db.DiningDAO
+import edu.oregonstate.mist.locations.db.IcalUtil
 import io.dropwizard.testing.junit.DropwizardAppRule
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.Calendar
@@ -126,7 +127,7 @@ class DiningDAOTest {
         // Filter events by day
         def tz = DateTimeZone.forID("America/Los_Angeles")
         def day = new DateTime(2017, 1, 6, 0, 0, tz) // Midnight, Jan 6th, PST
-        List events = diningDAO.getEventsForDay(calendar, day)
+        List events = IcalUtil.getEventsForDay(calendar, day)
 
         println(events)
 
@@ -147,7 +148,7 @@ class DiningDAOTest {
 
         // Filter events by day
         day = new DateTime(2017, 1, 12, 0, 0, tz) // Midnight, Jan 12th, PST
-        events = diningDAO.getEventsForDay(calendar, day)
+        events = IcalUtil.getEventsForDay(calendar, day)
 
         println(events)
 
