@@ -8,7 +8,6 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
-import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
 import edu.oregonstate.mist.locations.db.CulCenterDAO
@@ -86,7 +85,7 @@ class LocationResource extends Resource {
     @Timed
     Response getCulCenter(@Auth AuthenticatedUser authenticatedUser) {
 
-        final List<ServiceLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
+        final List<DiningLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
 
         if (!culCenterLocations) {
             return notFound().build()

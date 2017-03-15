@@ -7,7 +7,6 @@ import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.DiningLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
-import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 
 import java.nio.charset.StandardCharsets
@@ -62,25 +61,26 @@ class LocationMapper  {
             openHours: diningLocation.openHours
         )
 
+        //@todo: the value of dining below needs to change to: dining, cultural and recsports
         def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
         buildResourceObject(id, attributes)
     }
 
-    public ResourceObject map(ServiceLocation culCenterLocation) {
-        Attributes attributes = new Attributes(
-                name: culCenterLocation.conceptTitle,
-                geoLocation: createGeoLocation(culCenterLocation.latitude,
-                        culCenterLocation.longitude),
-                //@todo: move it somewhere else? call it something else?
-                summary: "Zone: ${culCenterLocation.zone}",
-                type: TYPE_DINING,
-                campus: CAMPUS_CORVALLIS,
-                openHours: culCenterLocation.openHours
-        )
-
-        def id = LocationUtil.getMD5Hash(CULCENTER + culCenterLocation.calendarId)
-        buildResourceObject(id, attributes)
-    }
+//    public ResourceObject map(ServiceLocation culCenterLocation) {
+//        Attributes attributes = new Attributes(
+//                name: culCenterLocation.conceptTitle,
+//                geoLocation: createGeoLocation(culCenterLocation.latitude,
+//                        culCenterLocation.longitude),
+//                //@todo: move it somewhere else? call it something else?
+//                summary: "Zone: ${culCenterLocation.zone}",
+//                type: TYPE_DINING,
+//                campus: CAMPUS_CORVALLIS,
+//                openHours: culCenterLocation.openHours
+//        )
+//
+//        def id = LocationUtil.getMD5Hash(CULCENTER + culCenterLocation.calendarId)
+//        buildResourceObject(id, attributes)
+//    }
 
     public ResourceObject map(ExtensionLocation extensionLocation) {
         Attributes attributes = new Attributes(

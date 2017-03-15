@@ -89,7 +89,7 @@ class IcalUtil {
                 uid: uid.value,
                 sequence: sequence?.sequenceNo,
                 recurrenceId: recurrenceId?.value,
-                lastModified: lastModified.date,
+                lastModified: lastModified?.date,
             )
 
             // Add event to the list, or not, depending on whether it conflicts

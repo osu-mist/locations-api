@@ -1,81 +1,41 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
-import edu.oregonstate.mist.locations.core.DayOpenHours
-import edu.oregonstate.mist.locations.core.ServiceLocation
-import net.fortuna.ical4j.data.CalendarBuilder
-import net.fortuna.ical4j.filter.Filter
-import net.fortuna.ical4j.filter.PeriodRule
-import net.fortuna.ical4j.model.Calendar
-import net.fortuna.ical4j.model.Component
-import net.fortuna.ical4j.model.Dur
-import net.fortuna.ical4j.model.Period
-import net.fortuna.ical4j.model.PeriodList
-import org.joda.time.DateTime
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import edu.oregonstate.mist.locations.core.DiningLocation
+import groovy.transform.InheritConstructors
 
 /**
- * The Dining data comes from google calendar
+ * The Cultural Center data comes from google calendar
  */
-public class CulCenterDAO {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CulCenterDAO.class)
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-
+@InheritConstructors
+public class CulCenterDAO extends IcalDAO {
     /**
-     * Url of Dining API. JSON formatted content that includes lat/long,
-     * name, calendar id, and today's hours for dining locations.
-     */
-    private final String uhdsURL
-
-    /**
-     * Url format of ical calendar that includes open hours for dining
-     */
-    private final String icalURL
-
-    /**
-     * Filename to store the uhdsURL cache data
+     * Filename to store the metadataURL cache data
      */
     private final String culCenterJsonOut
 
-    private final LocationUtil locationUtil
+    //@todo: need a way to specify uhdsUrl and jsonOut specific to dao
+    //@todo: need to rename dininglocation to a icalLocation??
 
-    public CulCenterDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
-        uhdsURL = locationConfiguration.get("uhdsUrl")
-        icalURL = locationConfiguration.get("icalUrl")
-        culCenterJsonOut = locationConfiguration.get("culCenterJsonOut")
-        this.locationUtil = locationUtil
+    List<DiningLocation> getCulCenterLocations() {
+        getCulCenterLocations(locationUtil)
     }
 
-    List<ServiceLocation> getCulCenterLocations() {
+    List<DiningLocation> getCulCenterLocations(LocationUtil locationUtil) {
+        String plainData = getCulCenterLocationList()
 
-        String culCenterData = getCulCenterLocationList()
+        List<DiningLocation> centers =
+                MAPPER.readValue(plainData, new TypeReference<List<DiningLocation>>(){})
 
-        List<ServiceLocation> culCenters =
-                MAPPER.readValue(culCenterData, new TypeReference<List<ServiceLocation>>(){})
         // the json datasource lists the location multiple time if it's open twice a day
-        culCenters.unique(true)
+        centers.unique(true)
 
-        culCenters.each {
-            def icalURL = icalURL.replace("calendar-id", "${it.calendarId}")
-            def icalFileName = it.calendarId + ".ics"
-            LOGGER.debug(icalURL)
+        //@todo: the method call below modifies the passing object can we change that so that
+        // it just returns the needed data???
+        IcalUtil.getLocationsHours(centers, icalURL, locationUtil)
 
-            String icalData = getIcalData(icalURL, icalFileName)
-            it.openHours = parseCulCenterICAL(icalData)
-        }
-        //@todo: how to deal with html in title?
-
-        //@todo: need a flag to know if it's the first time in the day that we have flagged
-
-        culCenters
-    }
-
-    private String getIcalData(String icalURL, String icalFileName) {
-        // @todo: what if it's not new, but the open hours in calendar are different for next week?
-        locationUtil.getDataFromUrlOrCache(icalURL, icalFileName)
+        centers
     }
 
     /**
@@ -86,114 +46,11 @@ public class CulCenterDAO {
      * @return String json format of dining locations
      */
     private String getCulCenterLocationList() throws Exception {
-        locationUtil.getDataFromUrlOrCache(icalURL, culCenterJsonOut)
+        //@todo: return something hardcoded for now
+        """
+[
+
+]
+"""
     }
-
-    private HashMap<Integer, List<DayOpenHours>> parseCulCenterICAL(String icalData) {
-        // setup ical4j calendar and parse it
-        CalendarBuilder builder = new CalendarBuilder()
-        def stream = new ByteArrayInputStream(icalData.getBytes())
-        Calendar calendar = builder.build(stream)
-
-        // setup jodatime varaibles
-        Map<Integer, List<DayOpenHours>> weekOpenHours = new HashMap<Integer, List<DayOpenHours>>()
-        DateTime today = new DateTime()
-
-        // iterate over a week to find out next 7 days of open hours
-        (0..6).each { days ->
-            def singleDay = today.plusDays(days)
-            def events = getEventsForDay(calendar, singleDay)
-            weekOpenHours.put(singleDay.dayOfWeek, events)
-        }
-
-        weekOpenHours
-    }
-
-    /**
-     * GetEventsForDay filters the events in a Calendar to those on a given
-     * day. This method is public for testing purposes only.
-     */
-    public static List<DayOpenHours> getEventsForDay(Calendar calendar, DateTime singleDay) {
-        def dayOpenHoursList = new ArrayList<DayOpenHours>()
-
-        // filter out so that only events for the current day are retrieved
-        singleDay = singleDay.withTimeAtStartOfDay().plusSeconds(1)
-        def ical4jToday = new net.fortuna.ical4j.model.DateTime(singleDay.toDate())
-        Period period = new Period(ical4jToday, new Dur(0, 23, 59, 59))
-        Filter filter = new Filter(new PeriodRule(period))
-        List eventsToday = filter.filter(calendar.getComponents(Component.VEVENT))
-
-        eventsToday.each { event ->
-            PeriodList periodList = event.calculateRecurrenceSet(period)
-            def dtStart = periodList.getAt(0).getRangeStart()
-            def dtEnd = periodList.getAt(0).getRangeEnd()
-            def sequence = event.getSequence()
-            def uid = event.getUid()
-            def recurrenceId = event.getRecurrenceId()
-            def lastModified = event.getLastModified()
-
-            // Json annotation in POGO handles utc storage
-            DayOpenHours eventHours = new DayOpenHours(
-                    start: dtStart,
-                    end: dtEnd,
-                    uid: uid.value,
-                    sequence: sequence?.sequenceNo,
-                    recurrenceId: recurrenceId?.value,
-                    lastModified: lastModified.date,
-            )
-
-            // Add event to the list, or not, depending on whether it conflicts
-            // with the UID of another event
-
-            def existingUIDEventKey = dayOpenHoursList.findIndexOf { openHour ->
-                openHour.uid == uid.value
-            }
-
-            if (existingUIDEventKey != -1) {
-                DayOpenHours existingEventHours = dayOpenHoursList.get(existingUIDEventKey)
-                if (supersedesEvent(eventHours, existingEventHours)) {
-                    // removing previous event since new event overwrites it
-                    dayOpenHoursList.remove(existingUIDEventKey)
-                    dayOpenHoursList.add(eventHours)
-                } else {
-                    // existing event in the dayOpenHours list takes precedence;
-                    // do nothing
-                }
-            } else {
-                dayOpenHoursList.add(eventHours)
-            }
-        }
-
-        dayOpenHoursList
-    }
-
-    /**
-     * Reports whether event x should supersede event y with the same uid.
-     */
-    private static boolean supersedesEvent(DayOpenHours x, DayOpenHours y) {
-        // Sanity check: the two events must have the same uid
-        if (x.uid != y.uid) {
-            LOGGER.log("attempted to check whether two events with different uids conflict")
-            return false
-        }
-
-        // Prefer an instance of a recurring event over the
-        // definition of the recurring event
-        // (that is, prefer an event with a RECURRENCE-ID over one without)
-        if (x.recurrenceId != null && y.recurrenceId == null) {
-            return true
-        }
-        if (x.recurrenceId == null && y.recurrenceId != null) {
-            return false
-        }
-
-        // Prefer an event with a higher sequence number
-        if (x.sequence != y.sequence) {
-            return x.sequence > y.sequence
-        }
-
-        // Last resort: prefer the event that has been modified most recently
-        !x.lastModified.before(y.lastModified)
-    }
-
 }
