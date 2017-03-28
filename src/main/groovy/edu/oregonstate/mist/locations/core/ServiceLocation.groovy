@@ -13,6 +13,10 @@ class ServiceLocation implements Comparable {
     String start
     String end
     HashMap<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
+    List<String> tags = []
+    String parent
+    Boolean merge = false
+    String type
 
     private final Integer LATITUDE_INDEX = 0
     private final Integer LONGITUDE_INDEX = 1

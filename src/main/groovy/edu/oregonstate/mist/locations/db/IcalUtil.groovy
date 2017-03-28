@@ -20,9 +20,9 @@ class IcalUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(IcalUtil.class)
     private static final ObjectMapper MAPPER = new ObjectMapper()
 
-    public static List<ServiceLocation> getLocationsHours(List<ServiceLocation> diners,
-                                                          String icalURLTemplate,
-                                                          LocationUtil locationUtil) {
+    public static List<ServiceLocation> addLocationHours(List<ServiceLocation> diners,
+                                                         String icalURLTemplate,
+                                                         LocationUtil locationUtil) {
         diners.each {
             def icalURL = icalURLTemplate.replace("calendar-id", "${it.calendarId}")
             def icalFileName = it.calendarId + ".ics"

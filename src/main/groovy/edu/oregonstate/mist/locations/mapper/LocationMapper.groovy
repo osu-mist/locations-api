@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.locations.mapper
 
+import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
@@ -12,18 +13,6 @@ import edu.oregonstate.mist.locations.jsonapi.ResourceObject
 import java.nio.charset.StandardCharsets
 
 class LocationMapper  {
-    private static final String CAMPUSMAP = "campusmap"
-    private static final String DINING = "uhds"
-    private static final String EXTENSION = "extension"
-    private static final String ARCGIS = "arcgis"
-    private static final String CULCENTER = "culcenter"
-
-    private static final String TYPE_BUILDING = "building"
-    private static final String TYPE_DINING = "dining"
-
-    private static final String CAMPUS_CORVALLIS = "corvallis"
-    private static final String CAMPUS_EXTENSION = "extension"
-
     String campusmapUrl
     String campusmapImageUrl
     String apiEndpointUrl
@@ -39,30 +28,35 @@ class LocationMapper  {
             description: campusMapLocation.description,
             thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
             images: [getImageUrl(campusMapLocation.largerImage)] - null,
-            type: TYPE_BUILDING
+            type: Constants.TYPE_BUILDING
         )
 
         // Some attribute fields are calculated based on campusmap information
         setCalculatedFields(attributes, campusMapLocation)
 
-        def id = LocationUtil.getMD5Hash(CAMPUSMAP + campusMapLocation.id)
+        def id = LocationUtil.getMD5Hash(Constants.CAMPUSMAP + campusMapLocation.id)
         buildResourceObject(id, attributes)
     }
 
-    public ResourceObject map(ServiceLocation diningLocation) {
+    public ResourceObject map(ServiceLocation serviceLocation) {
+        //@todo: move it somewhere else? call it something else?
+        def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+
         Attributes attributes = new Attributes(
-            name: diningLocation.conceptTitle,
-            geoLocation: createGeoLocation(diningLocation.latitude,
-                                            diningLocation.longitude),
-            //@todo: move it somewhere else? call it something else?
-            summary: "Zone: ${diningLocation.zone}",
-            type: TYPE_DINING,
-            campus: CAMPUS_CORVALLIS,
-            openHours: diningLocation.openHours
+            name: serviceLocation.conceptTitle,
+            geoLocation: createGeoLocation(serviceLocation.latitude,
+                                            serviceLocation.longitude),
+            summary: summary,
+            type: serviceLocation.type,
+            campus: Constants.CAMPUS_CORVALLIS,
+            openHours: serviceLocation.openHours,
+            merge: serviceLocation.merge,
+            tags: serviceLocation.tags,
+            parent: serviceLocation.parent
         )
 
         //@todo: the value of dining below needs to change to: dining, cultural and recsports
-        def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
+        def id = LocationUtil.getMD5Hash(Constants.DINING + serviceLocation.calendarId)
         buildResourceObject(id, attributes)
     }
 
@@ -79,11 +73,11 @@ class LocationMapper  {
             fax: extensionLocation.fax,
             county: extensionLocation.county,
             website: extensionLocation.locationUrl,
-            type: TYPE_BUILDING,
-            campus: CAMPUS_EXTENSION,
+            type: Constants.TYPE_BUILDING,
+            campus: Constants.CAMPUS_EXTENSION,
         )
 
-        def id = LocationUtil.getMD5Hash(EXTENSION + extensionLocation.guid)
+        def id = LocationUtil.getMD5Hash(Constants.EXTENSION + extensionLocation.guid)
         buildResourceObject(id, attributes)
     }
 
@@ -93,11 +87,11 @@ class LocationMapper  {
                 abbreviation: arcGisLocation.bldNamAbr,
                 geoLocation: createGeoLocation(arcGisLocation.latitude,
                                                arcGisLocation.longitude),
-                type: TYPE_BUILDING,
-                campus: CAMPUS_CORVALLIS,
+                type: Constants.TYPE_BUILDING,
+                campus: Constants.CAMPUS_CORVALLIS,
         )
 
-        def id = LocationUtil.getMD5Hash(ARCGIS + arcGisLocation.bldID)
+        def id = LocationUtil.getMD5Hash(Constants.ARCGIS + arcGisLocation.bldID)
         buildResourceObject(id, attributes)
     }
 
@@ -124,7 +118,7 @@ class LocationMapper  {
     private void setCalculatedFields(Attributes attributes, CampusMapLocation campusMapLocation) {
         attributes.state = "OR"
         attributes.city = "Corvallis"
-        attributes.campus = CAMPUS_CORVALLIS
+        attributes.campus = Constants.CAMPUS_CORVALLIS
         attributes.website = getCampusmapWebsite(campusMapLocation.id)
     }
 

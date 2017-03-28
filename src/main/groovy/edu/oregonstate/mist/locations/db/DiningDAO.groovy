@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
+import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
@@ -22,8 +23,9 @@ public class DiningDAO extends IcalDAO {
 
         // the json datasource lists the location multiple time if it's open twice a day
         diners.unique(true)
+        diners.each { it.type = Constants.TYPE_DINING }
 
-        IcalUtil.getLocationsHours(diners, icalURL, locationUtil)
+        IcalUtil.addLocationHours(diners, icalURL, locationUtil)
         //@todo: how to deal with html in title?
 
         //@todo: need a flag to know if it's the first time in the day that we have flagged

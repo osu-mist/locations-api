@@ -36,7 +36,7 @@ class DiningDAOTest {
     @BeforeClass
     public static void setUpClass() {
         locationUtil = new LocationUtil(APPLICATION.configuration.locationsConfiguration)
-        diningDAO = new DiningDAO(APPLICATION.configuration.locationsConfiguration, locationUtil)
+        diningDAO = new DiningDAO(APPLICATION.configuration, locationUtil)
         diningLocations = diningDAO.getDiningLocations()
     }
 

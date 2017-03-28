@@ -17,6 +17,7 @@ import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
 import io.dropwizard.auth.Auth
 
+import javax.annotation.security.PermitAll
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -25,6 +26,7 @@ import javax.ws.rs.core.Response
 
 @Path("/locations")
 @Produces(MediaType.APPLICATION_JSON)
+@PermitAll
 class LocationResource extends Resource {
     private final CampusMapLocationDAO campusMapLocationDAO
     private final DiningDAO diningDAO
@@ -50,7 +52,7 @@ class LocationResource extends Resource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response getCampusMap(@Auth AuthenticatedUser authenticatedUser) {
+    Response getCampusMap() {
         final List<CampusMapLocation> campusMapLocations =
                 campusMapLocationDAO.getCampusMapLocations()
 
@@ -68,7 +70,7 @@ class LocationResource extends Resource {
     @Path("dining")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response getDining(@Auth AuthenticatedUser authenticatedUser) {
+    Response getDining() {
         final List<ServiceLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {
@@ -83,8 +85,7 @@ class LocationResource extends Resource {
     @Path("culcenter")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response getCulCenter(@Auth AuthenticatedUser authenticatedUser) {
-
+    Response getCulCenter() {
         final List<ServiceLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
 
         if (!culCenterLocations) {
@@ -100,7 +101,7 @@ class LocationResource extends Resource {
     @Path("arcgis")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response getFacilities(@Auth AuthenticatedUser authenticatedUser) {
+    Response getFacilities() {
         ArrayList mergedData = getArcGisAndMapData()
 
         if (!mergedData) {
@@ -126,7 +127,7 @@ class LocationResource extends Resource {
     @Path("extension")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response getExtension(@Auth AuthenticatedUser authenticatedUser) {
+    Response getExtension() {
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
 
         if (!extensionLocations) {
@@ -142,13 +143,25 @@ class LocationResource extends Resource {
     @Path("combined")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    Response combineSources(@Auth AuthenticatedUser authenticatedUser) {
+    Response combineSources() {
         List<List> locationsList = []
         locationsList  += getArcGisAndMapData()
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
+        ok(resultObject).build()
+    }
+
+    @GET
+    @Path("services")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response services() {
+        List<List> locationsList = []
+        locationsList  += culCenterDAO.getCulCenterLocations( { it.tags.contains("services") } )
+
+        ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
         ok(resultObject).build()
     }
 

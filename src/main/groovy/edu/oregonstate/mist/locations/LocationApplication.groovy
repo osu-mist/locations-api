@@ -82,12 +82,10 @@ class LocationApplication extends Application<LocationConfiguration> {
         final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
         final ExtensionDAO extensionDAO =
                 new ExtensionDAO(configuration.locationsConfiguration, locationUtil)
-        final DiningDAO diningDAO =
-                new DiningDAO(configuration.locationsConfiguration, locationUtil)
+        final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
         final ArcGisDAO arcGisDAO =
                 new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
-        final CulCenterDAO culCenterDAO =
-                new CulCenterDAO(configuration.locationsConfiguration, locationUtil)
+        final CulCenterDAO culCenterDAO = new CulCenterDAO(configuration, locationUtil)
 
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))

@@ -1,5 +1,7 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 @groovy.transform.EqualsAndHashCode
 class Attributes {
     String name
@@ -22,5 +24,10 @@ class Attributes {
     String calendar
     String campus
     String type // used for searching. values: building, dining.
+    List<String> tags = []
+    String parent
     Map<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
+
+    @JsonIgnore
+    Boolean merge = false
 }
