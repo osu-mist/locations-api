@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory
 
 class IcalUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(IcalUtil.class)
-    private static final ObjectMapper MAPPER = new ObjectMapper()
 
     public static List<ServiceLocation> addLocationHours(List<ServiceLocation> diners,
                                                          String icalURLTemplate,

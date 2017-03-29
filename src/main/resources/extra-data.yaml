@@ -1,0 +1,10 @@
+---
+locations:
+  - name: Student Legacy Park
+    latitude: 44.562934
+    longitude: 123.281901
+    campus: corvallis
+    type: other
+    tags:
+      - recreation
+      - parks

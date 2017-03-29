@@ -11,6 +11,7 @@ import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
+import edu.oregonstate.mist.locations.db.ExtraDataManager
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
@@ -51,9 +52,11 @@ class LocationApplication extends Application<LocationConfiguration> {
      * @param buildInfoManager
      */
     protected void registerAppManagerLogic(Environment environment,
-                                           BuildInfoManager buildInfoManager) {
+                                           BuildInfoManager buildInfoManager,
+                                           ExtraDataManager extraDataManager) {
 
         environment.lifecycle().manage(buildInfoManager)
+        environment.lifecycle().manage(extraDataManager)
 
         environment.jersey().register(new NotFoundExceptionMapper())
         environment.jersey().register(new GenericExceptionMapper())
@@ -71,10 +74,10 @@ class LocationApplication extends Application<LocationConfiguration> {
     public void run(LocationConfiguration configuration, Environment environment) {
         Resource.loadProperties()
         BuildInfoManager buildInfoManager = new BuildInfoManager()
-        registerAppManagerLogic(environment, buildInfoManager)
+        ExtraDataManager extraDataManager = new ExtraDataManager()
+        registerAppManagerLogic(environment, buildInfoManager, extraDataManager)
 
-        final DBIFactory factory = new DBIFactory()
-
+//        final DBIFactory factory = new DBIFactory()
 //      final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
 //      final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
 
@@ -87,15 +90,10 @@ class LocationApplication extends Application<LocationConfiguration> {
                 new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
         final CulCenterDAO culCenterDAO = new CulCenterDAO(configuration, locationUtil)
 
-        environment.healthChecks().register("dining",
-                new DiningHealthCheck(configuration.locationsConfiguration))
-        environment.healthChecks().register("extension",
-                new ExtensionHealthCheck(configuration.locationsConfiguration))
-        environment.healthChecks().register("arcgis",
-                new ArcGisHealthCheck(configuration.locationsConfiguration))
+        addHealthChecks(environment, configuration)
 
         environment.jersey().register(new LocationResource(null, diningDAO, locationDAO,
-                extensionDAO, arcGisDAO, culCenterDAO))
+                extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData()))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()
@@ -105,6 +103,15 @@ class LocationApplication extends Application<LocationConfiguration> {
         ))
         environment.jersey().register(new AuthValueFactoryProvider.Binder
                 <AuthenticatedUser>(AuthenticatedUser.class))
+    }
+
+    private void addHealthChecks(Environment environment, LocationConfiguration configuration) {
+        environment.healthChecks().register("dining",
+                new DiningHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("extension",
+                new ExtensionHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("arcgis",
+                new ArcGisHealthCheck(configuration.locationsConfiguration))
     }
 
     /**

@@ -2,10 +2,10 @@ package edu.oregonstate.mist.locations.resources
 
 import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.api.AuthenticatedUser
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.ExtraData
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
@@ -15,7 +15,6 @@ import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
-import io.dropwizard.auth.Auth
 
 import javax.annotation.security.PermitAll
 import javax.ws.rs.GET
@@ -34,19 +33,19 @@ class LocationResource extends Resource {
     private final ExtensionDAO extensionDAO
     private final ArcGisDAO arcGisDAO
     private final CulCenterDAO culCenterDAO
+    private ExtraData extraData
 
     LocationResource(CampusMapLocationDAO campusMapLocationDAO,
-                     DiningDAO diningDAO,
-                     LocationDAO locationDAO,
-                     ExtensionDAO extensionDAO,
-                     ArcGisDAO arcGisDAO,
-                     CulCenterDAO culCenterDAO) {
+                     DiningDAO diningDAO, LocationDAO locationDAO,
+                     ExtensionDAO extensionDAO, ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO,
+                     ExtraData extraData) {
         this.campusMapLocationDAO = campusMapLocationDAO
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
         this.arcGisDAO = arcGisDAO
         this.culCenterDAO = culCenterDAO
+        this.extraData = extraData
     }
 
     @GET
@@ -146,8 +145,10 @@ class LocationResource extends Resource {
     Response combineSources() {
         List<List> locationsList = []
         locationsList  += getArcGisAndMapData()
+        locationsList  += extraData.locations
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
+        locationsList  += culCenterDAO.getCulCenterLocations( { ! it.tags.contains("services") })
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
         ok(resultObject).build()
@@ -182,6 +183,9 @@ class LocationResource extends Resource {
         locationsList.each {
             resultObject.data += locationDAO.convert(it)
         }
+
+        MergeUtil mergeUtil = new MergeUtil(resultObject)
+        mergeUtil.merge()
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally

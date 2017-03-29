@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
@@ -92,6 +93,21 @@ class LocationMapper  {
         )
 
         def id = LocationUtil.getMD5Hash(Constants.ARCGIS + arcGisLocation.bldID)
+        buildResourceObject(id, attributes)
+    }
+
+    public ResourceObject map(ExtraLocation extraLocation) {
+        Attributes attributes = new Attributes(
+                name: extraLocation.name,
+                //@todo: maybe we should leave the abbreviation blank?
+                abbreviation: extraLocation.name,
+                geoLocation: createGeoLocation(extraLocation.latitude,
+                        extraLocation.longitude),
+                type: extraLocation.type,
+                campus: extraLocation.campus,
+        )
+
+        def id = LocationUtil.getMD5Hash(Constants.EXTRA + extraLocation.name)
         buildResourceObject(id, attributes)
     }
 
