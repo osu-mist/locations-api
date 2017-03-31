@@ -9,7 +9,7 @@ import edu.oregonstate.mist.locations.core.ExtraData
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
-import edu.oregonstate.mist.locations.db.CampusMapLocationDAO
+
 import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response
 @Produces(MediaType.APPLICATION_JSON)
 @PermitAll
 class LocationResource extends Resource {
-    private final CampusMapLocationDAO campusMapLocationDAO
     private final DiningDAO diningDAO
     private final LocationDAO locationDAO
     private final ExtensionDAO extensionDAO
@@ -35,34 +34,14 @@ class LocationResource extends Resource {
     private final CulCenterDAO culCenterDAO
     private ExtraData extraData
 
-    LocationResource(CampusMapLocationDAO campusMapLocationDAO,
-                     DiningDAO diningDAO, LocationDAO locationDAO,
-                     ExtensionDAO extensionDAO, ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO,
-                     ExtraData extraData) {
-        this.campusMapLocationDAO = campusMapLocationDAO
+    LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
+                     ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO, ExtraData extraData) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
         this.arcGisDAO = arcGisDAO
         this.culCenterDAO = culCenterDAO
         this.extraData = extraData
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Timed
-    Response getCampusMap() {
-        final List<CampusMapLocation> campusMapLocations =
-                campusMapLocationDAO.getCampusMapLocations()
-
-        if (!campusMapLocations) {
-            return notFound().build()
-        }
-
-        ResultObject resultObject =
-                writeJsonAPIToFile("locations-campusmap.json", campusMapLocations)
-        locationDAO.writeMapToJson(campusMapLocations)
-        ok(resultObject).build()
     }
 
     @GET

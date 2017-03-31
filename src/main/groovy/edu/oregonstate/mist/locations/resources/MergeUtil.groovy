@@ -14,9 +14,11 @@ class MergeUtil {
         def dataToMerge = getMergeData()
 
         dataToMerge.each { it ->
+            // Here we are trying to find the original location (not defined in configuration.yaml)
+            // the hours come from the calendar object defined in configuration.yaml
             def foo = resultObject.data.find { primeObject ->
                 primeObject.attributes.abbreviation == it.attributes.name &&
-                        primeObject.attributes.merge
+                        !primeObject.attributes.merge
             }
 
             if (foo) {

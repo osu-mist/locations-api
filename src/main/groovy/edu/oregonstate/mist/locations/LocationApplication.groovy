@@ -77,10 +77,6 @@ class LocationApplication extends Application<LocationConfiguration> {
         ExtraDataManager extraDataManager = new ExtraDataManager()
         registerAppManagerLogic(environment, buildInfoManager, extraDataManager)
 
-//        final DBIFactory factory = new DBIFactory()
-//      final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
-//      final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
-
         final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
         final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
         final ExtensionDAO extensionDAO =
@@ -92,7 +88,7 @@ class LocationApplication extends Application<LocationConfiguration> {
 
         addHealthChecks(environment, configuration)
 
-        environment.jersey().register(new LocationResource(null, diningDAO, locationDAO,
+        environment.jersey().register(new LocationResource(diningDAO, locationDAO,
                 extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData()))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
