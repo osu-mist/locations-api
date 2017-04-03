@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import edu.oregonstate.mist.api.Credentials
 import edu.oregonstate.mist.locations.core.Calendar
 import io.dropwizard.Configuration
+import io.dropwizard.client.HttpClientConfiguration
 import org.hibernate.validator.constraints.NotEmpty
 
 import javax.validation.Valid
@@ -28,14 +29,7 @@ class LocationConfiguration extends Configuration {
     @JsonProperty
     List<Calendar> calendars
 
-//    @JsonProperty("database")
-//    public DataSourceFactory getDataSourceFactory() {
-//        database
-//    }
-//
-//    @JsonProperty("database")
-//    public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
-//        this.database = dataSourceFactory
-//    }
-
+    @Valid
+    @NotNull
+    HttpClientConfiguration httpClientConfiguration
 }

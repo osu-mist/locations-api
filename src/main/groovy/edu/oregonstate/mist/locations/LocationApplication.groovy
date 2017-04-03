@@ -12,6 +12,7 @@ import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
+import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
@@ -24,10 +25,12 @@ import io.dropwizard.Application
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.AuthValueFactoryProvider
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
+import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jersey.errors.LoggingExceptionMapper
-import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.http.client.HttpClient
+
 import javax.ws.rs.WebApplicationException
 
 /**
@@ -77,19 +80,25 @@ class LocationApplication extends Application<LocationConfiguration> {
         ExtraDataManager extraDataManager = new ExtraDataManager()
         registerAppManagerLogic(environment, buildInfoManager, extraDataManager)
 
-        final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
-        final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
-        final ExtensionDAO extensionDAO =
-                new ExtensionDAO(configuration.locationsConfiguration, locationUtil)
+        // the httpclient from DW provides with many metrics and config options
+        HttpClient httpClient = new HttpClientBuilder(environment)
+                .using(configuration.getHttpClientConfiguration())
+                .build("backend-http-client")
+
+        def configMap = configuration.locationsConfiguration
+        final LibraryDAO libraryDAO = new LibraryDAO(configuration.locationsConfiguration,
+                httpClient)
+        final LocationDAO locationDAO = new LocationDAO(configMap)
+        final LocationUtil locationUtil = new LocationUtil(configMap)
+        final ExtensionDAO extensionDAO = new ExtensionDAO(configMap, locationUtil)
         final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
-        final ArcGisDAO arcGisDAO =
-                new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
+        final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
         final CulCenterDAO culCenterDAO = new CulCenterDAO(configuration, locationUtil)
 
         addHealthChecks(environment, configuration)
 
         environment.jersey().register(new LocationResource(diningDAO, locationDAO,
-                extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData()))
+                extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData(), libraryDAO))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()

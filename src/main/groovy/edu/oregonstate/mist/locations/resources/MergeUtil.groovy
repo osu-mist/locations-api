@@ -1,13 +1,17 @@
 package edu.oregonstate.mist.locations.resources
 
+import edu.oregonstate.mist.locations.core.Attributes
+import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
 
 class MergeUtil {
 
     ResultObject resultObject
+    LibraryDAO libraryDAO
 
-    MergeUtil(ResultObject resultObject) {
+    MergeUtil(ResultObject resultObject, LibraryDAO libraryDAO) {
         this.resultObject = resultObject
+        this.libraryDAO = libraryDAO
     }
 
     void merge() {
@@ -41,5 +45,29 @@ class MergeUtil {
         resultObject.data.findAll {
             it.attributes.merge
         }
+    }
+
+    /**
+     * Can populate resource objects' attributes by dynamically calling the
+     * method populateABBREVIATION
+     */
+    void populate() {
+        String methodPrefix = "populate"
+        String methodName
+        resultObject.data.each {
+            methodName = methodPrefix + it?.attributes?.abbreviation?.capitalize()
+            if (this.metaClass.respondsTo(this, methodName)) {
+                this."$methodName"(it.attributes)
+            }
+        }
+    }
+
+    /**
+     * Add library hours
+     *
+     * @param attributes
+     */
+    void populateVLib(Attributes attributes) {
+        attributes.setOpenHours(libraryDAO.getLibraryHours())
     }
 }

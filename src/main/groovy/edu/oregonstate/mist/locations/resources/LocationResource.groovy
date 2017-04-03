@@ -13,6 +13,7 @@ import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CulCenterDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
+import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
 
@@ -32,16 +33,19 @@ class LocationResource extends Resource {
     private final ExtensionDAO extensionDAO
     private final ArcGisDAO arcGisDAO
     private final CulCenterDAO culCenterDAO
+    private final LibraryDAO libraryDAO
     private ExtraData extraData
 
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
-                     ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO, ExtraData extraData) {
+                     ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO, ExtraData extraData,
+                     LibraryDAO libraryDAO) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
         this.arcGisDAO = arcGisDAO
         this.culCenterDAO = culCenterDAO
         this.extraData = extraData
+        this.libraryDAO = libraryDAO
     }
 
     @GET
@@ -118,6 +122,16 @@ class LocationResource extends Resource {
     }
 
     @GET
+    @Path("library")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    Response getLibrary() {
+        def data = libraryDAO.getLibraryHours()
+
+        ok(data).build()
+    }
+
+    @GET
     @Path("combined")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
@@ -163,8 +177,9 @@ class LocationResource extends Resource {
             resultObject.data += locationDAO.convert(it)
         }
 
-        MergeUtil mergeUtil = new MergeUtil(resultObject)
+        MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO)
         mergeUtil.merge()
+        mergeUtil.populate()
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
