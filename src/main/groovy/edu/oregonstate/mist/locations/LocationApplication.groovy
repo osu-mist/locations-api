@@ -17,6 +17,7 @@ import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
 import edu.oregonstate.mist.locations.health.ExtensionHealthCheck
+import edu.oregonstate.mist.locations.health.LibraryHealthCheck
 import edu.oregonstate.mist.locations.resources.LocationResource
 import edu.oregonstate.mist.api.PrettyPrintResponseFilter
 import edu.oregonstate.mist.api.jsonapi.GenericExceptionMapper
@@ -95,7 +96,7 @@ class LocationApplication extends Application<LocationConfiguration> {
         final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
         final CulCenterDAO culCenterDAO = new CulCenterDAO(configuration, locationUtil)
 
-        addHealthChecks(environment, configuration)
+        addHealthChecks(environment, configuration, libraryDAO)
 
         environment.jersey().register(new LocationResource(diningDAO, locationDAO,
                 extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData(), libraryDAO))
@@ -110,13 +111,15 @@ class LocationApplication extends Application<LocationConfiguration> {
                 <AuthenticatedUser>(AuthenticatedUser.class))
     }
 
-    private void addHealthChecks(Environment environment, LocationConfiguration configuration) {
+    private void addHealthChecks(Environment environment, LocationConfiguration configuration,
+                                 LibraryDAO libraryDAO) {
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))
         environment.healthChecks().register("extension",
                 new ExtensionHealthCheck(configuration.locationsConfiguration))
         environment.healthChecks().register("arcgis",
                 new ArcGisHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("library", new LibraryHealthCheck(libraryDAO))
     }
 
     /**
