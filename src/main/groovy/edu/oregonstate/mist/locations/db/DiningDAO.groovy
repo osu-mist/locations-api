@@ -12,10 +12,6 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
     List<ServiceLocation> getDiningLocations() {
-        getDiningLocations(locationUtil)
-    }
-
-    List<ServiceLocation> getDiningLocations(LocationUtil locationUtil) {
         String diningData = getDiningLocationList()
 
         List<ServiceLocation> diners =
@@ -27,8 +23,6 @@ public class DiningDAO extends IcalDAO {
 
         IcalUtil.addLocationHours(diners, icalURL, locationUtil)
         //@todo: how to deal with html in title?
-
-        //@todo: need a flag to know if it's the first time in the day that we have flagged
 
         diners
     }

@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.core
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import edu.oregonstate.mist.locations.Constants
 
 class ServiceLocation implements Comparable {
     @JsonProperty("concept_title")
@@ -16,7 +17,7 @@ class ServiceLocation implements Comparable {
     List<String> tags = []
     String parent
     Boolean merge = false
-    String type
+    String type = Constants.TYPE_OTHER
 
     private final Integer LATITUDE_INDEX = 0
     private final Integer LONGITUDE_INDEX = 1

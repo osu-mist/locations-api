@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 class ExtraDataManager implements Managed {
     public static final String FILE_NAME = 'extra-data.yaml'
 
-    private ExtraData extraData = new ExtraData()
+    ExtraData extraData = new ExtraData()
 
     /**
      * Loads FILE_NAME.
@@ -22,12 +22,11 @@ class ExtraDataManager implements Managed {
 
     @Override
     public void start() throws FileNotFoundException {
-        def stream = InfoResource.class.getResourceAsStream('/' + FILE_NAME)
-        if (stream == null) {
+        String text = new File('./' + FILE_NAME)?.text
+        if (!text) {
             throw new FileNotFoundException("couldn't load $FILE_NAME")
         }
 
-        def text = stream?.getText()
         println "cedenoj + " + text
         println "cedenoj size = ${text.size()}"
 
@@ -37,16 +36,11 @@ class ExtraDataManager implements Managed {
         c.addTypeDescription(t)
 
         Yaml yml = new Yaml(c)
-        ExtraData loadedData = (ExtraData) yml.load(text)
-        extraData.locations = loadedData.locations
+        extraData = (ExtraData) yml.load(text)
 
         extraData?.locations?.each {
             println it
         }
-    }
-
-    ExtraData getExtraData() {
-        extraData
     }
 
     @Override

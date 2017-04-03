@@ -25,10 +25,6 @@ class LocationConfiguration extends Configuration {
     @Valid
     Map<String, String> locationsConfiguration
 
-    @NotEmpty
-    @JsonProperty
-    List<Calendar> calendars
-
     @Valid
     @NotNull
     HttpClientConfiguration httpClientConfiguration

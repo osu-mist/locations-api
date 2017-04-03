@@ -8,7 +8,7 @@ import edu.oregonstate.mist.api.Configuration
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.InfoResource
 import edu.oregonstate.mist.locations.db.ArcGisDAO
-import edu.oregonstate.mist.locations.db.CulCenterDAO
+import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
@@ -94,12 +94,13 @@ class LocationApplication extends Application<LocationConfiguration> {
         final ExtensionDAO extensionDAO = new ExtensionDAO(configMap, locationUtil)
         final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
         final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
-        final CulCenterDAO culCenterDAO = new CulCenterDAO(configuration, locationUtil)
+        ExtraDataDAO extraDataDAO = new ExtraDataDAO(configuration, locationUtil,
+                extraDataManager)
 
         addHealthChecks(environment, configuration, libraryDAO)
 
         environment.jersey().register(new LocationResource(diningDAO, locationDAO,
-                extensionDAO, arcGisDAO, culCenterDAO, extraDataManager.getExtraData(), libraryDAO))
+                extensionDAO, arcGisDAO, extraDataDAO, extraDataManager, libraryDAO))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()
@@ -111,8 +112,9 @@ class LocationApplication extends Application<LocationConfiguration> {
                 <AuthenticatedUser>(AuthenticatedUser.class))
     }
 
-    private void addHealthChecks(Environment environment, LocationConfiguration configuration,
-                                 LibraryDAO libraryDAO) {
+    private static void addHealthChecks(Environment environment,
+                                        LocationConfiguration configuration,
+                                        LibraryDAO libraryDAO) {
         environment.healthChecks().register("dining",
                 new DiningHealthCheck(configuration.locationsConfiguration))
         environment.healthChecks().register("extension",

@@ -1,6 +1,5 @@
 package edu.oregonstate.mist.locations.db
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.ServiceLocation

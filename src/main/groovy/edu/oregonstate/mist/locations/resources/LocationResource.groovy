@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
-import edu.oregonstate.mist.locations.core.ExtraData
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 
-import edu.oregonstate.mist.locations.db.CulCenterDAO
+import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
+import edu.oregonstate.mist.locations.db.ExtraDataManager
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.jsonapi.ResultObject
@@ -32,19 +32,19 @@ class LocationResource extends Resource {
     private final LocationDAO locationDAO
     private final ExtensionDAO extensionDAO
     private final ArcGisDAO arcGisDAO
-    private final CulCenterDAO culCenterDAO
+    private final ExtraDataDAO extraDataDAO
     private final LibraryDAO libraryDAO
-    private ExtraData extraData
+    private ExtraDataManager extraDataManager
 
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
-                     ArcGisDAO arcGisDAO, CulCenterDAO culCenterDAO, ExtraData extraData,
-                     LibraryDAO libraryDAO) {
+                     ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
+                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
         this.arcGisDAO = arcGisDAO
-        this.culCenterDAO = culCenterDAO
-        this.extraData = extraData
+        this.extraDataDAO = extraDataDAO
+        this.extraDataManager = extraDataManager
         this.libraryDAO = libraryDAO
     }
 
@@ -69,7 +69,7 @@ class LocationResource extends Resource {
     @Timed
     Response getCulCenter() {
         final List<ServiceLocation> culCenterLocations =
-                culCenterDAO.getCulCenterLocations( { it.tags.contains("cultural-centers") })
+                extraDataDAO.getExtraDataLocations( { it.tags.contains("cultural-centers") })
 
         if (!culCenterLocations) {
             return notFound().build()
@@ -139,10 +139,10 @@ class LocationResource extends Resource {
     Response combineSources() {
         List<List> locationsList = []
         locationsList  += getArcGisAndMapData()
-        locationsList  += extraData.locations
+        locationsList  += extraDataManager.extraData.locations
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
-        locationsList  += culCenterDAO.getCulCenterLocations( { ! it.tags.contains("services") })
+        locationsList  += extraDataDAO.getExtraDataLocations( { ! it.tags.contains("services") })
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
         ok(resultObject).build()
@@ -154,7 +154,7 @@ class LocationResource extends Resource {
     @Timed
     Response services() {
         List<List> locationsList = []
-        locationsList  += culCenterDAO.getCulCenterLocations( { it.tags.contains("services") } )
+        locationsList  += extraDataDAO.getExtraDataLocations( { it.tags.contains("services") } )
 
         ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
         ok(resultObject).build()
