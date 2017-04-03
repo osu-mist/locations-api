@@ -68,7 +68,8 @@ class LocationResource extends Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getCulCenter() {
-        final List<ServiceLocation> culCenterLocations = culCenterDAO.getCulCenterLocations()
+        final List<ServiceLocation> culCenterLocations =
+                culCenterDAO.getCulCenterLocations( { it.tags.contains("cultural-centers") })
 
         if (!culCenterLocations) {
             return notFound().build()
