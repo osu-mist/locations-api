@@ -42,4 +42,13 @@ public class ExtraDataDAO extends IcalDAO {
             )
         }
     }
+
+    /**
+     * Returns extra data locations defined as tags: services without hours populated.
+     *
+     * @return
+     */
+    public List<ServiceLocation> getLazyServices() {
+          getServiceLocationList { it.tags.contains("services") }
+    }
 }

@@ -1,15 +1,16 @@
 package edu.oregonstate.mist.locations.db
 
-import edu.oregonstate.mist.api.InfoResource
 import edu.oregonstate.mist.locations.core.ExtraData
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import io.dropwizard.lifecycle.Managed
-
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.*
 import org.yaml.snakeyaml.constructor.Constructor
 
 class ExtraDataManager implements Managed {
     public static final String FILE_NAME = 'extra-data.yaml'
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtraDataManager.class)
 
     ExtraData extraData = new ExtraData()
 
@@ -27,8 +28,7 @@ class ExtraDataManager implements Managed {
             throw new FileNotFoundException("couldn't load $FILE_NAME")
         }
 
-        println "cedenoj + " + text
-        println "cedenoj size = ${text.size()}"
+        LOGGER.debug("extra-data file loaded with: " + text)
 
         Constructor c = new Constructor(ExtraData.class)
         TypeDescription t = new TypeDescription(ExtraData.class)
@@ -39,7 +39,7 @@ class ExtraDataManager implements Managed {
         extraData = (ExtraData) yml.load(text)
 
         extraData?.locations?.each {
-            println it
+            LOGGER.debug("loaded location from extra data file: " + it)
         }
     }
 

@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations.core
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.oregonstate.mist.locations.Constants
 
-class ServiceLocation implements Comparable {
+class ServiceLocation extends BaseType implements Comparable {
     @JsonProperty("concept_title")
     String conceptTitle
     String zone
@@ -40,5 +40,10 @@ class ServiceLocation implements Comparable {
     @Override
     int compareTo(Object o) {
         calendarId <=> o.calendarId
+    }
+
+    @Override
+    protected String getIdField() {
+        conceptTitle
     }
 }

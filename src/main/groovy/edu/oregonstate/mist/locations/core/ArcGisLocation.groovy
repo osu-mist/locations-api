@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations.core
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @groovy.transform.EqualsAndHashCode
-class ArcGisLocation {
+class ArcGisLocation extends BaseType {
     @JsonProperty("BldID")
     String bldID
     @JsonProperty("BldNam")
@@ -27,5 +27,10 @@ class ArcGisLocation {
         this.bldNamAbr = arcGisMap.BldNamAbr
         this.latitude = arcGisMap.Latitude
         this.longitude = arcGisMap.Longitude
+    }
+
+    @Override
+    protected String getIdField() {
+        bldNamAbr ?: bldNam
     }
 }

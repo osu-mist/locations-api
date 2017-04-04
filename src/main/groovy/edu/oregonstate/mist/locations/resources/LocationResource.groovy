@@ -64,23 +64,6 @@ class LocationResource extends Resource {
     }
 
     @GET
-    @Path("culcenter")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Timed
-    Response getCulCenter() {
-        final List<ServiceLocation> culCenterLocations =
-                extraDataDAO.getExtraDataLocations( { it.tags.contains("cultural-centers") })
-
-        if (!culCenterLocations) {
-            return notFound().build()
-        }
-
-        ResultObject resultObject =
-                writeJsonAPIToFile("locations-culcenter.json", culCenterLocations)
-        ok(resultObject).build()
-    }
-
-    @GET
     @Path("arcgis")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
@@ -178,9 +161,10 @@ class LocationResource extends Resource {
             resultObject.data += locationDAO.convert(it)
         }
 
-        MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO)
+        MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO, extraDataDAO)
         mergeUtil.merge()
         mergeUtil.populate()
+        mergeUtil.appendRelationships()
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally

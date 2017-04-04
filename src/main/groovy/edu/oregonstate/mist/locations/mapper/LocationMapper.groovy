@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.locations.mapper
 
 import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
@@ -35,8 +34,7 @@ class LocationMapper  {
         // Some attribute fields are calculated based on campusmap information
         setCalculatedFields(attributes, campusMapLocation)
 
-        def id = LocationUtil.getMD5Hash(Constants.CAMPUSMAP + campusMapLocation.id)
-        buildResourceObject(id, attributes)
+        buildResourceObject(campusMapLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ServiceLocation serviceLocation) {
@@ -56,9 +54,7 @@ class LocationMapper  {
             parent: serviceLocation.parent
         )
 
-        //@todo: the value of dining below needs to change to: dining, cultural and recsports
-        def id = LocationUtil.getMD5Hash(Constants.DINING + serviceLocation.calendarId)
-        buildResourceObject(id, attributes)
+        buildResourceObject(serviceLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ExtensionLocation extensionLocation) {
@@ -78,8 +74,7 @@ class LocationMapper  {
             campus: Constants.CAMPUS_EXTENSION,
         )
 
-        def id = LocationUtil.getMD5Hash(Constants.EXTENSION + extensionLocation.guid)
-        buildResourceObject(id, attributes)
+        buildResourceObject(extensionLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ArcGisLocation arcGisLocation) {
@@ -92,23 +87,21 @@ class LocationMapper  {
                 campus: Constants.CAMPUS_CORVALLIS,
         )
 
-        def id = LocationUtil.getMD5Hash(Constants.ARCGIS + arcGisLocation.bldID)
-        buildResourceObject(id, attributes)
+        buildResourceObject(arcGisLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ExtraLocation extraLocation) {
         Attributes attributes = new Attributes(
                 name: extraLocation.name,
                 //@todo: maybe we should leave the abbreviation blank?
-                abbreviation: extraLocation.name,
+                abbreviation: extraLocation.abbreviation,
                 geoLocation: createGeoLocation(extraLocation.latitude,
                         extraLocation.longitude),
                 type: extraLocation.type,
                 campus: extraLocation.campus,
         )
 
-        def id = LocationUtil.getMD5Hash(Constants.EXTRA + extraLocation.name)
-        buildResourceObject(id, attributes)
+        buildResourceObject(extraLocation.calculateId(), attributes)
     }
 
     private String getCampusmapWebsite(Integer id) {
