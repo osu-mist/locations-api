@@ -15,7 +15,7 @@ import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
-import edu.oregonstate.mist.locations.jsonapi.ResultObject
+import edu.oregonstate.mist.api.jsonapi.ResultObject
 
 import javax.annotation.security.PermitAll
 import javax.ws.rs.GET

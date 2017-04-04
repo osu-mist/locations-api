@@ -8,7 +8,7 @@ import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
-import edu.oregonstate.mist.locations.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 
 import java.nio.charset.StandardCharsets
 

@@ -4,7 +4,7 @@ import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
-import edu.oregonstate.mist.locations.jsonapi.ResultObject
+import edu.oregonstate.mist.api.jsonapi.ResultObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

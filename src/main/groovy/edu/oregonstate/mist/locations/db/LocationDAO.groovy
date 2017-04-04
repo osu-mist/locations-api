@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
-import edu.oregonstate.mist.locations.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 
 class LocationDAO {
