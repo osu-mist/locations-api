@@ -25,11 +25,13 @@ build.properties
 # api cache directory
 cache/
 
-# locations campusmap
+# Contrib files
 campusmap.json
+extra-data.yaml
 
 # locations output json
 locations-*.json
+services.json
 
 # Keytool Files
 *.pem
