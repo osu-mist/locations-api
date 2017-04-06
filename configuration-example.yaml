@@ -56,12 +56,15 @@ locations:
   apiEndpointUrl: https://api.example.com/v1/
   arcGisQueryUrl: http://arcgis.example.com/
   arcGisJsonOut: arcgis.json
+  libraryUrl: https://api.library.com/v1/
 
-database:
-  driverClass: com.mysql.jdbc.Driver
-  user: secret
-  password: sauce
-  url: jdbc:mysql://example.com:1234/dbname?useUnicode=true&characterEncoding=UTF-8
-  initialSize: 2
-  minSize: 1
-  maxSize: 4
+httpClientConfiguration:
+  timeout: 150ms
+  connectionTimeout: 150ms
+  timeToLive: 1h
+  cookiesEnabled: false
+  maxConnections: 2
+  maxConnectionsPerRoute: 2
+  keepAlive: 0ms
+  retries: 0
+  userAgent: api-client
