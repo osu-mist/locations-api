@@ -3,6 +3,10 @@ package edu.oregonstate.mist.locations.core
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.oregonstate.mist.locations.Constants
 
+/**
+ * Location that behaves more like a service. Includes dining, cultural centers and
+ * recsports data.
+ */
 class ServiceLocation extends BaseType implements Comparable {
     @JsonProperty("concept_title")
     String conceptTitle

@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.ExtraLocation
+import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
@@ -38,23 +39,38 @@ class LocationMapper  {
     }
 
     public ResourceObject map(ServiceLocation serviceLocation) {
-        //@todo: move it somewhere else? call it something else?
-        def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+        // The ServiceLocation class is used for multiple types of data
+        def attributes
+        if(isService(serviceLocation)) {
+            attributes = new ServiceAttributes(
+                    name: serviceLocation.conceptTitle,
+                    type: serviceLocation.type,
+                    openHours: serviceLocation.openHours,
+                    merge: serviceLocation.merge,
+                    tags: serviceLocation.tags,
+                    parent: serviceLocation.parent
+            )
 
-        Attributes attributes = new Attributes(
-            name: serviceLocation.conceptTitle,
-            geoLocation: createGeoLocation(serviceLocation.latitude,
-                                            serviceLocation.longitude),
-            summary: summary,
-            type: serviceLocation.type,
-            campus: Constants.CAMPUS_CORVALLIS,
-            openHours: serviceLocation.openHours,
-            merge: serviceLocation.merge,
-            tags: serviceLocation.tags,
-            parent: serviceLocation.parent
-        )
+        } else {
+            def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+            attributes = new Attributes(name: serviceLocation.conceptTitle,
+                    geoLocation: createGeoLocation(serviceLocation.latitude,
+                            serviceLocation.longitude),
+                    summary: summary,
+                    type: serviceLocation.type,
+                    campus: Constants.CAMPUS_CORVALLIS,
+                    openHours: serviceLocation.openHours,
+                    merge: serviceLocation.merge,
+                    tags: serviceLocation.tags,
+                    parent: serviceLocation.parent
+            )
+        }
 
         buildResourceObject(serviceLocation.calculateId(), attributes)
+    }
+
+    private static boolean isService(def serviceLocation) {
+        serviceLocation.type == Constants.TYPE_SERVICES
     }
 
     public ResourceObject map(ExtensionLocation extensionLocation) {
@@ -141,9 +157,14 @@ class LocationMapper  {
      * @param id
      * @param attributes
      */
-    private ResourceObject buildResourceObject(String id, Attributes attributes) {
-        def resourceObject = new ResourceObject(id: id, type: "locations", attributes: attributes)
-        setLinks(resourceObject)
+    private ResourceObject buildResourceObject(String id, def attributes) {
+        def type = isService(attributes) ? Constants.TYPE_SERVICES : "locations"
+        def resourceObject = new ResourceObject(id: id, type: type, attributes: attributes)
+
+        // We aren't adding links to the services resource object. Only at the collection level
+        if (!isService(attributes)) {
+            setLinks(resourceObject)
+        }
         resourceObject
     }
 

@@ -19,7 +19,15 @@ public class ExtraDataDAO extends IcalDAO {
         this.extraDataManager = extraDataManager
     }
 
-    List<ServiceLocation> getExtraDataLocations(Closure filter) {
+    List<ServiceLocation> getLocations() {
+        getExtraDataLocations( { !it.tags.contains("services") } )
+    }
+
+    List<ServiceLocation> getServices() {
+        getExtraDataLocations( { it.tags.contains("services") } )
+    }
+
+    private List<ServiceLocation> getExtraDataLocations(Closure filter) {
         List<ServiceLocation> centers = getServiceLocationList(filter)
 
         IcalUtil.addLocationHours(centers, icalURL, locationUtil)

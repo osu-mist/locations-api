@@ -50,7 +50,6 @@ class LocationResource extends Resource {
 
     @GET
     @Path("dining")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getDining() {
         final List<ServiceLocation> diningLocations = diningDAO.getDiningLocations()
@@ -65,7 +64,6 @@ class LocationResource extends Resource {
 
     @GET
     @Path("arcgis")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getFacilities() {
         ArrayList mergedData = getArcGisAndMapData()
@@ -91,7 +89,6 @@ class LocationResource extends Resource {
 
     @GET
     @Path("extension")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getExtension() {
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
@@ -107,7 +104,6 @@ class LocationResource extends Resource {
 
     @GET
     @Path("library")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response getLibrary() {
         def data = libraryDAO.getLibraryHours()
@@ -117,7 +113,6 @@ class LocationResource extends Resource {
 
     @GET
     @Path("combined")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response combineSources() {
         List<List> locationsList = []
@@ -125,7 +120,7 @@ class LocationResource extends Resource {
         locationsList  += extraDataManager.extraData.locations
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
-        locationsList  += extraDataDAO.getExtraDataLocations( { ! it.tags.contains("services") })
+        locationsList  += extraDataDAO.getLocations()
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
         ok(resultObject).build()
@@ -133,11 +128,10 @@ class LocationResource extends Resource {
 
     @GET
     @Path("services")
-    @Produces(MediaType.APPLICATION_JSON)
     @Timed
     Response services() {
         List<List> locationsList = []
-        locationsList  += extraDataDAO.getExtraDataLocations( { it.tags.contains("services") } )
+        locationsList  += extraDataDAO.getServices()
 
         ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
         ok(resultObject).build()
@@ -161,10 +155,13 @@ class LocationResource extends Resource {
             resultObject.data += locationDAO.convert(it)
         }
 
+        //@todo: needs refactoring / clean up
         MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO, extraDataDAO)
-        mergeUtil.merge()
-        mergeUtil.populate()
-        mergeUtil.appendRelationships()
+        if (filename != "services.json") {
+            mergeUtil.merge() // only applies to locations
+            mergeUtil.populate() // only applies to locations for now?
+            mergeUtil.appendRelationships() // only applies to locations. very specific to locations
+        }
 
         // @todo: move this somewhere else
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
