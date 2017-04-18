@@ -203,6 +203,14 @@ This resource returns all dining information and generates locations-dining.json
 }
 ```
 
+### GET /locations/combined
+
+Generates a file that can be used with ElasticSearch for bulk insert.
+
+### GET /locations/services
+
+Generates a file that can be used with ElasticSearch for bulk insert.
+
 ## Post to Elasticsearch
 
 Elasticsearch won't be aware of Geo location and date type if the index template is not posted. This is also required to allow frontend api to use query parameters like lat/lon, isOpen.
@@ -213,8 +221,11 @@ Follow the below steps to post locations data to Elasticsearch
 # Delete the existed index:
 curl -s -XDELETE http://localhost:9200/locations/ ; echo
 
-#Post index template:
+#Post index template to locations:
 curl -s -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
+
+#Post index template to services:
+curl -s -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-services-index-template.json"; echo
 
 #Fetch dining/arcgis/extension JSON and post them to ES.
 ```

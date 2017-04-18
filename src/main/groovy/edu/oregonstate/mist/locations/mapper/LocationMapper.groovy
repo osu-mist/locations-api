@@ -148,7 +148,18 @@ class LocationMapper  {
     }
 
     private void setLinks(ResourceObject resourceObject) {
-        resourceObject.links = ['self': apiEndpointUrl + "/" + resourceObject.id]
+        def isService = isService(resourceObject.attributes)
+        String resource = isService ? Constants.SERVICES : Constants.LOCATIONS
+
+        String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
+        resourceObject.links = ['self': selfUrl]
+
+        // Add related building / location to a service object
+        if (isService) {
+            String relatedLocation = apiEndpointUrl + Constants.LOCATIONS + "/"  +
+                    resourceObject.attributes.locationId
+            resourceObject.links['location'] = relatedLocation
+        }
     }
 
     /**
@@ -161,10 +172,7 @@ class LocationMapper  {
         def type = isService(attributes) ? Constants.TYPE_SERVICES : "locations"
         def resourceObject = new ResourceObject(id: id, type: type, attributes: attributes)
 
-        // We aren't adding links to the services resource object. Only at the collection level
-        if (!isService(attributes)) {
-            setLinks(resourceObject)
-        }
+        setLinks(resourceObject)
         resourceObject
     }
 

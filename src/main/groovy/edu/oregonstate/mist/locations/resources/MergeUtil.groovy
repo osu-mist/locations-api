@@ -20,6 +20,10 @@ class MergeUtil {
         this.extraDataDAO = extraDataDAO
     }
 
+    /**
+     * Iterates over the resultObject and merges the hours from the merge:true extra-data.yaml
+     * file into the original resourceObject that comes from arcgis or campusmap.
+     */
     void merge() {
         def dataToMerge = getMergeData()
 
@@ -48,6 +52,12 @@ class MergeUtil {
         resultObject.data = resultObject.data - dataToMerge
     }
 
+    /**
+     * Returns the data (originally from extra-data.yaml) where the merge attribute was set
+     * to true.
+     *
+     * @return
+     */
     private ArrayList getMergeData() {
         resultObject.data.findAll {
             it.attributes.merge
