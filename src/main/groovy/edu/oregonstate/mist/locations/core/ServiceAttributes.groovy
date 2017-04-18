@@ -31,4 +31,12 @@ class ServiceAttributes {
             BaseType.calculateId(Constants.TYPE_BUILDING, parent)
         }
     }
+
+    int getHashCode() {
+        int result
+        result = (name != null ? name.hashCode() : 0)
+
+        Math.abs(result)
+    }
+
 }
