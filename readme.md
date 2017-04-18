@@ -229,3 +229,17 @@ curl -s -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-ser
 
 #Fetch dining/arcgis/extension JSON and post them to ES.
 ```
+
+## Reset Elasticsearch data
+
+The data-reset.sh bash script clears the Elasticsearch indices, reloads the template and reloads the data
+
+Usage:
+```bash
+# Set local credentials to be used
+export USER=secret
+export PASSWORD=sauce
+
+# Run bash script
+./reset-data.sh
+```
