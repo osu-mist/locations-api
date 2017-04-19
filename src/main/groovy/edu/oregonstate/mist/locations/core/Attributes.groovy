@@ -27,6 +27,7 @@ class Attributes {
         int result
         result = (name != null ? name.hashCode() : 0)
         result = 31 * result + (abbreviation != null ? abbreviation.hashCode() : 0)
+        result = 31 * result + (summary != null ? summary.hashCode() : 0)
         result = 31 * result + (website != null ? website.hashCode() : 0)
         result = 31 * result + (address != null ? address.hashCode() : 0)
         result = 31 * result + (city != null ? city.hashCode() : 0)
