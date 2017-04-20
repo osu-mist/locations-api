@@ -148,18 +148,11 @@ class LocationMapper  {
     }
 
     private void setLinks(ResourceObject resourceObject) {
-        def isService = isService(resourceObject.attributes)
-        String resource = isService ? Constants.SERVICES : Constants.LOCATIONS
+        String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
+                Constants.LOCATIONS
 
         String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
         resourceObject.links = ['self': selfUrl]
-
-        // Add related building / location to a service object
-        if (isService) {
-            String relatedLocation = apiEndpointUrl + Constants.LOCATIONS + "/"  +
-                    resourceObject.attributes.locationId
-            resourceObject.links['location'] = relatedLocation
-        }
     }
 
     /**

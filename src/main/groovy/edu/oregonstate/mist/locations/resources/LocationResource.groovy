@@ -155,12 +155,13 @@ class LocationResource extends Resource {
             resultObject.data += locationDAO.convert(it)
         }
 
-        //@todo: needs refactoring / clean up
         MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO, extraDataDAO)
         if (filename != "services.json") {
             mergeUtil.merge() // only applies to locations
             mergeUtil.populate() // only applies to locations for now?
-            mergeUtil.appendRelationships() // only applies to locations. very specific to locations
+            mergeUtil.appendRelationshipsToLocations()
+        } else {
+            mergeUtil.appendRelationshipsToServices()
         }
 
         // @todo: move this somewhere else

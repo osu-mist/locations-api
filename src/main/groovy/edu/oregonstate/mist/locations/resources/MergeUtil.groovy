@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.resources
 
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
+import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
@@ -65,9 +66,10 @@ class MergeUtil {
     }
 
     /**
-     * Iterates over the services in extra-data.yaml and appends the services to the resultObject
+     * Iterates over the services in extra-data.yaml and appends the services to the locations'
+     * resultObject
      */
-    public void appendRelationships() {
+    public void appendRelationshipsToLocations() {
         extraDataDAO.getLazyServices().each {
             resultObject.data.findAll( { resourceObject ->
                 resourceObject.attributes.abbreviation == it.parent && !it.merge
@@ -91,6 +93,24 @@ class MergeUtil {
                 resourceObject.relationships.services.data <<
                         new ResourceIdentifierObject(id: id, type: it.type)
             }
+        }
+    }
+
+    /**
+     * Appends relationships to the services resource object.
+     */
+    public void appendRelationshipsToServices() {
+        resultObject.data.each { resourceObject ->
+            def id = resourceObject.attributes.locationId
+            LOGGER.debug("services resource about to enter in relationship: $id")
+
+            resourceObject.relationships = [
+                    "locations": [
+                            "data": [
+                                    new ResourceIdentifierObject(id: id, type: Constants.LOCATIONS)
+                            ]
+                    ]
+            ]
         }
     }
 
