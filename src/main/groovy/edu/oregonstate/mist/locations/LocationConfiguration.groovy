@@ -2,7 +2,10 @@ package edu.oregonstate.mist.locations
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.oregonstate.mist.api.Credentials
+import edu.oregonstate.mist.locations.core.Calendar
 import io.dropwizard.Configuration
+import io.dropwizard.client.HttpClientConfiguration
+import org.hibernate.validator.constraints.NotEmpty
 
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
@@ -14,8 +17,6 @@ class LocationConfiguration extends Configuration {
     @Valid
     List<Credentials> credentialsList
 
-    //@Valid
-    //@NotNull
     @JsonProperty("database")
     DataSourceFactory database = new DataSourceFactory()
 
@@ -24,14 +25,7 @@ class LocationConfiguration extends Configuration {
     @Valid
     Map<String, String> locationsConfiguration
 
-//    @JsonProperty("database")
-//    public DataSourceFactory getDataSourceFactory() {
-//        database
-//    }
-//
-//    @JsonProperty("database")
-//    public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
-//        this.database = dataSourceFactory
-//    }
-
+    @Valid
+    @NotNull
+    HttpClientConfiguration httpClientConfiguration
 }

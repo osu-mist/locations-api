@@ -8,14 +8,17 @@ import edu.oregonstate.mist.api.Configuration
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.InfoResource
 import edu.oregonstate.mist.locations.db.ArcGisDAO
+import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
+import edu.oregonstate.mist.locations.db.ExtraDataManager
+import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
 import edu.oregonstate.mist.locations.health.DiningHealthCheck
 import edu.oregonstate.mist.locations.health.ExtensionHealthCheck
+import edu.oregonstate.mist.locations.health.LibraryHealthCheck
 import edu.oregonstate.mist.locations.resources.LocationResource
-
 import edu.oregonstate.mist.api.PrettyPrintResponseFilter
 import edu.oregonstate.mist.api.jsonapi.GenericExceptionMapper
 import edu.oregonstate.mist.api.jsonapi.NotFoundExceptionMapper
@@ -23,10 +26,12 @@ import io.dropwizard.Application
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.AuthValueFactoryProvider
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
+import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jersey.errors.LoggingExceptionMapper
-import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.http.client.HttpClient
+
 import javax.ws.rs.WebApplicationException
 
 /**
@@ -51,9 +56,11 @@ class LocationApplication extends Application<LocationConfiguration> {
      * @param buildInfoManager
      */
     protected void registerAppManagerLogic(Environment environment,
-                                           BuildInfoManager buildInfoManager) {
+                                           BuildInfoManager buildInfoManager,
+                                           ExtraDataManager extraDataManager) {
 
         environment.lifecycle().manage(buildInfoManager)
+        environment.lifecycle().manage(extraDataManager)
 
         environment.jersey().register(new NotFoundExceptionMapper())
         environment.jersey().register(new GenericExceptionMapper())
@@ -71,31 +78,29 @@ class LocationApplication extends Application<LocationConfiguration> {
     public void run(LocationConfiguration configuration, Environment environment) {
         Resource.loadProperties()
         BuildInfoManager buildInfoManager = new BuildInfoManager()
-        registerAppManagerLogic(environment, buildInfoManager)
+        ExtraDataManager extraDataManager = new ExtraDataManager()
+        registerAppManagerLogic(environment, buildInfoManager, extraDataManager)
 
-        final DBIFactory factory = new DBIFactory()
+        // the httpclient from DW provides with many metrics and config options
+        HttpClient httpClient = new HttpClientBuilder(environment)
+                .using(configuration.getHttpClientConfiguration())
+                .build("backend-http-client")
 
-//      final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(),"jdbi")
-//      final CampusMapLocationDAO campusMapLocationDAO = jdbi.onDemand(CampusMapLocationDAO.class)
+        def configMap = configuration.locationsConfiguration
+        final LibraryDAO libraryDAO = new LibraryDAO(configuration.locationsConfiguration,
+                httpClient)
+        final LocationDAO locationDAO = new LocationDAO(configMap)
+        final LocationUtil locationUtil = new LocationUtil(configMap)
+        final ExtensionDAO extensionDAO = new ExtensionDAO(configMap, locationUtil)
+        final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
+        final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
+        ExtraDataDAO extraDataDAO = new ExtraDataDAO(configuration, locationUtil,
+                extraDataManager)
 
-        final LocationDAO locationDAO = new LocationDAO(configuration.locationsConfiguration)
-        final LocationUtil locationUtil = new LocationUtil(configuration.locationsConfiguration)
-        final ExtensionDAO extensionDAO =
-                new ExtensionDAO(configuration.locationsConfiguration, locationUtil)
-        final DiningDAO diningDAO =
-                new DiningDAO(configuration.locationsConfiguration, locationUtil)
-        final ArcGisDAO arcGisDAO =
-                new ArcGisDAO(configuration.locationsConfiguration, locationUtil)
+        addHealthChecks(environment, configuration, libraryDAO)
 
-        environment.healthChecks().register("dining",
-                new DiningHealthCheck(configuration.locationsConfiguration))
-        environment.healthChecks().register("extension",
-                new ExtensionHealthCheck(configuration.locationsConfiguration))
-        environment.healthChecks().register("arcgis",
-                new ArcGisHealthCheck(configuration.locationsConfiguration))
-
-        environment.jersey().register(new LocationResource(null, diningDAO, locationDAO,
-                extensionDAO, arcGisDAO))
+        environment.jersey().register(new LocationResource(diningDAO, locationDAO,
+                extensionDAO, arcGisDAO, extraDataDAO, extraDataManager, libraryDAO))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()
@@ -105,6 +110,18 @@ class LocationApplication extends Application<LocationConfiguration> {
         ))
         environment.jersey().register(new AuthValueFactoryProvider.Binder
                 <AuthenticatedUser>(AuthenticatedUser.class))
+    }
+
+    private static void addHealthChecks(Environment environment,
+                                        LocationConfiguration configuration,
+                                        LibraryDAO libraryDAO) {
+        environment.healthChecks().register("dining",
+                new DiningHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("extension",
+                new ExtensionHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("arcgis",
+                new ArcGisHealthCheck(configuration.locationsConfiguration))
+        environment.healthChecks().register("library", new LibraryHealthCheck(libraryDAO))
     }
 
     /**

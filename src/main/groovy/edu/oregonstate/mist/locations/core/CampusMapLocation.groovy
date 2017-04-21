@@ -1,7 +1,11 @@
 package edu.oregonstate.mist.locations.core
 
+import edu.oregonstate.mist.locations.Constants
+
 @groovy.transform.EqualsAndHashCode
-class CampusMapLocation {
+class CampusMapLocation extends BaseType {
+    String type = Constants.TYPE_BUILDING
+
     Integer id
     String name
     String abbrev
@@ -15,4 +19,9 @@ class CampusMapLocation {
     String description
     String thumbnail
     String largerImage
+
+    @Override
+    protected String getIdField() {
+        abbrev ?: name
+    }
 }

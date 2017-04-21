@@ -1,28 +1,19 @@
 package edu.oregonstate.mist.locations.mapper
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
-import edu.oregonstate.mist.locations.core.DiningLocation
+import edu.oregonstate.mist.locations.core.ExtraLocation
+import edu.oregonstate.mist.locations.core.ServiceAttributes
+import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
-import edu.oregonstate.mist.locations.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 
 import java.nio.charset.StandardCharsets
 
 class LocationMapper  {
-    private static final String CAMPUSMAP = "campusmap"
-    private static final String DINING = "uhds"
-    private static final String EXTENSION = "extension"
-    private static final String ARCGIS = "arcgis"
-
-    private static final String TYPE_BUILDING = "building"
-    private static final String TYPE_DINING = "dining"
-
-    private static final String CAMPUS_CORVALLIS = "corvallis"
-    private static final String CAMPUS_EXTENSION = "extension"
-
     String campusmapUrl
     String campusmapImageUrl
     String apiEndpointUrl
@@ -38,30 +29,48 @@ class LocationMapper  {
             description: campusMapLocation.description,
             thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
             images: [getImageUrl(campusMapLocation.largerImage)] - null,
-            type: TYPE_BUILDING
+            type: Constants.TYPE_BUILDING
         )
 
         // Some attribute fields are calculated based on campusmap information
         setCalculatedFields(attributes, campusMapLocation)
 
-        def id = LocationUtil.getMD5Hash(CAMPUSMAP + campusMapLocation.id)
-        buildResourceObject(id, attributes)
+        buildResourceObject(campusMapLocation.calculateId(), attributes)
     }
 
-    public ResourceObject map(DiningLocation diningLocation) {
-        Attributes attributes = new Attributes(
-            name: diningLocation.conceptTitle,
-            geoLocation: createGeoLocation(diningLocation.latitude,
-                                            diningLocation.longitude),
-            //@todo: move it somewhere else? call it something else?
-            summary: "Zone: ${diningLocation.zone}",
-            type: TYPE_DINING,
-            campus: CAMPUS_CORVALLIS,
-            openHours: diningLocation.openHours
-        )
+    public ResourceObject map(ServiceLocation serviceLocation) {
+        // The ServiceLocation class is used for multiple types of data
+        def attributes
+        if(isService(serviceLocation)) {
+            attributes = new ServiceAttributes(
+                    name: serviceLocation.conceptTitle,
+                    type: serviceLocation.type,
+                    openHours: serviceLocation.openHours,
+                    merge: serviceLocation.merge,
+                    tags: serviceLocation.tags,
+                    parent: serviceLocation.parent
+            )
 
-        def id = LocationUtil.getMD5Hash(DINING + diningLocation.calendarId)
-        buildResourceObject(id, attributes)
+        } else {
+            def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+            attributes = new Attributes(name: serviceLocation.conceptTitle,
+                    geoLocation: createGeoLocation(serviceLocation.latitude,
+                            serviceLocation.longitude),
+                    summary: summary,
+                    type: serviceLocation.type,
+                    campus: Constants.CAMPUS_CORVALLIS,
+                    openHours: serviceLocation.openHours,
+                    merge: serviceLocation.merge,
+                    tags: serviceLocation.tags,
+                    parent: serviceLocation.parent
+            )
+        }
+
+        buildResourceObject(serviceLocation.calculateId(), attributes)
+    }
+
+    private static boolean isService(def serviceLocation) {
+        serviceLocation.type == Constants.TYPE_SERVICES
     }
 
     public ResourceObject map(ExtensionLocation extensionLocation) {
@@ -77,12 +86,11 @@ class LocationMapper  {
             fax: extensionLocation.fax,
             county: extensionLocation.county,
             website: extensionLocation.locationUrl,
-            type: TYPE_BUILDING,
-            campus: CAMPUS_EXTENSION,
+            type: Constants.TYPE_BUILDING,
+            campus: Constants.CAMPUS_EXTENSION,
         )
 
-        def id = LocationUtil.getMD5Hash(EXTENSION + extensionLocation.guid)
-        buildResourceObject(id, attributes)
+        buildResourceObject(extensionLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ArcGisLocation arcGisLocation) {
@@ -91,12 +99,25 @@ class LocationMapper  {
                 abbreviation: arcGisLocation.bldNamAbr,
                 geoLocation: createGeoLocation(arcGisLocation.latitude,
                                                arcGisLocation.longitude),
-                type: TYPE_BUILDING,
-                campus: CAMPUS_CORVALLIS,
+                type: Constants.TYPE_BUILDING,
+                campus: Constants.CAMPUS_CORVALLIS,
         )
 
-        def id = LocationUtil.getMD5Hash(ARCGIS + arcGisLocation.bldID)
-        buildResourceObject(id, attributes)
+        buildResourceObject(arcGisLocation.calculateId(), attributes)
+    }
+
+    public ResourceObject map(ExtraLocation extraLocation) {
+        Attributes attributes = new Attributes(
+                name: extraLocation.name,
+                //@todo: maybe we should leave the abbreviation blank?
+                abbreviation: extraLocation.abbreviation,
+                geoLocation: createGeoLocation(extraLocation.latitude,
+                        extraLocation.longitude),
+                type: extraLocation.type,
+                campus: extraLocation.campus,
+        )
+
+        buildResourceObject(extraLocation.calculateId(), attributes)
     }
 
     private String getCampusmapWebsite(Integer id) {
@@ -122,12 +143,16 @@ class LocationMapper  {
     private void setCalculatedFields(Attributes attributes, CampusMapLocation campusMapLocation) {
         attributes.state = "OR"
         attributes.city = "Corvallis"
-        attributes.campus = CAMPUS_CORVALLIS
+        attributes.campus = Constants.CAMPUS_CORVALLIS
         attributes.website = getCampusmapWebsite(campusMapLocation.id)
     }
 
     private void setLinks(ResourceObject resourceObject) {
-        resourceObject.links = ['self': apiEndpointUrl + "/" + resourceObject.id]
+        String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
+                Constants.LOCATIONS
+
+        String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
+        resourceObject.links = ['self': selfUrl]
     }
 
     /**
@@ -136,8 +161,10 @@ class LocationMapper  {
      * @param id
      * @param attributes
      */
-    private ResourceObject buildResourceObject(String id, Attributes attributes) {
-        def resourceObject = new ResourceObject(id: id, type: "locations", attributes: attributes)
+    private ResourceObject buildResourceObject(String id, def attributes) {
+        def type = isService(attributes) ? Constants.TYPE_SERVICES : "locations"
+        def resourceObject = new ResourceObject(id: id, type: type, attributes: attributes)
+
         setLinks(resourceObject)
         resourceObject
     }

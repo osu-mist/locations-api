@@ -1,8 +1,9 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 @groovy.transform.EqualsAndHashCode
-class Attributes {
-    String name
+class Attributes extends ServiceAttributes {
     String abbreviation
     GeoLocation geoLocation
     String summary
@@ -21,8 +22,7 @@ class Attributes {
     Integer sqft
     String calendar
     String campus
-    String type // used for searching. values: building, dining.
-    Map<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
+
     int getHashCode() {
         int result
         result = (name != null ? name.hashCode() : 0)

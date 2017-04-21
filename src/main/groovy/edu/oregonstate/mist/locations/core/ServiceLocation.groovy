@@ -1,8 +1,13 @@
 package edu.oregonstate.mist.locations.core
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import edu.oregonstate.mist.locations.Constants
 
-class DiningLocation implements Comparable {
+/**
+ * Location that behaves more like a service. Includes dining, cultural centers and
+ * recsports data.
+ */
+class ServiceLocation extends BaseType implements Comparable {
     @JsonProperty("concept_title")
     String conceptTitle
     String zone
@@ -13,6 +18,10 @@ class DiningLocation implements Comparable {
     String start
     String end
     HashMap<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()
+    List<String> tags = []
+    String parent
+    Boolean merge = false
+    String type = Constants.TYPE_OTHER
 
     private final Integer LATITUDE_INDEX = 0
     private final Integer LONGITUDE_INDEX = 1
@@ -35,5 +44,10 @@ class DiningLocation implements Comparable {
     @Override
     int compareTo(Object o) {
         calendarId <=> o.calendarId
+    }
+
+    @Override
+    protected String getIdField() {
+        conceptTitle
     }
 }
