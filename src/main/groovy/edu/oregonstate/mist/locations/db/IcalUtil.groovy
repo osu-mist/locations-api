@@ -141,6 +141,11 @@ class IcalUtil {
         }
 
         // Last resort: prefer the event that has been modified most recently
-        !x.lastModified.before(y.lastModified)
+        if (x != null && x.lastModified != null && y != null && y.lastModified != null) {
+            return !x.lastModified.before(y.lastModified)
+        }
+
+        // We shouldn't reach this point. x and y are the same event
+        true
     }
 }
