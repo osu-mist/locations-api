@@ -33,6 +33,9 @@ extra-data.yaml
 locations-*.json
 services.json
 
+# converted coordinates from jenkins
+converted-coordinates.json
+
 # Keytool Files
 *.pem
 *.cer
