@@ -19,6 +19,7 @@ class CampusMapLocation extends BaseType {
     String description
     String thumbnail
     String largerImage
+    Double[][][] coordinates
 
     @Override
     protected String getIdField() {
