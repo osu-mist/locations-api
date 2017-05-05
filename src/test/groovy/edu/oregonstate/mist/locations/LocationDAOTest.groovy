@@ -135,7 +135,7 @@ class LocationDAOTest {
         temp.deleteOnExit()
         try {
             def dao = new LocationDAO([
-                campusmapJsonOut: temp.getPath(),
+                campusmapJsonOut: temp.getPath(), geometries: "test"
             ])
 
             def campusmap = [
@@ -198,7 +198,7 @@ class LocationDAOTest {
         temp.delete()
 
         def dao = new LocationDAO([
-            campusmapJsonOut: temp.getPath(),
+            campusmapJsonOut: temp.getPath(), geometries: "test"
         ])
 
         assert dao.getCampusMapFromJson() == null

@@ -82,9 +82,15 @@ class LocationResource extends Resource {
      * @return
      */
     private List getArcGisAndMapData() {
-        HashMap<String, ArcGisLocation> arcGisLocations = arcGisDAO.getArcGisLocations()
+        // Get arcgis centroid data from http request
+        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getArcGisLocations()
+        // Get arcgis geometries data from json file and merge with centroid data
+        HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
+                arcGisCentroids)
+        // Get campus map data from json file
         List<CampusMapLocation> campusMapLocationList = locationDAO.getCampusMapFromJson()
-        locationDAO.mergeMapAndArcgis(arcGisLocations, campusMapLocationList)
+        // Merge the combined arcgis data with campus map data
+        locationDAO.mergeMapAndArcgis(arcGisMerged, campusMapLocationList)
     }
 
     @GET
