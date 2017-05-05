@@ -41,12 +41,12 @@ class LocationDAO {
             String bldNamIdHash = LocationUtil.getMD5Hash(
                     it.attributes.BldID + it.attributes.BldNam)
             geometryHashMap[bldNamIdHash] = it
-        }
-        geometryHashMap.each {
-            if (arcGisCentroids[it.key]) {
-                arcGisCentroids[it.key].coordinates = it.value.geometry.rings
+
+            if (arcGisCentroids[bldNamIdHash]) {
+                arcGisCentroids[bldNamIdHash].coordinates = it.geometry.rings
             }
         }
+
         def mergedArcGisData = [:]
 
         // FIXME: This is overwriting locations that use the same building abbreviation.

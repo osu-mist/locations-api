@@ -25,7 +25,8 @@ class LocationMapper  {
             abbreviation: campusMapLocation.abbrev,
             geoLocation: createGeoLocation(campusMapLocation.latitude,
                                             campusMapLocation.longitude),
-            geometry: getGeometry(campusMapLocation.coordinates),
+            geometry: new Geometry(
+                coordinates: campusMapLocation.coordinates),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -101,7 +102,8 @@ class LocationMapper  {
                 abbreviation: arcGisLocation.bldNamAbr,
                 geoLocation: createGeoLocation(arcGisLocation.latitude,
                                                arcGisLocation.longitude),
-                geometry: getGeometry(arcGisLocation.coordinates),
+                geometry: new Geometry(
+                    coordinates: arcGisLocation.coordinates),
                 type: Constants.TYPE_BUILDING,
                 campus: Constants.CAMPUS_CORVALLIS,
         )
@@ -183,26 +185,6 @@ class LocationMapper  {
             return new GeoLocation(
                     lat: latitude as Double,
                     lon: longitude as Double
-            )
-        }
-    }
-
-    /**
-     *  Create a Geometry object for Attributes
-     * @param coordinates
-     * @return
-     */
-    private static Geometry getGeometry(Double[][][] coordinates) {
-        if (coordinates) {
-            String type
-            if (coordinates.length == 1) {
-                type = "Polygon"
-            } else if (coordinates.length > 1) {
-                type = "MultiPolygon"
-            }
-            return new Geometry(
-                    type: type,
-                    coordinates: coordinates
             )
         }
     }
