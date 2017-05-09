@@ -17,6 +17,7 @@ class ArcGisLocation extends BaseType {
     String latitude
     @JsonProperty("Longitude")
     String longitude
+    Double[][][] coordinates
 
     /**
      * Jackson wasn't cooperating to convert BldProperty to bldProperty

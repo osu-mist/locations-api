@@ -1,11 +1,10 @@
 package edu.oregonstate.mist.locations.core
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-
 @groovy.transform.EqualsAndHashCode
 class Attributes extends ServiceAttributes {
     String abbreviation
     GeoLocation geoLocation
+    Geometry geometry
     String summary
     String description
     String address

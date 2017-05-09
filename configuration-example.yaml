@@ -57,6 +57,7 @@ locations:
   arcGisQueryUrl: http://arcgis.example.com/
   arcGisJsonOut: arcgis.json
   libraryUrl: https://api.library.com/v1/
+  geometries: converted-coordinates.json
 
 httpClientConfiguration:
   timeout: 150ms

@@ -42,7 +42,8 @@ class ArcGisDAO {
         features.asList().each {
             def arcBuilding = new ArcGisLocation(mapper.readValue(it.get("properties").toString(),
                     Object.class))
-            data[arcBuilding.bldNamAbr] = arcBuilding
+            String bldNamIdHash = locationUtil.getMD5Hash(arcBuilding.bldID + arcBuilding.bldNam)
+            data[bldNamIdHash] = arcBuilding
         }
 
         data

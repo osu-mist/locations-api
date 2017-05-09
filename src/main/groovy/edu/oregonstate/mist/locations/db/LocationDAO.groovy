@@ -2,15 +2,18 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.mapper.LocationMapper
+import groovy.json.JsonSlurper
 
 class LocationDAO {
     private final LocationMapper locationMapper
     private ObjectMapper mapper
     private File mapJsonFile
+    private File geometriesJsonFile
 
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
@@ -20,6 +23,37 @@ class LocationDAO {
                 apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
         mapJsonFile = new File(locationConfiguration.get("campusmapJsonOut"))
+        geometriesJsonFile = new File(locationConfiguration.get("geometries"))
+    }
+
+    /**
+     * Retrieves ARCGIS geometry data from json file and merges with ARCGIS centroid data.
+     *
+     * @return HashMap<String, ArcGisLocation>
+     */
+    public HashMap<String, ArcGisLocation> addArcGisGeometries(
+            HashMap<String, ArcGisLocation> arcGisCentroids) {
+        def jsonSlurper = new JsonSlurper()
+        def arcGisGeometries = jsonSlurper.parseText(geometriesJsonFile.getText())
+        def geometryHashMap = [:]
+
+        arcGisGeometries.features.each {
+            String bldNamIdHash = LocationUtil.getMD5Hash(
+                    it.attributes.BldID + it.attributes.BldNam)
+            geometryHashMap[bldNamIdHash] = it
+
+            if (arcGisCentroids[bldNamIdHash]) {
+                arcGisCentroids[bldNamIdHash].coordinates = it.geometry.rings
+            }
+        }
+
+        def mergedArcGisData = [:]
+
+        // FIXME: This is overwriting locations that use the same building abbreviation.
+        arcGisCentroids.each {
+            mergedArcGisData[it.value.bldNamAbr] = it.value
+        }
+        mergedArcGisData
     }
 
     /**
@@ -72,6 +106,7 @@ class LocationDAO {
                 mapData[it.key].name = it.value.bldNam
                 mapData[it.key].latitude = it.value.latitude
                 mapData[it.key].longitude = it.value.longitude
+                mapData[it.key].coordinates = it.value.coordinates
 
                 mergedData += mapData[it.key]
             } else {

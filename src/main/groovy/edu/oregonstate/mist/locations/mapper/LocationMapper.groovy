@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.core.ExtraLocation
+import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
@@ -24,6 +25,8 @@ class LocationMapper  {
             abbreviation: campusMapLocation.abbrev,
             geoLocation: createGeoLocation(campusMapLocation.latitude,
                                             campusMapLocation.longitude),
+            geometry: new Geometry(
+                coordinates: campusMapLocation.coordinates),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -99,6 +102,8 @@ class LocationMapper  {
                 abbreviation: arcGisLocation.bldNamAbr,
                 geoLocation: createGeoLocation(arcGisLocation.latitude,
                                                arcGisLocation.longitude),
+                geometry: new Geometry(
+                    coordinates: arcGisLocation.coordinates),
                 type: Constants.TYPE_BUILDING,
                 campus: Constants.CAMPUS_CORVALLIS,
         )
