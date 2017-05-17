@@ -98,10 +98,6 @@ class dw_tests(unittest.TestCase):
 
         self.assertEqual(query_request(extensions_url, access_token, "get", query_params).status_code, 200)
 
-        # DW not returning allowed methods headers, Apigee returning bad gateway
-        if query_request(extensions_url, access_token, "post", query_params).status_code == 502:
-            self.skipTest('DW not returning allowed methods headers that Apigee is expecting')
-
         self.assertEqual(query_request(extensions_url, access_token, "post", query_params).status_code, 405)
         self.assertEqual(query_request(extensions_url, access_token, "put", query_params).status_code, 405)
         self.assertEqual(query_request(extensions_url, access_token, "delete", query_params).status_code, 405)
