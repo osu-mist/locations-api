@@ -27,5 +27,5 @@ def response_time(url, access_token):
     request = requests.get(url, params=query_params, headers=headers, verify=True)
     response_time = request.elapsed.total_seconds()
 
-    print "API response time: ", response_time, " seconds"
+    print "API (", url, ") response time: ", response_time, " seconds"
     return response_time

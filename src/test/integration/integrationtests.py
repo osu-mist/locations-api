@@ -129,7 +129,7 @@ if __name__ == '__main__':
     if is_debug_enabled(config_path):
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.WARNING)
 
     logger = logging.getLogger(__name__)
 
