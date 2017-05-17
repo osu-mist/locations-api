@@ -113,7 +113,7 @@ class dw_tests(unittest.TestCase):
     # Tests that API response time is less than a value
     def test_response_time(self):
         self.assertLess(response_time(extensions_url, access_token), 2)
-        self.assertLess(response_time(dining_url, access_token), 12)
+        self.assertLess(response_time(dining_url, access_token), 3)
 
 if __name__ == '__main__':
     options_tpl = ('-i', 'config_path')
