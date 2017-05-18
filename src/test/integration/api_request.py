@@ -14,17 +14,17 @@ def get_extension_offices(url, access_token):
 
 def query_request(url, access_token, verb, query_params):
     headers = {'Authorization': access_token}
-    request = requests.request(verb, url, params=query_params, headers=headers, verify=True)
+    request = requests.request(verb, url, params=query_params, headers=headers, verify='/tmp/api.pem')
     return request
 
 def unauth_request(url):
-    request = requests.get(url, verify=True)
+    request = requests.get(url, verify='/tmp/api.pem')
     return request.status_code
 
 def response_time(url, access_token):
     query_params = {'q': 'Oxford'}
     headers = {'Authorization': access_token}
-    request = requests.get(url, params=query_params, headers=headers, verify=True)
+    request = requests.get(url, params=query_params, headers=headers, verify='/tmp/api.pem')
     response_time = request.elapsed.total_seconds()
 
     print "API (", url, ") response time: ", response_time, " seconds"

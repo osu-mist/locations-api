@@ -30,7 +30,7 @@ Next, use these commands to build and run the container. All you need installed 
 ```shell
 $ docker build -t locations-tests .
 # Run the integration tests in Unix
-$ docker run -v "$PWD"/configuration.json:/usr/src/app/configuration.json:ro locations-tests
+$ docker run -v "$PWD"/configuration.json:/usr/src/app/configuration.json:ro -v /path/to/cert.pem:/tmp/api.pem:ro locations-tests
 # Run the integration tests in Windows
-$ docker run -v c:\path\to\configuration.json:/c:\usr\src\app\configuration.json:ro locations-tests
+$ docker run -v c:\path\to\configuration.json:/c:\usr\src\app\configuration.json:ro -v /path/to/cert.pem:/tmp/api.pem:ro locations-tests
 ```
