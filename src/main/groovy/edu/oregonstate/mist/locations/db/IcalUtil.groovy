@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations.db
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.ServiceLocation
+import groovyx.gpars.GParsPool
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.filter.Filter
 import net.fortuna.ical4j.filter.PeriodRule
@@ -21,14 +22,18 @@ class IcalUtil {
     public static List<ServiceLocation> addLocationHours(List<ServiceLocation> diners,
                                                          String icalURLTemplate,
                                                          LocationUtil locationUtil) {
-        diners.each {
-            def icalURL = icalURLTemplate.replace("calendar-id", "${it.calendarId}")
-            def icalFileName = it.calendarId + ".ics"
-            LOGGER.debug(icalURL)
+        GParsPool.withPool {
+            diners.eachParallel {
+                def icalURL = icalURLTemplate.replace("calendar-id", "${it.calendarId}")
+                def icalFileName = it.calendarId + ".ics"
+                LOGGER.debug(icalURL)
 
-            String icalData = getIcalData(icalURL, icalFileName, locationUtil)
-            it.openHours = parseDiningICAL(icalData)
+                String icalData = getIcalData(icalURL, icalFileName, locationUtil)
+                it.openHours = parseDiningICAL(icalData)
+            }
         }
+
+        diners
     }
 
     private static String getIcalData(String icalURL, String icalFileName,
