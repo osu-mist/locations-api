@@ -21,6 +21,9 @@ class Attributes extends ServiceAttributes {
     Integer sqft
     String calendar
     String campus
+    Integer giRestroomCount
+    Boolean giRestroomLimit
+    String giRestroomLocations
 
     int getHashCode() {
         int result

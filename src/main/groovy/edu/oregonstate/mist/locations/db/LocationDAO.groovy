@@ -109,6 +109,9 @@ class LocationDAO {
                 mapData[it.key].longitude = it.value.longitude
                 mapData[it.key].coordinates = it.value.coordinates
                 mapData[it.key].coordinatesType = it.value.coordinatesType
+                mapData[it.key].giRestroomCount = it.value.giRestroomCount
+                mapData[it.key].giRestroomLimit = it.value.giRestroomLimit
+                mapData[it.key].giRestroomLocations = it.value.giRestroomLocations
 
                 mergedData += mapData[it.key]
             } else {

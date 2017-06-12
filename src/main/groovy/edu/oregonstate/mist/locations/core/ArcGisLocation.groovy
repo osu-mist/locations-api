@@ -19,6 +19,17 @@ class ArcGisLocation extends BaseType {
     String longitude
     def coordinates
     String coordinatesType
+    @JsonProperty("Count_")
+    Integer giRestroomCount
+    @JsonProperty("Limits")
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    String giRestroomLimit
+    @JsonProperty("LocaAll")
+    String giRestroomLocations
+
+    Integer getGiRestroomCount() {
+        giRestroomCount ?: 0
+    }
 
     /**
      * Jackson wasn't cooperating to convert BldProperty to bldProperty
@@ -32,6 +43,9 @@ class ArcGisLocation extends BaseType {
         this.bldNamAbr = arcGisMap.BldNamAbr
         this.latitude = arcGisMap.Latitude
         this.longitude = arcGisMap.Longitude
+        this.giRestroomCount = arcGisMap.Count_
+        this.giRestroomLimit = arcGisMap.Limits
+        this.giRestroomLocations = arcGisMap.LocaAll
     }
 
     @Override

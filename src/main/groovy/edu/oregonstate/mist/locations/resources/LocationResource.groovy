@@ -83,7 +83,7 @@ class LocationResource extends Resource {
      */
     private List getArcGisAndMapData() {
         // Get arcgis centroid data from http request
-        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getArcGisLocations()
+        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getMergedArcGisData()
         // Get arcgis geometries data from json file and merge with centroid data
         HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
                 arcGisCentroids)
