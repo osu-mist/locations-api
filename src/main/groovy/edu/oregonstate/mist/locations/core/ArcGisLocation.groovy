@@ -22,13 +22,16 @@ class ArcGisLocation extends BaseType {
     @JsonProperty("Count_")
     Integer giRestroomCount
     @JsonProperty("Limits")
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String giRestroomLimit
     @JsonProperty("LocaAll")
     String giRestroomLocations
 
     Integer getGiRestroomCount() {
         giRestroomCount ?: 0
+    }
+
+    String getGiRestroomLocations() {
+        giRestroomLocations?.trim()
     }
 
     /**
