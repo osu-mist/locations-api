@@ -26,7 +26,8 @@ class LocationMapper  {
             geoLocation: createGeoLocation(campusMapLocation.latitude,
                                             campusMapLocation.longitude),
             geometry: new Geometry(
-                coordinates: campusMapLocation.coordinates),
+                coordinates: campusMapLocation.coordinates,
+                type: campusMapLocation.coordinatesType),
             address: campusMapLocation.address,
             summary: campusMapLocation.shortDescription,
             description: campusMapLocation.description,
@@ -103,7 +104,8 @@ class LocationMapper  {
                 geoLocation: createGeoLocation(arcGisLocation.latitude,
                                                arcGisLocation.longitude),
                 geometry: new Geometry(
-                    coordinates: arcGisLocation.coordinates),
+                    coordinates: arcGisLocation.coordinates,
+                    type: arcGisLocation.coordinatesType),
                 type: Constants.TYPE_BUILDING,
                 campus: Constants.CAMPUS_CORVALLIS,
         )

@@ -37,13 +37,14 @@ class LocationDAO {
         def arcGisGeometries = jsonSlurper.parseText(geometriesJsonFile.getText())
         def geometryHashMap = [:]
 
-        arcGisGeometries.features.each {
+        arcGisGeometries['features'].each {
             String bldNamIdHash = LocationUtil.getMD5Hash(
-                    it.attributes.BldID + it.attributes.BldNam)
+                    it['properties']['BldID'] + it['properties']['BldNam'])
             geometryHashMap[bldNamIdHash] = it
 
             if (arcGisCentroids[bldNamIdHash]) {
-                arcGisCentroids[bldNamIdHash].coordinates = it.geometry.rings
+                arcGisCentroids[bldNamIdHash].coordinates = it['geometry']['coordinates']
+                arcGisCentroids[bldNamIdHash].coordinatesType = it['geometry']['type']
             }
         }
 
@@ -107,6 +108,7 @@ class LocationDAO {
                 mapData[it.key].latitude = it.value.latitude
                 mapData[it.key].longitude = it.value.longitude
                 mapData[it.key].coordinates = it.value.coordinates
+                mapData[it.key].coordinatesType = it.value.coordinatesType
 
                 mergedData += mapData[it.key]
             } else {
