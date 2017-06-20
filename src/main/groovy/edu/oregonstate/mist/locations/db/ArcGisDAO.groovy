@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class ArcGisDAO {
+
+    Logger logger = LoggerFactory.getLogger(ArcGisDAO.class)
 
     private ObjectMapper mapper = new ObjectMapper()
 
@@ -55,17 +59,34 @@ class ArcGisDAO {
                 arcGisGenderInclusiveRRJsonOut,
                 "attributes"
         )
+
+        mergeArcGisData(centroidData, genderInclusiveRRData)
+    }
+
+    private HashMap<String, ArcGisLocation> mergeArcGisData(
+            HashMap<String, ArcGisLocation> centroidData,
+            HashMap<String, ArcGisLocation> genderInclusiveRRData) {
+
         genderInclusiveRRData.each {id, value ->
             if (centroidData[id]) {
                 centroidData[id].giRestroomCount = value.giRestroomCount
                 centroidData[id].giRestroomLimit = value.giRestroomLimit
                 centroidData[id].giRestroomLocations = value.giRestroomLocations
+            } else {
+                logger.warn("This building exists in the gender inclusive RR data," +
+                        " but not in the centroid data: " +
+                        value.bldNam.toString())
             }
         }
 
         centroidData
     }
 
+    /**
+     * Calls method to get JSON data from URL and maps response to an object.
+     * Iterates through features of an ARCGIS response and creates a key & value map
+     * based on a hash of the building ID and building name.
+     */
     private def getArcGisData(String url, String output, String key) throws Exception{
         String gisData = locationUtil.getDataFromUrlOrCache(url, output)
         def mappedData = mapper.readTree(gisData).get("features")

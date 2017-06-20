@@ -201,12 +201,10 @@ class LocationMapper  {
      * Return boolean giRestroomLimit based on contents of string
      */
     private Boolean getGiRestroomLimit(String restroomLimitString) {
-        if (restroomLimitString && restroomLimitString.trim().length() > 0 ) {
-            return true
-        } else if (restroomLimitString && restroomLimitString.trim().length() == 0 ) {
-            return false
-        } else {
+        if (restroomLimitString == null) {
             return null
         }
+
+        restroomLimitString?.trim()
     }
 }
