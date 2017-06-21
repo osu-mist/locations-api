@@ -11,6 +11,7 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.util.EntityUtils
 import org.apache.http.client.methods.HttpPost
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 
@@ -50,7 +51,8 @@ class LibraryDAO {
         // Attributes requires a list of DayOpenHours
         Map<Integer, List<DayOpenHours>> openHours = new HashMap<>()
         DateTimeFormatter formatter = DateTimeFormat.forPattern(DATETIME_FORMAT)
-        Integer index = 0
+                .withZone(DateTimeZone.forID("America/Los_Angeles"))
+        Integer index = 1
 
         data?.each { _, it ->
             // Sometimes the data has space padding :(
