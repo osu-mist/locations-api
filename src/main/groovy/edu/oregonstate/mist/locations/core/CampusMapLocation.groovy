@@ -21,6 +21,9 @@ class CampusMapLocation extends BaseType {
     String largerImage
     def coordinates
     String coordinatesType
+    Integer giRestroomCount
+    String giRestroomLimit
+    String giRestroomLocations
 
     @Override
     protected String getIdField() {

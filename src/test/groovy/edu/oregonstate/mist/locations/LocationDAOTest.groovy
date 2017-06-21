@@ -100,6 +100,9 @@ class LocationDAOTest {
                 BldNamAbr: "FOO",
                 Latitude: "42",
                 Longitude: "-42",
+                Count_: null,
+                Limits: "Only for residents!",
+                LocaAll: "110, 210, 310"
             ),
         ]
 
@@ -118,6 +121,10 @@ class LocationDAOTest {
                     description: "Campusmap description",
                     thumbnail: "campusmap.png",
                     largerImage: "",
+                    giRestroomCount: 0,
+                    giRestroomLimit: "Only for residents!",
+                    giRestroomLocations: "110, 210, 310"
+
             ),
         ]
         def actual = LocationDAO.mergeMapAndArcgis(arcgis, campusmap)

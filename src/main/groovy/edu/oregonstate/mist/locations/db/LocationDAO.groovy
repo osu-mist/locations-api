@@ -8,8 +8,13 @@ import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class LocationDAO {
+
+    Logger logger = LoggerFactory.getLogger(LocationDAO.class)
+
     private final LocationMapper locationMapper
     private ObjectMapper mapper
     private File mapJsonFile
@@ -45,6 +50,10 @@ class LocationDAO {
             if (arcGisCentroids[bldNamIdHash]) {
                 arcGisCentroids[bldNamIdHash].coordinates = it['geometry']['coordinates']
                 arcGisCentroids[bldNamIdHash].coordinatesType = it['geometry']['type']
+            } else {
+                logger.warn("This building exists in the geometries data, " +
+                        "but not in the centroid data: " +
+                        it['properties']['BldNam'])
             }
         }
 
@@ -109,6 +118,9 @@ class LocationDAO {
                 mapData[it.key].longitude = it.value.longitude
                 mapData[it.key].coordinates = it.value.coordinates
                 mapData[it.key].coordinatesType = it.value.coordinatesType
+                mapData[it.key].giRestroomCount = it.value.giRestroomCount
+                mapData[it.key].giRestroomLimit = it.value.giRestroomLimit
+                mapData[it.key].giRestroomLocations = it.value.giRestroomLocations
 
                 mergedData += mapData[it.key]
             } else {

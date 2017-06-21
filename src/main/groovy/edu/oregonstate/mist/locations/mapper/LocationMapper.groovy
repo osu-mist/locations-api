@@ -33,7 +33,10 @@ class LocationMapper  {
             description: campusMapLocation.description,
             thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
             images: [getImageUrl(campusMapLocation.largerImage)] - null,
-            type: Constants.TYPE_BUILDING
+            type: Constants.TYPE_BUILDING,
+            giRestroomCount: campusMapLocation.giRestroomCount,
+            giRestroomLimit: getGiRestroomLimit(campusMapLocation.giRestroomLimit),
+            giRestroomLocations: campusMapLocation.giRestroomLocations
         )
 
         // Some attribute fields are calculated based on campusmap information
@@ -108,6 +111,9 @@ class LocationMapper  {
                     type: arcGisLocation.coordinatesType),
                 type: Constants.TYPE_BUILDING,
                 campus: Constants.CAMPUS_CORVALLIS,
+                giRestroomCount: arcGisLocation.giRestroomCount,
+                giRestroomLimit: getGiRestroomLimit(arcGisLocation.giRestroomLimit),
+                giRestroomLocations: arcGisLocation.giRestroomLocations
         )
 
         buildResourceObject(arcGisLocation.calculateId(), attributes)
@@ -189,5 +195,16 @@ class LocationMapper  {
                     lon: longitude as Double
             )
         }
+    }
+
+    /**
+     * Return boolean giRestroomLimit based on contents of string
+     */
+    private Boolean getGiRestroomLimit(String restroomLimitString) {
+        if (restroomLimitString == null) {
+            return null
+        }
+
+        restroomLimitString?.trim()
     }
 }
