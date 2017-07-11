@@ -11,6 +11,8 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.util.EntityUtils
 import org.apache.http.client.methods.HttpPost
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 
@@ -46,11 +48,10 @@ class LibraryDAO {
      */
     private Map<Integer, List<DayOpenHours>> buildLibraryHours(DateTime startDate, int numDays) {
         Map<String, LibraryHours> data = getLibraryData(startDate, numDays)
-
         // Attributes requires a list of DayOpenHours
         Map<Integer, List<DayOpenHours>> openHours = new HashMap<>()
         DateTimeFormatter formatter = DateTimeFormat.forPattern(DATETIME_FORMAT)
-        Integer index = 0
+                .withZone(DateTimeZone.forID("America/Los_Angeles"))
 
         data?.each { _, it ->
             // Sometimes the data has space padding :(
@@ -60,14 +61,15 @@ class LibraryDAO {
 
             DateTime start = formatter.parseDateTime(openDate + " " + open)
             DateTime end = formatter.parseDateTime(openDate + " " + close)
+
             if (!it.closesAtNight) {
                 end = end.withTime(23, 59, 59, 999)
             }
 
+            Integer index = Days.daysBetween(startDate, start).getDays() + 1
             openHours.put(index, [
                     new DayOpenHours(start: start.toDate(), end: end.toDate())
             ])
-            index++
         }
 
         openHours

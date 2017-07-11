@@ -48,6 +48,6 @@ class ServiceLocation extends BaseType implements Comparable {
 
     @Override
     protected String getIdField() {
-        conceptTitle
+        conceptTitle + parent
     }
 }
