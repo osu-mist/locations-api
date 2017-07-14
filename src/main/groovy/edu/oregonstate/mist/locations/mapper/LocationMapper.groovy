@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations.mapper
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
-import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ServiceAttributes
@@ -19,7 +19,7 @@ class LocationMapper  {
     String campusmapImageUrl
     String apiEndpointUrl
 
-    public ResourceObject map(CampusMapLocation campusMapLocation) {
+    public ResourceObject map(CampusMapLocationDeprecated campusMapLocation) {
         Attributes attributes = new Attributes(
             name: campusMapLocation.name,
             abbreviation: campusMapLocation.abbrev,
@@ -153,7 +153,8 @@ class LocationMapper  {
      * @param attributes
      * @param campusMapLocation
      */
-    private void setCalculatedFields(Attributes attributes, CampusMapLocation campusMapLocation) {
+    private void setCalculatedFields(
+            Attributes attributes, CampusMapLocationDeprecated campusMapLocation) {
         attributes.state = "OR"
         attributes.city = "Corvallis"
         attributes.campus = Constants.CAMPUS_CORVALLIS

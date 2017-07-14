@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import org.junit.Test
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 
@@ -15,7 +15,7 @@ class LocationMapperTest {
 
     @Test
     public void testGenderInclusiveRRLimit() {
-        CampusMapLocation campusMapLocation = new CampusMapLocation(
+        CampusMapLocationDeprecated campusMapLocation = new CampusMapLocationDeprecated(
                 giRestroomLimit: "This should be true"
         )
         ResourceObject resourceObject = locationMapper.map(campusMapLocation)

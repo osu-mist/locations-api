@@ -3,7 +3,8 @@ package edu.oregonstate.mist.locations.core
 import edu.oregonstate.mist.locations.Constants
 
 @groovy.transform.EqualsAndHashCode
-class CampusMapLocation extends BaseType {
+@Deprecated
+class CampusMapLocationDeprecated extends BaseType {
     String type = Constants.TYPE_BUILDING
 
     Integer id

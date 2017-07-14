@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -69,12 +69,12 @@ class LocationDAO {
     /**
      * Retrieves campusmap data from json file.
      *
-     * @return List<CampusMapLocation>
+     * @return List<CampusMapLocationDeprecated>
      */
-    public List<CampusMapLocation> getCampusMapFromJson() {
+    public List<CampusMapLocationDeprecated> getCampusMapFromJson() {
         try {
             def mapData = mapJsonFile.getText()
-            mapper.readValue(mapData, new TypeReference<List<CampusMapLocation>>() {})
+            mapper.readValue(mapData, new TypeReference<List<CampusMapLocationDeprecated>>() {})
         } catch (FileNotFoundException) {
             null
         }
@@ -86,7 +86,7 @@ class LocationDAO {
      * @param campusMapLocations
      * @return
      */
-    public writeMapToJson(List<CampusMapLocation> campusMapLocations) {
+    public writeMapToJson(List<CampusMapLocationDeprecated> campusMapLocations) {
         def jsonESInput = mapJsonFile
         def jsonStringList = campusMapLocations.collect { mapper.writeValueAsString(it) }
 
@@ -97,14 +97,16 @@ class LocationDAO {
      * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data.
      * If a building is in the map data, but not in arcgis it is not returned.
      * Two buildings are considered the same if the abbrev field of the
-     * CampusMapLocation matches the bldNamAbr field of the ArcGisLocation.
+     * CampusMapLocationDeprecated matches the bldNamAbr field of the ArcGisLocation.
      *
      * @param arcGisLocations
      * @param campusMapLocationList
      * @return
      */
-    public static ArrayList mergeMapAndArcgis(HashMap<String, ArcGisLocation> arcGisLocations,
-                                              List<CampusMapLocation> campusMapLocationList) {
+    @Deprecated
+    public static ArrayList mergeMapAndArcgisDeprecated(
+            HashMap<String, ArcGisLocation> arcGisLocations,
+            List<CampusMapLocationDeprecated> campusMapLocationList) {
         def mapData = [:]
         campusMapLocationList.each {
             mapData[it.abbrev] = it

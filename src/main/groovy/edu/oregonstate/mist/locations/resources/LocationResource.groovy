@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
@@ -35,10 +35,12 @@ class LocationResource extends Resource {
     private final ExtraDataDAO extraDataDAO
     private final LibraryDAO libraryDAO
     private ExtraDataManager extraDataManager
+    private final Boolean useHttpCampusMap
 
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
                      ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
-                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO) {
+                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO,
+                     Boolean useHttpCampusMap) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
@@ -46,6 +48,7 @@ class LocationResource extends Resource {
         this.extraDataDAO = extraDataDAO
         this.extraDataManager = extraDataManager
         this.libraryDAO = libraryDAO
+        this.useHttpCampusMap = useHttpCampusMap
     }
 
     @GET
@@ -87,10 +90,15 @@ class LocationResource extends Resource {
         // Get arcgis geometries data from json file and merge with centroid data
         HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
                 arcGisCentroids)
-        // Get campus map data from json file
-        List<CampusMapLocation> campusMapLocationList = locationDAO.getCampusMapFromJson()
-        // Merge the combined arcgis data with campus map data
-        locationDAO.mergeMapAndArcgis(arcGisMerged, campusMapLocationList)
+
+        if (!useHttpCampusMap) {
+            List<CampusMapLocationDeprecated> campusMapLocationList =
+                    locationDAO.getCampusMapFromJson()
+            // Merge the combined arcgis data with campus map data
+            return locationDAO.mergeMapAndArcgisDeprecated(arcGisMerged, campusMapLocationList)
+        } else {
+            return new ArrayList<ArcGisLocation>(arcGisMerged.values())
+        }
     }
 
     @GET

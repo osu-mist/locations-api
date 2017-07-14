@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.db.LocationDAO
 
 import org.junit.Test
@@ -14,15 +14,16 @@ class LocationDAOTest {
     @Test
     public void testMergeMapAndArcgis_Simple() {
         // Empty lists merge to an empty list
-        assert LocationDAO.mergeMapAndArcgis([:], []) == []
+        assert LocationDAO.mergeMapAndArcgisDeprecated([:], []) == []
 
         // Empty arcgis, non-empty campusmap
-        assert LocationDAO.mergeMapAndArcgis([:], [new CampusMapLocation(id: 101)]) == []
+        assert LocationDAO.mergeMapAndArcgisDeprecated(
+                [:], [new CampusMapLocationDeprecated(id: 101)]) == []
 
         // Non-empty arcgis, empty campusmap
         def arcgis = new ArcGisLocation(BldNamAbr: "FOO")
         assert arcgis.bldNamAbr != null
-        assert LocationDAO.mergeMapAndArcgis(["FOO": arcgis], []) == [arcgis]
+        assert LocationDAO.mergeMapAndArcgisDeprecated(["FOO": arcgis], []) == [arcgis]
     }
 
     @Test
@@ -31,7 +32,7 @@ class LocationDAOTest {
         // filtered out
 
         def campusmap = [
-            new CampusMapLocation(
+            new CampusMapLocationDeprecated(
                     id: 13,
                     name: "Forrest Observatory",
                     abbrev: "BAR",
@@ -68,7 +69,7 @@ class LocationDAOTest {
             ),
         ]
 
-        assert LocationDAO.mergeMapAndArcgis(arcgis, campusmap) == expected
+        assert LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap) == expected
     }
 
     @Test
@@ -76,7 +77,7 @@ class LocationDAOTest {
         // Locations with a matching abbrev and BldNamAbr are merged
 
         def campusmap = [
-            new CampusMapLocation(
+            new CampusMapLocationDeprecated(
                     id: 13,
                     name: "Campusmap name",
                     abbrev: "FOO",
@@ -107,7 +108,7 @@ class LocationDAOTest {
         ]
 
         def expected = [
-            new CampusMapLocation(
+            new CampusMapLocationDeprecated(
                     id: 13,
                     name: "Arcgis bldNam",
                     abbrev: "FOO",
@@ -127,7 +128,7 @@ class LocationDAOTest {
 
             ),
         ]
-        def actual = LocationDAO.mergeMapAndArcgis(arcgis, campusmap)
+        def actual = LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap)
 
         //println(mapper.writeValueAsString(actual))
         //println(mapper.writeValueAsString(expected))
@@ -146,7 +147,7 @@ class LocationDAOTest {
             ])
 
             def campusmap = [
-                new CampusMapLocation(
+                new CampusMapLocationDeprecated(
                     id: 732,
                     name: "Marketplace West Dining Center",
                     abbrev: "WsDn",
