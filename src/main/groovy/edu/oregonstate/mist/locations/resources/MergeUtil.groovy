@@ -3,6 +3,8 @@ package edu.oregonstate.mist.locations.resources
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.Attributes
+import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.api.jsonapi.ResultObject
@@ -13,12 +15,17 @@ class MergeUtil {
     ResultObject resultObject
     LibraryDAO libraryDAO
     ExtraDataDAO extraDataDAO
+    CampusMapDAO campusMapDAO
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
 
-    MergeUtil(ResultObject resultObject, LibraryDAO libraryDAO, ExtraDataDAO extraDataDAO) {
+    MergeUtil(ResultObject resultObject,
+              LibraryDAO libraryDAO,
+              ExtraDataDAO extraDataDAO,
+              CampusMapDAO campusMapDAO) {
         this.resultObject = resultObject
         this.libraryDAO = libraryDAO
         this.extraDataDAO = extraDataDAO
+        this.campusMapDAO = campusMapDAO
     }
 
     /**
@@ -136,5 +143,25 @@ class MergeUtil {
      */
     void populateVLib(Attributes attributes) {
         attributes.setOpenHours(libraryDAO.getLibraryHours())
+    }
+
+    /**
+     * Merge campus map data into resultObject
+     */
+    void mergeCampusMapData() {
+        HashMap<String, CampusMapLocation> campusMapData =
+                campusMapDAO.getCampusMapLocations()
+
+        resultObject.data.each {
+            if (campusMapData[it.id]) {
+                it.attributes.address = campusMapData[it.id].address
+                it.attributes.description = campusMapData[it.id].description
+                it.attributes.images = campusMapData[it.id].images
+                it.attributes.thumbnails = campusMapData[it.id].thumbnail
+                it.attributes.website = campusMapData[it.id].mapUrl
+                it.attributes.synonyms = campusMapData[it.id].synonyms
+            }
+        }
+
     }
 }

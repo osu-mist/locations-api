@@ -16,7 +16,7 @@ class Attributes extends ServiceAttributes {
     String fax
     List<String> thumbnails = []
     List<String> images = []
-    List<String> departments
+    List<String> departments =[]
     String website
     Integer sqft
     String calendar
@@ -24,6 +24,7 @@ class Attributes extends ServiceAttributes {
     Integer giRestroomCount
     Boolean giRestroomLimit
     String giRestroomLocations
+    List<String> synonyms = []
 
     int getHashCode() {
         int result
