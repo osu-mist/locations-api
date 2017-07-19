@@ -172,34 +172,73 @@ This resource returns all dining information and generates locations-dining.json
 
 ```json
 {
-    "links":null,
-    "data":[
-        {"id":"935d84996ac29e8942f06ac6a6a26637",
-         "type":"locations",
-         "attributes":{ "name":"Trader Bing's",
-                        "abbreviation":null,
-                        "latitude":"44.565050",
-                        "longitude":"-123.282096",
-                        "summary":"Zone: Austin Hall",
-                        "description":null,
-                        "address":null,
-                        "city":null,
-                        "state":null,
-                        "zip":null,
-                        "county":null,
-                        "telephone":null,
-                        "fax":null,
-                        "thumbnails":null,
-                        "images":null,
-                        "departments":null,
-                        "website":null,
-                        "sqft":null,
-                        "calendar":null,
-                        "campus":"corvallis",
-                        "type":"dining",
-                        "openHours":{"1":[{"start":"2016-06-20T14:30:00Z","end":"2016-06-20T22:30:00Z"}],"2":[{"start":"2016-06-20T14:30:00Z","end":"2016-06-20T22:30:00Z"}],"3":[{"start":"2016-06-20T14:30:00Z","end":"2016-06-20T22:30:00Z"}],"4":[{"start":"2016-06-20T14:30:00Z","end":"2016-06-20T22:30:00Z"}],"5":[],"6":[],"7":[]}},
-            "links":{"self":"https://api.oregonstate.edu/v1/locations/935d84996ac29e8942f06ac6a6a26637"}},
-            ...]
+  "data": [
+    {
+      "id": "eb93da1b58d9c1ad18ffe7637351d02b",
+      "type": "locations",
+      "attributes": {
+        "name": "Trader Bing's",
+        "tags": [],
+        "openHours": {
+          "1": [
+            {
+              "start": "2017-07-24T14:30:00Z",
+              "end": "2017-07-24T22:30:00Z"
+            }
+          ],
+          "2": [
+            {
+              "start": "2017-07-25T14:30:00Z",
+              "end": "2017-07-25T22:30:00Z"
+            }
+          ],
+          "3": [
+            {
+              "start": "2017-07-19T14:30:00Z",
+              "end": "2017-07-19T22:30:00Z"
+            }
+          ],
+          "4": [
+            {
+              "start": "2017-07-20T14:30:00Z",
+              "end": "2017-07-20T22:30:00Z"
+            }
+          ],
+          "5": [],
+          "6": [],
+          "7": []
+        },
+        "type": "dining",
+        "abbreviation": null,
+        "geometry": null,
+        "summary": "Zone: Austin Hall",
+        "description": null,
+        "address": null,
+        "city": null,
+        "state": null,
+        "zip": null,
+        "county": null,
+        "telephone": null,
+        "fax": null,
+        "thumbnails": [],
+        "images": [],
+        "departments": null,
+        "website": null,
+        "sqft": null,
+        "calendar": null,
+        "campus": "corvallis",
+        "giRestroomCount": null,
+        "giRestroomLimit": null,
+        "giRestroomLocations": null,
+        "latitude": "44.56505",
+        "longitude": "-123.282096"
+      },
+      "links": {
+        "self": "https://api.oregonstate.edu/v1/locations/eb93da1b58d9c1ad18ffe7637351d02b"
+      },
+      "relationships": null
+    }
+  ]
 }
 ```
 
