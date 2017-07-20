@@ -4,11 +4,11 @@ import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocation
+import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
-
+import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
@@ -35,10 +35,13 @@ class LocationResource extends Resource {
     private final ExtraDataDAO extraDataDAO
     private final LibraryDAO libraryDAO
     private ExtraDataManager extraDataManager
+    private final Boolean useHttpCampusMap
+    private final CampusMapDAO campusMapDAO
 
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
                      ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
-                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO) {
+                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO,
+                     Boolean useHttpCampusMap, CampusMapDAO campusMapDAO) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
@@ -46,6 +49,8 @@ class LocationResource extends Resource {
         this.extraDataDAO = extraDataDAO
         this.extraDataManager = extraDataManager
         this.libraryDAO = libraryDAO
+        this.useHttpCampusMap = useHttpCampusMap
+        this.campusMapDAO = campusMapDAO
     }
 
     @GET
@@ -87,10 +92,15 @@ class LocationResource extends Resource {
         // Get arcgis geometries data from json file and merge with centroid data
         HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
                 arcGisCentroids)
-        // Get campus map data from json file
-        List<CampusMapLocation> campusMapLocationList = locationDAO.getCampusMapFromJson()
-        // Merge the combined arcgis data with campus map data
-        locationDAO.mergeMapAndArcgis(arcGisMerged, campusMapLocationList)
+
+        if (!useHttpCampusMap) {
+            List<CampusMapLocationDeprecated> campusMapLocationList =
+                    locationDAO.getCampusMapFromJson()
+            // Merge the combined arcgis data with campus map data
+            return locationDAO.mergeMapAndArcgisDeprecated(arcGisMerged, campusMapLocationList)
+        } else {
+            return new ArrayList<ArcGisLocation>(arcGisMerged.values())
+        }
     }
 
     @GET
@@ -161,7 +171,14 @@ class LocationResource extends Resource {
             resultObject.data += locationDAO.convert(it)
         }
 
-        MergeUtil mergeUtil = new MergeUtil(resultObject, libraryDAO, extraDataDAO)
+        MergeUtil mergeUtil = new MergeUtil(
+                resultObject,
+                libraryDAO,
+                extraDataDAO,
+                campusMapDAO)
+        if (useHttpCampusMap) {
+            mergeUtil.mergeCampusMapData()
+        }
         if (filename != "services.json") {
             mergeUtil.merge() // only applies to locations
             mergeUtil.populate() // only applies to locations for now?
