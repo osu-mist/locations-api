@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ExtraLocation
+import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
@@ -131,6 +132,29 @@ class LocationMapper  {
         )
 
         buildResourceObject(extraLocation.calculateId(), attributes)
+    }
+
+    ResourceObject map(FacilLocation facilLocation) {
+        Attributes attributes = new Attributes(
+                name: facilLocation.name,
+                abbreviation: facilLocation.abbreviation,
+                geoLocation: createGeoLocation(facilLocation.latitude,
+                        facilLocation.longitude),
+                geometry: new Geometry(
+                        coordinates: facilLocation.coordinates,
+                        type: facilLocation.coordinatesType),
+                type: Constants.TYPE_BUILDING,
+                campus: facilLocation.getPrettyCampus(),
+                address: facilLocation.address,
+                city: facilLocation.city,
+                state: facilLocation.state,
+                zip: facilLocation.zip,
+                giRestroomCount: facilLocation.giRestroomCount,
+                giRestroomLimit: getGiRestroomLimit(facilLocation.giRestroomLimit),
+                giRestroomLocations: facilLocation.giRestroomLocations
+        )
+
+        buildResourceObject(facilLocation.calculateId(), attributes)
     }
 
     private String getCampusmapWebsite(Integer id) {

@@ -3,7 +3,7 @@ package edu.oregonstate.mist.locations.db
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
+import edu.oregonstate.mist.locations.core.FacilLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -48,7 +48,7 @@ class ArcGisDAO {
         this.locationUtil = locationUtil
     }
 
-    HashMap<String, ArcGisLocation> getMergedArcGisData() {
+    HashMap<String, ArcGisLocation> getMergedArcGisData(List<FacilLocation> buildings) {
         HashMap<String, ArcGisLocation> centroidData = getArcGisData(
                 arcGisQueryUrl,
                 arcGisJsonOut,
@@ -60,12 +60,17 @@ class ArcGisDAO {
                 "attributes"
         )
 
-        mergeArcGisData(centroidData, genderInclusiveRRData)
+        mergeArcGisData(centroidData, genderInclusiveRRData, buildings)
     }
 
     private HashMap<String, ArcGisLocation> mergeArcGisData(
             HashMap<String, ArcGisLocation> centroidData,
-            HashMap<String, ArcGisLocation> genderInclusiveRRData) {
+            HashMap<String, ArcGisLocation> genderInclusiveRRData, List<FacilLocation> buildings) {
+
+        def buildingIDs = buildings*.bldgID
+        def centroidDataToBeRemoved =  centroidData.collect { it.value.bldID } - buildingIDs
+        logger.warn("Buildings found in centroid, but not in AIM: " + centroidDataToBeRemoved)
+        centroidData.entrySet().removeIf { ! buildingIDs.contains(it.value.bldID) }
 
         genderInclusiveRRData.each {id, value ->
             if (centroidData[id]) {

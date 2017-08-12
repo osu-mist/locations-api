@@ -6,6 +6,7 @@ import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
+import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -105,7 +106,7 @@ class LocationDAO {
      */
     @Deprecated
     public static ArrayList mergeMapAndArcgisDeprecated(
-            HashMap<String, ArcGisLocation> arcGisLocations,
+            Map arcGisLocations,
             List<CampusMapLocationDeprecated> campusMapLocationList) {
         def mapData = [:]
         campusMapLocationList.each {
@@ -131,6 +132,24 @@ class LocationDAO {
         }
 
         mergedData
+    }
+
+    public static Map mergeFacilAndArgis(Map arcGisLocations,
+            List<FacilLocation> buildings) {
+        def result = buildings.collectEntries { [(it.abbreviation): it] }
+        arcGisLocations.each {
+            if (result[it.key]) {
+                result[it.key].latitude = it.value.latitude
+                result[it.key].longitude = it.value.longitude
+                result[it.key].coordinates = it.value.coordinates
+                result[it.key].coordinatesType = it.value.coordinatesType
+                result[it.key].giRestroomCount = it.value.giRestroomCount
+                result[it.key].giRestroomLimit = it.value.giRestroomLimit
+                result[it.key].giRestroomLocations = it.value.giRestroomLocations
+            }
+        }
+
+        result
     }
 
     /**
