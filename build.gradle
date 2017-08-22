@@ -49,8 +49,8 @@ dependencies {
     compile "io.dropwizard:dropwizard-client:${dropwizardVersion}"
     compile "de.thomaskrille:dropwizard-template-config:1.4.0"
     compile "org.codehaus.gpars:gpars:1.1.0"
-     compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
-     compile ':ojdbc6:'
+    compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
+    compile ':ojdbc6:'
 }
 
 codenarc {

@@ -39,9 +39,9 @@ class FacilLocation extends BaseType {
         } else if (campus.equalsIgnoreCase("OSUCORVALLIS")) {
             "Corvallis"
         } else if (campus.equalsIgnoreCase("HMSC")) {
-            campus
+            "HMSC"
         } else {
-            "OTHER"
+            "Other"
         }
     }
 }
