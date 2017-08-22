@@ -3,7 +3,6 @@ package edu.oregonstate.mist.locations.db
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.FacilLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -48,43 +47,12 @@ class ArcGisDAO {
         this.locationUtil = locationUtil
     }
 
-    HashMap<String, ArcGisLocation> getMergedArcGisData(List<FacilLocation> buildings) {
-        HashMap<String, ArcGisLocation> centroidData = getArcGisData(
-                arcGisQueryUrl,
-                arcGisJsonOut,
-                "properties"
-        )
-        HashMap<String, ArcGisLocation> genderInclusiveRRData = getArcGisData(
-                arcGisGenderInclusiveRRUrl,
-                arcGisGenderInclusiveRRJsonOut,
-                "attributes"
-        )
-
-        mergeArcGisData(centroidData, genderInclusiveRRData, buildings)
+    HashMap<String, ArcGisLocation> getCentroidData() {
+        getArcGisData(arcGisQueryUrl, arcGisJsonOut, "properties")
     }
 
-    private HashMap<String, ArcGisLocation> mergeArcGisData(
-            HashMap<String, ArcGisLocation> centroidData,
-            HashMap<String, ArcGisLocation> genderInclusiveRRData, List<FacilLocation> buildings) {
-
-        def buildingIDs = buildings*.bldgID
-        def centroidDataToBeRemoved =  centroidData.collect { it.value.bldID } - buildingIDs
-        logger.warn("Buildings found in centroid, but not in AIM: " + centroidDataToBeRemoved)
-        centroidData.entrySet().removeIf { ! buildingIDs.contains(it.value.bldID) }
-
-        genderInclusiveRRData.each {id, value ->
-            if (centroidData[id]) {
-                centroidData[id].giRestroomCount = value.giRestroomCount
-                centroidData[id].giRestroomLimit = value.giRestroomLimit
-                centroidData[id].giRestroomLocations = value.giRestroomLocations
-            } else {
-                logger.warn("This building exists in the gender inclusive RR data," +
-                        " but not in the centroid data: " +
-                        value.bldNam.toString())
-            }
-        }
-
-        centroidData
+    HashMap<String, ArcGisLocation> getGenderInclusiveRR() {
+        getArcGisData(arcGisGenderInclusiveRRUrl, arcGisGenderInclusiveRRJsonOut, "attributes")
     }
 
     /**
@@ -100,8 +68,7 @@ class ArcGisDAO {
         mappedData.asList().each {
             def arcBuilding = new ArcGisLocation(mapper.readValue(it.get(key).toString(),
                     Object.class))
-            String bldNamIdHash = locationUtil.getMD5Hash(arcBuilding.bldID + arcBuilding.bldNam)
-            data[bldNamIdHash] = arcBuilding
+            data[arcBuilding.bldNamAbr] = arcBuilding
         }
 
         data

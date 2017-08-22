@@ -6,6 +6,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
+import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
@@ -93,19 +94,24 @@ class LocationResource extends Resource {
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
         // Get arcgis centroid data from http request
-        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getMergedArcGisData(buildings)
+        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getCentroidData()
+        // Get acrgis gender inclusive restroom data from http request
+        HashMap<String, ArcGisLocation> genderInclusiveRR =
+                arcGisDAO.getGenderInclusiveRR()
         // Get arcgis geometries data from json file and merge with centroid data
-        HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
-                arcGisCentroids)
-        def buildingAndArcGisMerged = locationDAO.mergeFacilAndArgis(arcGisMerged, buildings)
+        HashMap<String, Geometry> arcGisGeometries = locationDAO.getArcGisGeometries()
+
+        def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings, arcGisCentroids,
+            genderInclusiveRR, arcGisGeometries)
 
         if (!useHttpCampusMap) {
             List<CampusMapLocationDeprecated> campusMapLocationList =
                     locationDAO.getCampusMapFromJson()
             // Merge the combined arcgis data with campus map data
-            locationDAO.mergeMapAndArcgisDeprecated(buildingAndArcGisMerged, campusMapLocationList)
+            locationDAO.mergeMapAndBuildingsDeprecated(
+                    buildingAndArcGisMerged, campusMapLocationList)
         } else {
-            new ArrayList<ArcGisLocation>(buildingAndArcGisMerged.values())
+            new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
         }
     }
 

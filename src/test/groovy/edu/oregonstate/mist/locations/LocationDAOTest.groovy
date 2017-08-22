@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
+import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.db.LocationDAO
 
 import org.junit.Test
@@ -14,16 +15,16 @@ class LocationDAOTest {
     @Test
     public void testMergeMapAndArcgis_Simple() {
         // Empty lists merge to an empty list
-        assert LocationDAO.mergeMapAndArcgisDeprecated([:], []) == []
+        assert LocationDAO.mergeMapAndBuildingsDeprecated([:], []) == []
 
         // Empty arcgis, non-empty campusmap
-        assert LocationDAO.mergeMapAndArcgisDeprecated(
+        assert LocationDAO.mergeMapAndBuildingsDeprecated(
                 [:], [new CampusMapLocationDeprecated(id: 101)]) == []
 
         // Non-empty arcgis, empty campusmap
         def arcgis = new ArcGisLocation(BldNamAbr: "FOO")
         assert arcgis.bldNamAbr != null
-        assert LocationDAO.mergeMapAndArcgisDeprecated(["FOO": arcgis], []) == [arcgis]
+        assert LocationDAO.mergeMapAndBuildingsDeprecated(["FOO": arcgis], []) == [arcgis]
     }
 
     @Test
@@ -69,7 +70,7 @@ class LocationDAOTest {
             ),
         ]
 
-        assert LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap) == expected
+        assert LocationDAO.mergeMapAndBuildingsDeprecated(arcgis, campusmap) == expected
     }
 
     @Test
@@ -95,15 +96,15 @@ class LocationDAOTest {
         ]
 
         def arcgis = [
-            "FOO": new ArcGisLocation(
-                BldID: "0032",
-                BldNam: "Arcgis bldNam",
-                BldNamAbr: "FOO",
-                Latitude: "42",
-                Longitude: "-42",
-                Count_: null,
-                Limits: "Only for residents!",
-                LocaAll: "110, 210, 310"
+            "FOO": new FacilLocation(
+                bldgID: "0032",
+                name: "Arcgis bldNam",
+                abbreviation: "FOO",
+                latitude: "42",
+                longitude: "-42",
+                giRestroomCount: 3,
+                giRestroomLimit: "Only for residents!",
+                giRestroomLocations: "110, 210, 310"
             ),
         ]
 
@@ -122,16 +123,14 @@ class LocationDAOTest {
                     description: "Campusmap description",
                     thumbnail: "campusmap.png",
                     largerImage: "",
-                    giRestroomCount: 0,
+                    giRestroomCount: 3,
                     giRestroomLimit: "Only for residents!",
                     giRestroomLocations: "110, 210, 310"
 
             ),
         ]
-        def actual = LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap)
+        def actual = LocationDAO.mergeMapAndBuildingsDeprecated(arcgis, campusmap)
 
-        //println(mapper.writeValueAsString(actual))
-        //println(mapper.writeValueAsString(expected))
         assert actual == expected
     }
 
