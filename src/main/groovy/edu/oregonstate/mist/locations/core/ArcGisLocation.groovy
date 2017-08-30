@@ -19,7 +19,7 @@ class ArcGisLocation extends BaseType {
     String longitude
     def coordinates
     String coordinatesType
-    @JsonProperty("Count_")
+    @JsonProperty("CntAll")
     Integer giRestroomCount
     @JsonProperty("Limits")
     String giRestroomLimit
@@ -46,7 +46,7 @@ class ArcGisLocation extends BaseType {
         this.bldNamAbr = arcGisMap.BldNamAbr
         this.latitude = arcGisMap.Latitude
         this.longitude = arcGisMap.Longitude
-        this.giRestroomCount = arcGisMap.Count_
+        this.giRestroomCount = arcGisMap.CntAll
         this.giRestroomLimit = arcGisMap.Limits
         this.giRestroomLocations = arcGisMap.LocaAll
     }
