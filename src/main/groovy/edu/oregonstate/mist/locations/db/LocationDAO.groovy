@@ -2,10 +2,11 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
+import edu.oregonstate.mist.locations.core.FacilLocation
+import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -36,34 +37,18 @@ class LocationDAO {
      *
      * @return HashMap<String, ArcGisLocation>
      */
-    public HashMap<String, ArcGisLocation> addArcGisGeometries(
-            HashMap<String, ArcGisLocation> arcGisCentroids) {
+    public HashMap<String, Geometry> getArcGisGeometries() {
         def jsonSlurper = new JsonSlurper()
         def arcGisGeometries = jsonSlurper.parseText(geometriesJsonFile.getText())
-        def geometryHashMap = [:]
+        HashMap<String, Geometry> geometryHashMap = [:]
 
         arcGisGeometries['features'].each {
-            String bldNamIdHash = LocationUtil.getMD5Hash(
-                    it['properties']['BldID'] + it['properties']['BldNam'])
-            geometryHashMap[bldNamIdHash] = it
-
-            if (arcGisCentroids[bldNamIdHash]) {
-                arcGisCentroids[bldNamIdHash].coordinates = it['geometry']['coordinates']
-                arcGisCentroids[bldNamIdHash].coordinatesType = it['geometry']['type']
-            } else {
-                logger.warn("This building exists in the geometries data, " +
-                        "but not in the centroid data: " +
-                        it['properties']['BldNam'])
-            }
+            geometryHashMap[it['properties']['BldNamAbr'].toString()] = new Geometry(
+                    type: it['geometry']['type'],
+                    coordinates: it['geometry']['coordinates'])
         }
 
-        def mergedArcGisData = [:]
-
-        // FIXME: This is overwriting locations that use the same building abbreviation.
-        arcGisCentroids.each {
-            mergedArcGisData[it.value.bldNamAbr] = it.value
-        }
-        mergedArcGisData
+        geometryHashMap
     }
 
     /**
@@ -99,13 +84,13 @@ class LocationDAO {
      * Two buildings are considered the same if the abbrev field of the
      * CampusMapLocationDeprecated matches the bldNamAbr field of the ArcGisLocation.
      *
-     * @param arcGisLocations
+     * @param buildings
      * @param campusMapLocationList
      * @return
      */
     @Deprecated
-    public static ArrayList mergeMapAndArcgisDeprecated(
-            HashMap<String, ArcGisLocation> arcGisLocations,
+    public static ArrayList mergeMapAndBuildingsDeprecated(
+            HashMap<String, FacilLocation> buildings,
             List<CampusMapLocationDeprecated> campusMapLocationList) {
         def mapData = [:]
         campusMapLocationList.each {
@@ -113,9 +98,9 @@ class LocationDAO {
         }
 
         def mergedData = []
-        arcGisLocations.each {
+        buildings.each {
             if (mapData[it.key]) {
-                mapData[it.key].name = it.value.bldNam
+                mapData[it.key].name = it.value.name
                 mapData[it.key].latitude = it.value.latitude
                 mapData[it.key].longitude = it.value.longitude
                 mapData[it.key].coordinates = it.value.coordinates
@@ -131,6 +116,47 @@ class LocationDAO {
         }
 
         mergedData
+    }
+
+    /**
+     * Merge multiple arcGis datasources into FacilLocations
+     * @param buildings
+     * @param centroids
+     * @param genderInclusiveRR
+     * @param geometries
+     * @return
+     */
+    public static Map mergeFacilAndArcGis(List<FacilLocation> buildings,
+                                          HashMap<String, ArcGisLocation> centroids,
+                                          HashMap<String, ArcGisLocation> genderInclusiveRR,
+                                          HashMap<String, Geometry> geometries) {
+        HashMap<String, FacilLocation> facilLocationHashMap = new HashMap<String, FacilLocation>()
+
+        buildings.each {
+            facilLocationHashMap[it.abbreviation] = it
+        }
+
+        facilLocationHashMap.each { key, building ->
+            if (centroids[key]) {
+                facilLocationHashMap[key].latitude = centroids[key].latitude
+                facilLocationHashMap[key].longitude = centroids[key].longitude
+            }
+            if (genderInclusiveRR[key]) {
+                facilLocationHashMap[key].giRestroomCount =
+                        genderInclusiveRR[key].giRestroomCount
+                facilLocationHashMap[key].giRestroomLimit =
+                        genderInclusiveRR[key].giRestroomLimit
+                facilLocationHashMap[key].giRestroomLocations =
+                        genderInclusiveRR[key].giRestroomLocations
+            }
+            if (geometries[key]) {
+                facilLocationHashMap[key].coordinates = geometries[key].coordinates
+                facilLocationHashMap[key].coordinatesType =
+                        geometries[key].type
+            }
+        }
+
+        facilLocationHashMap
     }
 
     /**

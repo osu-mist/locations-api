@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
+import edu.oregonstate.mist.locations.core.FacilLocation
+import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
@@ -13,6 +15,7 @@ import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
+import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.api.jsonapi.ResultObject
@@ -37,11 +40,12 @@ class LocationResource extends Resource {
     private ExtraDataManager extraDataManager
     private final Boolean useHttpCampusMap
     private final CampusMapDAO campusMapDAO
+    private final FacilDAO facilDAO
 
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
                      ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
                      ExtraDataManager extraDataManager, LibraryDAO libraryDAO,
-                     Boolean useHttpCampusMap, CampusMapDAO campusMapDAO) {
+                     Boolean useHttpCampusMap, CampusMapDAO campusMapDAO, FacilDAO facilDAO) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
@@ -51,6 +55,7 @@ class LocationResource extends Resource {
         this.libraryDAO = libraryDAO
         this.useHttpCampusMap = useHttpCampusMap
         this.campusMapDAO = campusMapDAO
+        this.facilDAO = facilDAO
     }
 
     @GET
@@ -71,7 +76,7 @@ class LocationResource extends Resource {
     @Path("arcgis")
     @Timed
     Response getFacilities() {
-        ArrayList mergedData = getArcGisAndMapData()
+        ArrayList mergedData = getBuildingData()
 
         if (!mergedData) {
             return notFound().build()
@@ -86,20 +91,27 @@ class LocationResource extends Resource {
      *
      * @return
      */
-    private List getArcGisAndMapData() {
+    private List getBuildingData() {
+        List<FacilLocation> buildings = facilDAO.getBuildings()
         // Get arcgis centroid data from http request
-        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getMergedArcGisData()
+        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getCentroidData()
+        // Get acrgis gender inclusive restroom data from http request
+        HashMap<String, ArcGisLocation> genderInclusiveRR =
+                arcGisDAO.getGenderInclusiveRR()
         // Get arcgis geometries data from json file and merge with centroid data
-        HashMap<String, ArcGisLocation> arcGisMerged = locationDAO.addArcGisGeometries(
-                arcGisCentroids)
+        HashMap<String, Geometry> arcGisGeometries = locationDAO.getArcGisGeometries()
+
+        def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings, arcGisCentroids,
+            genderInclusiveRR, arcGisGeometries)
 
         if (!useHttpCampusMap) {
             List<CampusMapLocationDeprecated> campusMapLocationList =
                     locationDAO.getCampusMapFromJson()
             // Merge the combined arcgis data with campus map data
-            return locationDAO.mergeMapAndArcgisDeprecated(arcGisMerged, campusMapLocationList)
+            locationDAO.mergeMapAndBuildingsDeprecated(
+                    buildingAndArcGisMerged, campusMapLocationList)
         } else {
-            return new ArrayList<ArcGisLocation>(arcGisMerged.values())
+            new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
         }
     }
 
@@ -132,7 +144,7 @@ class LocationResource extends Resource {
     @Timed
     Response combineSources() {
         List<List> locationsList = []
-        locationsList  += getArcGisAndMapData()
+        locationsList  += getBuildingData()
         locationsList  += extraDataManager.extraData.locations
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()

@@ -13,6 +13,7 @@ import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
+import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.locations.health.ArcGisHealthCheck
@@ -28,10 +29,12 @@ import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.AuthValueFactoryProvider
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.client.HttpClientBuilder
+import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.jersey.errors.LoggingExceptionMapper
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.apache.http.client.HttpClient
+import org.skife.jdbi.v2.DBI
 
 import javax.ws.rs.WebApplicationException
 
@@ -96,6 +99,10 @@ class LocationApplication extends Application<LocationConfiguration> {
         final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
         final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
         final CampusMapDAO campusMapDAO = new CampusMapDAO(configMap, locationUtil)
+        final DBIFactory factory = new DBIFactory()
+        final DBI jdbi = factory.build(environment, configuration.getDatabase(), "jdbi")
+        FacilDAO facilDAO = jdbi.onDemand(FacilDAO.class)
+
         ExtraDataDAO extraDataDAO = new ExtraDataDAO(configuration, locationUtil,
                 extraDataManager)
 
@@ -106,7 +113,7 @@ class LocationApplication extends Application<LocationConfiguration> {
 
         environment.jersey().register(new LocationResource(diningDAO, locationDAO,
                 extensionDAO, arcGisDAO, extraDataDAO, extraDataManager, libraryDAO,
-                useHttpCampusMap, campusMapDAO))
+                useHttpCampusMap, campusMapDAO, facilDAO))
         environment.jersey().register(new InfoResource(buildInfoManager.getInfo()))
         environment.jersey().register(new AuthDynamicFeature(
                 new BasicCredentialAuthFilter.Builder<AuthenticatedUser>()
