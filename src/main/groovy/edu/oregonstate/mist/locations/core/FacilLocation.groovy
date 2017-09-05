@@ -24,6 +24,14 @@ class FacilLocation extends BaseType {
     String giRestroomLimit
     String giRestroomLocations
 
+    Integer getGiRestroomCount() {
+        giRestroomCount ?: 0
+    }
+
+    String getGiRestroomLocations() {
+        giRestroomLocations?.trim()
+    }
+
     @Override
     protected String getIdField() {
         abbreviation ?: name

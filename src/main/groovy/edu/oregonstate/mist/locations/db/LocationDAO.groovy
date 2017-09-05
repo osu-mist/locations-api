@@ -6,7 +6,7 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
-import edu.oregonstate.mist.locations.core.Geometry
+import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -37,18 +37,16 @@ class LocationDAO {
      *
      * @return HashMap<String, ArcGisLocation>
      */
-    public HashMap<String, Geometry> getArcGisGeometries() {
+    public HashMap<String, ArcGisLocation> getArcGisCoordinates() {
         def jsonSlurper = new JsonSlurper()
-        def arcGisGeometries = jsonSlurper.parseText(geometriesJsonFile.getText())
-        HashMap<String, Geometry> geometryHashMap = [:]
+        def arcJson = jsonSlurper.parseText(geometriesJsonFile.getText())
+        HashMap<String, ArcGisLocation> arcHashMap = [:]
 
-        arcGisGeometries['features'].each {
-            geometryHashMap[it['properties']['BldNamAbr'].toString()] = new Geometry(
-                    type: it['geometry']['type'],
-                    coordinates: it['geometry']['coordinates'])
+        arcJson['features'].each {
+            arcHashMap[it['properties']['BldID'].toString()] = new ArcGisLocation(it)
         }
 
-        geometryHashMap
+        arcHashMap
     }
 
     /**
@@ -127,20 +125,16 @@ class LocationDAO {
      * @return
      */
     public static Map mergeFacilAndArcGis(List<FacilLocation> buildings,
-                                          HashMap<String, ArcGisLocation> centroids,
-                                          HashMap<String, ArcGisLocation> genderInclusiveRR,
-                                          HashMap<String, Geometry> geometries) {
+                                          HashMap<String, GenderInclusiveRRLocation>
+                                                  genderInclusiveRR,
+                                          HashMap<String, ArcGisLocation> geometries) {
         HashMap<String, FacilLocation> facilLocationHashMap = new HashMap<String, FacilLocation>()
 
         buildings.each {
-            facilLocationHashMap[it.abbreviation] = it
+            facilLocationHashMap[it.bldgID] = it
         }
 
         facilLocationHashMap.each { key, building ->
-            if (centroids[key]) {
-                facilLocationHashMap[key].latitude = centroids[key].latitude
-                facilLocationHashMap[key].longitude = centroids[key].longitude
-            }
             if (genderInclusiveRR[key]) {
                 facilLocationHashMap[key].giRestroomCount =
                         genderInclusiveRR[key].giRestroomCount
@@ -150,6 +144,8 @@ class LocationDAO {
                         genderInclusiveRR[key].giRestroomLocations
             }
             if (geometries[key]) {
+                facilLocationHashMap[key].latitude = geometries[key].latitude
+                facilLocationHashMap[key].longitude = geometries[key].longitude
                 facilLocationHashMap[key].coordinates = geometries[key].coordinates
                 facilLocationHashMap[key].coordinatesType =
                         geometries[key].type

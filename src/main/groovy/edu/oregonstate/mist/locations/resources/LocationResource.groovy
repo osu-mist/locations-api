@@ -6,7 +6,7 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
-import edu.oregonstate.mist.locations.core.Geometry
+import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
@@ -93,15 +93,13 @@ class LocationResource extends Resource {
      */
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
-        // Get arcgis centroid data from http request
-        HashMap<String, ArcGisLocation> arcGisCentroids = arcGisDAO.getCentroidData()
         // Get acrgis gender inclusive restroom data from http request
-        HashMap<String, ArcGisLocation> genderInclusiveRR =
+        HashMap<String, GenderInclusiveRRLocation> genderInclusiveRR =
                 arcGisDAO.getGenderInclusiveRR()
-        // Get arcgis geometries data from json file and merge with centroid data
-        HashMap<String, Geometry> arcGisGeometries = locationDAO.getArcGisGeometries()
+        // Get arcgis coordinate data from json file
+        HashMap<String, ArcGisLocation> arcGisGeometries = locationDAO.getArcGisCoordinates()
 
-        def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings, arcGisCentroids,
+        def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings,
             genderInclusiveRR, arcGisGeometries)
 
         if (!useHttpCampusMap) {
