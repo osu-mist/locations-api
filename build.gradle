@@ -45,13 +45,12 @@ dependencies {
     compile "io.dropwizard:dropwizard-core:${dropwizardVersion}"
     compile "io.dropwizard:dropwizard-auth:${dropwizardVersion}"
     compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
-    // compile ":mysql:"
     compile 'org.mnode.ical4j:ical4j:1.0.7'
     compile "io.dropwizard:dropwizard-client:${dropwizardVersion}"
     compile "de.thomaskrille:dropwizard-template-config:1.4.0"
     compile "org.codehaus.gpars:gpars:1.1.0"
-    // compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
-    // compile ':ojdbc6_g:'
+    compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
+    compile ':ojdbc6:'
 }
 
 codenarc {

@@ -1,8 +1,8 @@
 package edu.oregonstate.mist.locations
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
+import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.db.LocationDAO
 
 import org.junit.Test
@@ -10,67 +10,6 @@ import org.junit.Test
 @groovy.transform.TypeChecked
 class LocationDAOTest {
     private ObjectMapper mapper = new ObjectMapper()
-
-    @Test
-    public void testMergeMapAndArcgis_Simple() {
-        // Empty lists merge to an empty list
-        assert LocationDAO.mergeMapAndArcgisDeprecated([:], []) == []
-
-        // Empty arcgis, non-empty campusmap
-        assert LocationDAO.mergeMapAndArcgisDeprecated(
-                [:], [new CampusMapLocationDeprecated(id: 101)]) == []
-
-        // Non-empty arcgis, empty campusmap
-        def arcgis = new ArcGisLocation(BldNamAbr: "FOO")
-        assert arcgis.bldNamAbr != null
-        assert LocationDAO.mergeMapAndArcgisDeprecated(["FOO": arcgis], []) == [arcgis]
-    }
-
-    @Test
-    public void testMergeMapAndArcgis_TwoShipsPassingInTheNight() {
-        // CampusMapLocations which do not match an ArcGisLocation are
-        // filtered out
-
-        def campusmap = [
-            new CampusMapLocationDeprecated(
-                    id: 13,
-                    name: "Forrest Observatory",
-                    abbrev: "BAR",
-                    longitude: "-1",
-                    latitude: "1",
-                    layerId: "",
-                    layerNames: "Buildings Map",
-                    address: "address",
-                    adaEntrance: "",
-                    shortDescription: "shortDescription",
-                    description: "description",
-                    thumbnail: "thumbnail.png",
-                    largerImage: "",
-            ),
-        ]
-
-        def arcgis = [
-            "FOO": new ArcGisLocation(
-                BldID: "0061",
-                BldNam: "Forrest Observatory",
-                BldNamAbr: "FOO",
-                Latitude: "42.39561",
-                Longitude: "-71.13051",
-            ),
-        ]
-
-        def expected = [
-            new ArcGisLocation(
-                BldID: "0061",
-                BldNam: "Forrest Observatory",
-                BldNamAbr: "FOO",
-                Latitude: "42.39561",
-                Longitude: "-71.13051",
-            ),
-        ]
-
-        assert LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap) == expected
-    }
 
     @Test
     public void testMergeMapAndArcgis_Messy() {
@@ -95,15 +34,15 @@ class LocationDAOTest {
         ]
 
         def arcgis = [
-            "FOO": new ArcGisLocation(
-                BldID: "0032",
-                BldNam: "Arcgis bldNam",
-                BldNamAbr: "FOO",
-                Latitude: "42",
-                Longitude: "-42",
-                Count_: null,
-                Limits: "Only for residents!",
-                LocaAll: "110, 210, 310"
+            "FOO": new FacilLocation(
+                bldgID: "0032",
+                name: "Arcgis bldNam",
+                abbreviation: "FOO",
+                latitude: "42",
+                longitude: "-42",
+                giRestroomCount: 3,
+                giRestroomLimit: "Only for residents!",
+                giRestroomLocations: "110, 210, 310"
             ),
         ]
 
@@ -122,16 +61,14 @@ class LocationDAOTest {
                     description: "Campusmap description",
                     thumbnail: "campusmap.png",
                     largerImage: "",
-                    giRestroomCount: 0,
+                    giRestroomCount: 3,
                     giRestroomLimit: "Only for residents!",
                     giRestroomLocations: "110, 210, 310"
 
             ),
         ]
-        def actual = LocationDAO.mergeMapAndArcgisDeprecated(arcgis, campusmap)
+        def actual = LocationDAO.mergeMapAndBuildingsDeprecated(arcgis, campusmap)
 
-        //println(mapper.writeValueAsString(actual))
-        //println(mapper.writeValueAsString(expected))
         assert actual == expected
     }
 
