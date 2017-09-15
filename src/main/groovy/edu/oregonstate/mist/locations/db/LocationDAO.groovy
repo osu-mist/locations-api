@@ -148,7 +148,7 @@ class LocationDAO {
                 facilLocationHashMap[key].longitude = geometries[key].longitude
                 facilLocationHashMap[key].coordinates = geometries[key].coordinates
                 facilLocationHashMap[key].coordinatesType =
-                        geometries[key].type
+                        geometries[key].coordinatesType
             }
         }
 
