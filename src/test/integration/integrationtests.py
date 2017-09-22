@@ -89,8 +89,9 @@ class dw_tests(unittest.TestCase):
                 break
 
         regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}[T][0-9]{2}:[0-9]{2}:[0-9]{2}[Z]"
-        self.assertRegexpMatches(test_slot["start"], regex)
-        self.assertRegexpMatches(test_slot["end"], regex)
+        if test_slot is not None:
+            self.assertRegexpMatches(test_slot["start"], regex)
+            self.assertRegexpMatches(test_slot["end"], regex)
 
     # Tests that different verbs return expected responses
     def test_verbs(self):
