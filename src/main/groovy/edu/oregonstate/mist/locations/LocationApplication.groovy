@@ -26,11 +26,12 @@ import org.skife.jdbi.v2.DBI
 /**
  * Main application class.
  */
+@groovy.transform.TypeChecked
 class LocationApplication extends Application<LocationConfiguration> {
     @Override
     public void initialize(Bootstrap bootstrap) {
         super.initialize(bootstrap)
-        bootstrap.addCommand(new LocationCommand())
+        bootstrap.addCommand(new LocationCommand(this))
     }
 
     /**

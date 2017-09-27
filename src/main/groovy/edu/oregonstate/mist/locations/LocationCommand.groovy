@@ -19,12 +19,18 @@ import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.api.jsonapi.ResultObject
-import io.dropwizard.cli.ConfiguredCommand
+import io.dropwizard.cli.EnvironmentCommand
+import io.dropwizard.client.HttpClientBuilder
+import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.setup.Bootstrap
+import io.dropwizard.setup.Environment
 import net.sourceforge.argparse4j.inf.Namespace
 import net.sourceforge.argparse4j.inf.Subparser
+import org.apache.http.client.HttpClient
+import org.skife.jdbi.v2.DBI
 
-class LocationCommand extends ConfiguredCommand<LocationConfiguration> {
+@groovy.transform.TypeChecked
+class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     private final DiningDAO diningDAO
     private final LocationDAO locationDAO
     private final ExtensionDAO extensionDAO
@@ -55,8 +61,8 @@ class LocationCommand extends ConfiguredCommand<LocationConfiguration> {
     }
     */
 
-    LocationCommand() {
-        super("generate", "Generates json files")
+    LocationCommand(LocationApplication app) {
+        super(app, "generate", "Generates json files")
     }
 
     @Override
@@ -66,9 +72,27 @@ class LocationCommand extends ConfiguredCommand<LocationConfiguration> {
     }
 
     @Override
-    protected void run(Bootstrap<LocationConfiguration> bootstrap,
+    protected void run(Environment environment,
                        Namespace namespace,
                        LocationConfiguration configuration) throws Exception {
+
+        // the httpclient from DW provides with many metrics and config options
+        HttpClient httpClient = new HttpClientBuilder(environment)
+                .using(configuration.getHttpClientConfiguration())
+                .build("generate-http-client")
+
+        def configMap = configuration.locationsConfiguration
+        final LibraryDAO libraryDAO = new LibraryDAO(configMap, httpClient)
+        final LocationDAO locationDAO = new LocationDAO(configMap)
+        final LocationUtil locationUtil = new LocationUtil(configMap)
+        final ExtensionDAO extensionDAO = new ExtensionDAO(configMap, locationUtil)
+        final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
+        final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
+        final CampusMapDAO campusMapDAO = new CampusMapDAO(configMap, locationUtil)
+        final DBIFactory factory = new DBIFactory()
+        final DBI jdbi = factory.build(environment, configuration.getDatabase(), "jdbi")
+        final FacilDAO facilDAO = jdbi.onDemand(FacilDAO.class)
+
         System.printf("hi %s\n", configuration.api.endpointUri)
     }
 
