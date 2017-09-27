@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.Application
+import edu.oregonstate.mist.locations.LocationCommand
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
@@ -26,6 +27,12 @@ import org.skife.jdbi.v2.DBI
  * Main application class.
  */
 class LocationApplication extends Application<LocationConfiguration> {
+    @Override
+    public void initialize(Bootstrap bootstrap) {
+        super.initialize(bootstrap)
+        bootstrap.addCommand(new LocationCommand())
+    }
+
     /**
      * Parses command-line arguments and runs the application.
      *
