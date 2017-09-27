@@ -39,7 +39,7 @@ class MergeUtil {
             // Here we are trying to find the original location (not defined in extra-data.yaml)
             // the hours come from the calendar object defined in extra-data.yaml
             def foo = resultObject.data.find { primeObject ->
-                primeObject.attributes.abbreviation == it.attributes.name &&
+                primeObject.attributes.bldgID == it.attributes.name &&
                         !primeObject.attributes.merge
             }
 
@@ -79,10 +79,10 @@ class MergeUtil {
     public void appendRelationshipsToLocations() {
         extraDataDAO.getLazyServices().each {
             resultObject.data.findAll( { resourceObject ->
-                resourceObject.attributes.abbreviation == it.parent && !it.merge
+                resourceObject.attributes.bldgID == it.parent && !it.merge
             }).each { resourceObject ->
                 LOGGER.debug("resource about to enter in relationship: " +
-                        resourceObject.attributes.abbreviation)
+                        resourceObject.attributes.bldgID)
 
                 if (!resourceObject?.relationships?.services) {
                      resourceObject.relationships = [
@@ -129,7 +129,7 @@ class MergeUtil {
         String methodPrefix = "populate"
         String methodName
         resultObject.data.each {
-            methodName = methodPrefix + it?.attributes?.abbreviation?.capitalize()
+            methodName = methodPrefix + it?.attributes?.bldgID?.capitalize()
             if (this.metaClass.respondsTo(this, methodName)) {
                 this."$methodName"(it.attributes)
             }

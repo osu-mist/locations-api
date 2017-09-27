@@ -124,7 +124,7 @@ class LocationMapper  {
         Attributes attributes = new Attributes(
                 name: extraLocation.name,
                 //@todo: maybe we should leave the abbreviation blank?
-                abbreviation: extraLocation.abbreviation,
+                bldgID: extraLocation.bldgID,
                 geoLocation: createGeoLocation(extraLocation.latitude,
                         extraLocation.longitude),
                 type: extraLocation.type,
@@ -151,7 +151,8 @@ class LocationMapper  {
                 zip: facilLocation.zip,
                 giRestroomCount: facilLocation.giRestroomCount,
                 giRestroomLimit: getGiRestroomLimit(facilLocation.giRestroomLimit),
-                giRestroomLocations: facilLocation.giRestroomLocations
+                giRestroomLocations: facilLocation.giRestroomLocations,
+                bldgID: facilLocation.bldgID
         )
 
         buildResourceObject(facilLocation.calculateId(), attributes)

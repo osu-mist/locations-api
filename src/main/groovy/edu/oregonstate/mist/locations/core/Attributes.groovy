@@ -25,6 +25,7 @@ class Attributes extends ServiceAttributes {
     Boolean giRestroomLimit
     String giRestroomLocations
     List<String> synonyms = []
+    String bldgID
 
     int getHashCode() {
         int result
