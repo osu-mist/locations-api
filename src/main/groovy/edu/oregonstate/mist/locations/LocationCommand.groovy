@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations
 
 import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.LocationConfiguration
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
@@ -19,6 +20,7 @@ import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.locations.resources.MergeUtil
 import io.dropwizard.cli.EnvironmentCommand
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jdbi.DBIFactory
@@ -31,16 +33,19 @@ import org.skife.jdbi.v2.DBI
 
 @groovy.transform.TypeChecked
 class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
-    private final DiningDAO diningDAO
-    private final LocationDAO locationDAO
-    private final ExtensionDAO extensionDAO
-    private final ArcGisDAO arcGisDAO
-    private final ExtraDataDAO extraDataDAO
-    private final LibraryDAO libraryDAO
+    ObjectMapper mapper = new ObjectMapper()
+    private ArcGisDAO arcGisDAO
+    private CampusMapDAO campusMapDAO
+    private DiningDAO diningDAO
+    private ExtensionDAO extensionDAO
+    private ExtraDataDAO extraDataDAO
+    private FacilDAO facilDAO
+    private LibraryDAO libraryDAO
+    private LocationDAO locationDAO
+
     private ExtraDataManager extraDataManager
-    private final Boolean useHttpCampusMap
-    private final CampusMapDAO campusMapDAO
-    private final FacilDAO facilDAO
+    private Boolean useHttpCampusMap
+
 
     /*
     LocationCommand(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
@@ -81,48 +86,60 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
                 .using(configuration.getHttpClientConfiguration())
                 .build("generate-http-client")
 
-        def configMap = configuration.locationsConfiguration
-        final LibraryDAO libraryDAO = new LibraryDAO(configMap, httpClient)
-        final LocationDAO locationDAO = new LocationDAO(configMap)
-        final LocationUtil locationUtil = new LocationUtil(configMap)
-        final ExtensionDAO extensionDAO = new ExtensionDAO(configMap, locationUtil)
-        final DiningDAO diningDAO = new DiningDAO(configuration, locationUtil)
-        final ArcGisDAO arcGisDAO = new ArcGisDAO(configMap, locationUtil)
-        final CampusMapDAO campusMapDAO = new CampusMapDAO(configMap, locationUtil)
         final DBIFactory factory = new DBIFactory()
         final DBI jdbi = factory.build(environment, configuration.getDatabase(), "jdbi")
-        final FacilDAO facilDAO = jdbi.onDemand(FacilDAO.class)
+
+        def configMap = configuration.locationsConfiguration
+        final LocationUtil locationUtil = new LocationUtil(configMap)
+
+        ExtraDataManager extraDataManager = new ExtraDataManager()
+        // Managed objects are tied to the lifecycle of the http server.
+        // We aren't starting an http server, so we have to start the manager manually.
+        //environment.lifecycle().manage(extraDataManager)
+        extraDataManager.start()
+
+        arcGisDAO = new ArcGisDAO(configMap, locationUtil)
+        campusMapDAO = new CampusMapDAO(configMap, locationUtil)
+        diningDAO = new DiningDAO(configuration, locationUtil)
+        extensionDAO = new ExtensionDAO(configMap, locationUtil)
+        extraDataDAO = new ExtraDataDAO(configuration, locationUtil, extraDataManager)
+        facilDAO = jdbi.onDemand(FacilDAO.class)
+        libraryDAO = new LibraryDAO(configMap, httpClient)
+        locationDAO = new LocationDAO(configMap)
+
+        useHttpCampusMap = Boolean.parseBoolean(
+                configuration.locationsConfiguration.get("useHttpCampusMap"))
 
         System.printf("hi %s\n", configuration.api.endpointUri)
+        services()
     }
 
-    /*Response getDining() {
+    void getDining() {
         final List<ServiceLocation> diningLocations = diningDAO.getDiningLocations()
 
         if (!diningLocations) {
-            return notFound().build()
+            return
         }
 
         ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", diningLocations)
-        ok(resultObject).build()
     }
 
-    Response getFacilities() {
-        ArrayList mergedData = getBuildingData()
+    void getFacilities() {
+        List mergedData = getBuildingData()
 
         if (!mergedData) {
-            return notFound().build()
+            return
         }
 
         ResultObject resultObject = writeJsonAPIToFile("locations-arcgis.json", mergedData)
-        ok(resultObject).build()
     }
 
-    *//**
+    /**
      * Returns the combined data from the arcgis and campusmap.
      *
      * @return
-     *//*
+     */
+
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
         // Get acrgis gender inclusive restroom data from http request
@@ -145,61 +162,61 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         }
     }
 
-    Response getExtension() {
+    void getExtension() {
         final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
 
         if (!extensionLocations) {
-            return notFound().build()
+            return
         }
 
         ResultObject resultObject =
                 writeJsonAPIToFile("locations-extension.json", extensionLocations)
-        ok(resultObject).build()
     }
 
-    Response getLibrary() {
+    void getLibrary() {
         def data = libraryDAO.getLibraryHours()
 
-        ok(data).build()
     }
 
-    Response combineSources() {
-        List<List> locationsList = []
-        locationsList  += getBuildingData()
-        locationsList  += extraDataManager.extraData.locations
-        locationsList  += diningDAO.getDiningLocations()
-        locationsList  += extensionDAO.getExtensionLocations()
-        locationsList  += extraDataDAO.getLocations()
+    void combineSources() {
+        ArrayList<Object> locationsList = []
+        locationsList.addAll(getBuildingData())
+        locationsList.addAll(extraDataManager.extraData.locations)
+        locationsList.addAll(diningDAO.getDiningLocations())
+        locationsList.addAll(extensionDAO.getExtensionLocations())
+        locationsList.addAll(extraDataDAO.getLocations())
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
-        ok(resultObject).build()
     }
 
-    Response services() {
-        List<List> locationsList = []
-        locationsList  += extraDataDAO.getServices()
+    void services() {
+        ArrayList<Object> locationsList = []
+        locationsList.addAll(extraDataDAO.getServices())
 
         ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
-        ok(resultObject).build()
+
     }
 
-    *//**
+    /**
      * Converts the locations list to result objects that can be returned via the browser. It
      * also writes the location object list in a json file to be sent to ES.
      *
      * @param filename
      * @param locationsList
      * @return
-     *//*
+     */
+
     private ResultObject writeJsonAPIToFile(String filename, List locationsList) {
         ResultObject resultObject = new ResultObject()
         def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
 
-        resultObject.data = []
+        ArrayList<ResourceObject> data = []
         locationsList.each {
-            resultObject.data += locationDAO.convert(it)
+            data.add(locationDAO.convert(it))
         }
+
+        resultObject.data = data
 
         MergeUtil mergeUtil = new MergeUtil(
                 resultObject,
@@ -217,14 +234,12 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
             mergeUtil.appendRelationshipsToServices()
         }
 
-        // @todo: move this somewhere else
-        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
-
-        resultObject.data.each {
+        data.each {
             def indexAction = [index: [_id: it.id]]
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
+
         resultObject
-    }*/
+    }
 }
