@@ -176,6 +176,8 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     void getLibrary() {
         def data = libraryDAO.getLibraryHours()
 
+        // FIXME: Why is this method empty ?
+
     }
 
     void combineSources() {
@@ -190,8 +192,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     }
 
     void services() {
-        ArrayList<Object> locationsList = []
-        locationsList.addAll(extraDataDAO.getServices())
+        def locationsList = extraDataDAO.getServices()
 
         ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
 
@@ -205,17 +206,12 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      * @param locationsList
      * @return
      */
-
     private ResultObject writeJsonAPIToFile(String filename, List locationsList) {
         ResultObject resultObject = new ResultObject()
         def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
 
-        ArrayList<ResourceObject> data = []
-        locationsList.each {
-            data.add(locationDAO.convert(it))
-        }
-
+        def data = locationsList.collect { locationDAO.convert(it) }
         resultObject.data = data
 
         MergeUtil mergeUtil = new MergeUtil(
@@ -234,7 +230,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
             mergeUtil.appendRelationshipsToServices()
         }
 
-        data.each {
+        data.each { ResourceObject it ->
             def indexAction = [index: [_id: it.id]]
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
