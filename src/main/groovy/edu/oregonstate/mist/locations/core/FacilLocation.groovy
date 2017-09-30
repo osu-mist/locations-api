@@ -34,7 +34,7 @@ class FacilLocation extends BaseType {
 
     @Override
     protected String getIdField() {
-        abbreviation ?: name
+        bldgID
     }
 
     String getAddress() {
