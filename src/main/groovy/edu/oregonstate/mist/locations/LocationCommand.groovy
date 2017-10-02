@@ -46,26 +46,6 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     private ExtraDataManager extraDataManager
     private Boolean useHttpCampusMap
 
-
-    /*
-    LocationCommand(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
-                     ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
-                     ExtraDataManager extraDataManager, LibraryDAO libraryDAO,
-                     Boolean useHttpCampusMap, CampusMapDAO campusMapDAO, FacilDAO facilDAO) {
-        super("generate", "Generates json files")
-        this.diningDAO = diningDAO
-        this.locationDAO = locationDAO
-        this.extensionDAO = extensionDAO
-        this.arcGisDAO = arcGisDAO
-        this.extraDataDAO = extraDataDAO
-        this.extraDataManager = extraDataManager
-        this.libraryDAO = libraryDAO
-        this.useHttpCampusMap = useHttpCampusMap
-        this.campusMapDAO = campusMapDAO
-        this.facilDAO = facilDAO
-    }
-    */
-
     LocationCommand(LocationApplication app) {
         super(app, "generate", "Generates json files")
     }
@@ -92,7 +72,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         def configMap = configuration.locationsConfiguration
         final LocationUtil locationUtil = new LocationUtil(configMap)
 
-        ExtraDataManager extraDataManager = new ExtraDataManager()
+        extraDataManager = new ExtraDataManager()
         // Managed objects are tied to the lifecycle of the http server.
         // We aren't starting an http server, so we have to start the manager manually.
         //environment.lifecycle().manage(extraDataManager)
@@ -110,28 +90,9 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         useHttpCampusMap = Boolean.parseBoolean(
                 configuration.locationsConfiguration.get("useHttpCampusMap"))
 
-        System.printf("hi %s\n", configuration.api.endpointUri)
-        services()
-    }
+        writeJsonAPIToFile("services.json", getServices())
+        writeJsonAPIToFile("locations-combined.json", getCombinedData())
 
-    void getDining() {
-        final List<ServiceLocation> diningLocations = diningDAO.getDiningLocations()
-
-        if (!diningLocations) {
-            return
-        }
-
-        ResultObject resultObject = writeJsonAPIToFile("locations-dining.json", diningLocations)
-    }
-
-    void getFacilities() {
-        List mergedData = getBuildingData()
-
-        if (!mergedData) {
-            return
-        }
-
-        ResultObject resultObject = writeJsonAPIToFile("locations-arcgis.json", mergedData)
     }
 
     /**
@@ -139,7 +100,6 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      *
      * @return
      */
-
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
         // Get acrgis gender inclusive restroom data from http request
@@ -162,25 +122,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         }
     }
 
-    void getExtension() {
-        final List<ExtensionLocation> extensionLocations = extensionDAO.getExtensionLocations()
-
-        if (!extensionLocations) {
-            return
-        }
-
-        ResultObject resultObject =
-                writeJsonAPIToFile("locations-extension.json", extensionLocations)
-    }
-
-    void getLibrary() {
-        def data = libraryDAO.getLibraryHours()
-
-        // FIXME: Why is this method empty ?
-
-    }
-
-    void combineSources() {
+    List getCombinedData() {
         ArrayList<Object> locationsList = []
         locationsList.addAll(getBuildingData())
         locationsList.addAll(extraDataManager.extraData.locations)
@@ -188,14 +130,11 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         locationsList.addAll(extensionDAO.getExtensionLocations())
         locationsList.addAll(extraDataDAO.getLocations())
 
-        ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
+        locationsList
     }
 
-    void services() {
-        def locationsList = extraDataDAO.getServices()
-
-        ResultObject resultObject = writeJsonAPIToFile("services.json", locationsList)
-
+    List getServices() {
+        extraDataDAO.getServices()
     }
 
     /**
