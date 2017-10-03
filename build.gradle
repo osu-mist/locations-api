@@ -104,8 +104,9 @@ processResources.dependsOn writeBuildProperties
 build.dependsOn shadowJar, groovydoc, cloneContribFiles
 
 // FIXME: use ShadowJar (java -jar build/libs/web-api-skeleton-all.jar server configuration.yaml)
-task run(type: JavaExec, dependsOn: build) {
+task run(type: JavaExec) {
     main = "${mainClass}"
     classpath = sourceSets.main.runtimeClasspath
-    args = ['server', 'configuration.yaml']
+    //args = ['server', 'configuration.yaml']
+    args = ['generate', 'configuration.yaml']
 }
