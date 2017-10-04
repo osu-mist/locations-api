@@ -34,3 +34,7 @@ $ docker run -v "$PWD"/configuration.json:/usr/src/app/configuration.json:ro -v 
 # Run the integration tests in Windows
 $ docker run -v c:\path\to\configuration.json:/c:\usr\src\app\configuration.json:ro -v /path/to/cert.pem:/tmp/api.pem:ro locations-tests
 ```
+
+## Configuration.json Notes
+
+If you are using Docker for Mac (as of 17.06) the localhost name will be https://docker.for.mac.localhost:8080/api/v1/locations

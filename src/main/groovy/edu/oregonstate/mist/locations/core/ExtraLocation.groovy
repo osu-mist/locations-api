@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations.core
 
 class ExtraLocation extends BaseType {
     String name
-    String abbreviation
+    String bldgID
     String longitude
     String latitude
     String campus
@@ -11,6 +11,6 @@ class ExtraLocation extends BaseType {
 
     @Override
     protected String getIdField() {
-        abbreviation ?: name
+        bldgID ?: name
     }
 }
