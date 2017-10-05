@@ -169,7 +169,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
             mergeUtil.appendRelationshipsToServices()
         }
 
-        data.each { ResourceObject it ->
+        resultObject.data.each { ResourceObject it ->
             def indexAction = [index: [_id: it.id]]
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
