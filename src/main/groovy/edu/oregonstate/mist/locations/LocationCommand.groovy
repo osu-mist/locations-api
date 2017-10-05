@@ -43,6 +43,8 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     private LibraryDAO libraryDAO
     private LocationDAO locationDAO
 
+    private MergeUtil mergeUtil
+
     private ExtraDataManager extraDataManager
     private Boolean useHttpCampusMap
 
@@ -87,6 +89,8 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         libraryDAO = new LibraryDAO(configMap, httpClient)
         locationDAO = new LocationDAO(configMap)
 
+        mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)
+
         useHttpCampusMap = Boolean.parseBoolean(
                 configuration.locationsConfiguration.get("useHttpCampusMap"))
 
@@ -122,19 +126,33 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         }
     }
 
-    List getCombinedData() {
-        ArrayList<Object> locationsList = []
+    List<ResourceObject> getCombinedData() {
+        def locationsList = []
         locationsList.addAll(getBuildingData())
         locationsList.addAll(extraDataManager.extraData.locations)
         locationsList.addAll(diningDAO.getDiningLocations())
         locationsList.addAll(extensionDAO.getExtensionLocations())
         locationsList.addAll(extraDataDAO.getLocations())
 
-        locationsList
+        def data = locationsList.collect { locationDAO.convert(it) }
+
+        if (useHttpCampusMap) {
+            data = mergeUtil.mergeCampusMapData(data)
+        }
+        data = mergeUtil.merge(data) // only applies to locations
+        data = mergeUtil.populate(data) // only applies to locations for now?
+        data = mergeUtil.appendRelationshipsToLocations(data)
+
+        data
     }
 
-    List getServices() {
-        extraDataDAO.getServices()
+    List<ResourceObject> getServices() {
+        def serviceList = extraDataDAO.getServices()
+        def data = serviceList.collect { locationDAO.convert(it) }
+
+        data = mergeUtil.appendRelationshipsToServices(data)
+
+        data
     }
 
     /**
@@ -145,36 +163,14 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      * @param locationsList
      * @return
      */
-    private ResultObject writeJsonAPIToFile(String filename, List locationsList) {
-        ResultObject resultObject = new ResultObject()
+    private void writeJsonAPIToFile(String filename, List<ResourceObject> data) {
         def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
 
-        def data = locationsList.collect { locationDAO.convert(it) }
-        resultObject.data = data
-
-        MergeUtil mergeUtil = new MergeUtil(
-                resultObject,
-                libraryDAO,
-                extraDataDAO,
-                campusMapDAO)
-        if (useHttpCampusMap) {
-            mergeUtil.mergeCampusMapData()
-        }
-        if (filename != "services.json") {
-            mergeUtil.merge() // only applies to locations
-            mergeUtil.populate() // only applies to locations for now?
-            mergeUtil.appendRelationshipsToLocations()
-        } else {
-            mergeUtil.appendRelationshipsToServices()
-        }
-
-        resultObject.data.each { ResourceObject it ->
+        data.each { ResourceObject it ->
             def indexAction = [index: [_id: it.id]]
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
-
-        resultObject
     }
 }

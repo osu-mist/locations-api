@@ -172,39 +172,35 @@ class LocationResource extends Resource {
      * @return
      */
     private ResultObject writeJsonAPIToFile(String filename, List locationsList) {
-        ResultObject resultObject = new ResultObject()
         def jsonESInput = new File(filename)
         jsonESInput.write("") // clear out file
 
-        resultObject.data = []
-        locationsList.each {
-            resultObject.data += locationDAO.convert(it)
-        }
+        def data = locationsList.collect { locationDAO.convert(it) }
 
         MergeUtil mergeUtil = new MergeUtil(
-                resultObject,
                 libraryDAO,
                 extraDataDAO,
                 campusMapDAO)
         if (useHttpCampusMap) {
-            mergeUtil.mergeCampusMapData()
+            data = mergeUtil.mergeCampusMapData(data)
         }
         if (filename != "services.json") {
-            mergeUtil.merge() // only applies to locations
-            mergeUtil.populate() // only applies to locations for now?
-            mergeUtil.appendRelationshipsToLocations()
+            data = mergeUtil.merge(data) // only applies to locations
+            data = mergeUtil.populate(data) // only applies to locations for now?
+            data = mergeUtil.appendRelationshipsToLocations(data)
         } else {
-            mergeUtil.appendRelationshipsToServices()
+            data = mergeUtil.appendRelationshipsToServices(data)
         }
 
         // @todo: move this somewhere else
-        ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+        ObjectMapper mapper = new ObjectMapper() // can reuse, share globally
 
-        resultObject.data.each {
+        data.each {
             def indexAction = [index: [_id: it.id]]
             jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
-        resultObject
+
+        new ResultObject(data: data)
     }
 }
