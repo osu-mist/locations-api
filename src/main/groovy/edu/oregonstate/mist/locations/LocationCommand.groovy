@@ -156,8 +156,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     }
 
     /**
-     * Converts the locations list to result objects that can be returned via the browser. It
-     * also writes the location object list in a json file to be sent to ES.
+     * Writes a list of result objects to a json file that can be be sent to ElasticSearch.
      *
      * @param filename
      * @param locationsList
