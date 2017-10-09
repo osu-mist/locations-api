@@ -36,6 +36,7 @@ class Attributes extends ServiceAttributes {
         result = 31 * result + (address != null ? address.hashCode() : 0)
         result = 31 * result + (city != null ? city.hashCode() : 0)
         result = 31 * result + (telephone != null ? telephone.hashCode() : 0)
+        result = 31 * result + (bldgID != null ? bldgID.hashCode() : 0)
 
         Math.abs(result)
     }
