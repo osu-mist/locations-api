@@ -4,14 +4,14 @@ import javax.ws.rs.core.Context
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.ResponseBuilder
 import org.apache.http.client.utils.URIBuilder
+
+import javax.ws.rs.core.UriBuilder
 import javax.ws.rs.core.UriInfo
 
 /**
  * Abstract class for reusing common response messages.
  */
 abstract class Resource {
-    protected static Properties properties = new Properties()
-
     /**
      * Default page number used in pagination
      */
@@ -22,6 +22,11 @@ abstract class Resource {
      */
     public static final Integer DEFAULT_PAGE_SIZE = 10
 
+    /**
+     * Default max page size used in pagination.
+     */
+    public static Integer MAX_PAGE_SIZE = 10000
+
     @Context
     UriInfo uriInfo
 
@@ -30,12 +35,13 @@ abstract class Resource {
      */
     private URI endpointUri
 
-    public static loadProperties() {
-        def stream = this.getResourceAsStream('resource.properties')
-        if (stream == null) {
-            throw new Exception("couldn't open resource.properties")
-        }
-        properties.load(stream)
+    /**
+     * Set the base URI used to provide JSON-API pagination links.
+     *
+     * @param endpointUri the base URI
+     */
+    void setEndpointUri(URI endpointUri) {
+        this.endpointUri = endpointUri
     }
 
     /**
@@ -45,8 +51,7 @@ abstract class Resource {
      * @return ok response builder
      */
     protected static ResponseBuilder ok(Object entity) {
-        ResponseBuilder responseBuilder = Response.ok()
-        responseBuilder.entity(entity)
+        Response.ok().entity(entity)
     }
 
     /**
@@ -56,8 +61,8 @@ abstract class Resource {
      * @return created response builder
      */
     protected static ResponseBuilder created(Object entity) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.CREATED)
-        responseBuilder.entity(entity)
+        Response.status(Response.Status.CREATED)
+                .entity(entity)
     }
 
     /**
@@ -67,13 +72,19 @@ abstract class Resource {
      * @return bad request response builder
      */
     protected static ResponseBuilder badRequest(String message) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
-        responseBuilder.entity(new Error(
-                status: 400,
-                developerMessage: message,
-                userMessage: properties.get('badRequest.userMessage'),
-                code: Integer.parseInt(properties.get('badRequest.code')),
-                details: properties.get('badRequest.details')
+        Response.status(Response.Status.BAD_REQUEST)
+                .entity(Error.badRequest(message))
+    }
+
+    /**
+     * Returns a builder for an HTTP 400 when page[size] exceeds MAX_PAGE_SIZE
+     *
+     * @return bad request response builder
+     */
+    protected static ResponseBuilder pageSizeExceededError() {
+        Response.status(Response.Status.BAD_REQUEST)
+                .entity(Error.badRequest(
+                "page[size] cannot exceed ${MAX_PAGE_SIZE}."
         ))
     }
 
@@ -83,14 +94,8 @@ abstract class Resource {
      * @return not found response builder
      */
     protected static ResponseBuilder notFound() {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND)
-        responseBuilder.entity(new Error(
-                status: 404,
-                developerMessage: properties.get('notFound.developerMessage'),
-                userMessage: properties.get('notFound.userMessage'),
-                code: Integer.parseInt(properties.get('notFound.code')),
-                details: properties.get('notFound.details')
-        ))
+        Response.status(Response.Status.NOT_FOUND)
+                .entity(Error.notFound())
     }
 
     /**
@@ -99,14 +104,8 @@ abstract class Resource {
      * @return conflict response builder
      */
     protected static ResponseBuilder conflict() {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.CONFLICT)
-        responseBuilder.entity(new Error(
-                status: 409,
-                developerMessage: properties.get('conflict.developerMessage'),
-                userMessage: properties.get('conflict.userMessage'),
-                code: Integer.parseInt(properties.get('conflict.code')),
-                details: properties.get('conflict.details')
-        ))
+        Response.status(Response.Status.CONFLICT)
+                .entity(Error.conflict())
     }
 
     /**
@@ -116,18 +115,8 @@ abstract class Resource {
      * @return internal server error response builder
      */
     protected static ResponseBuilder internalServerError(String message) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-        responseBuilder.entity(new Error(
-                status: 500,
-                developerMessage: message,
-                userMessage: properties.get('internalServerError.userMessage'),
-                code: Integer.parseInt(properties.get('internalServerError.code')),
-                details: properties.get('internalServerError.details')
-        ))
-    }
-
-    void setEndpointUri(URI endpointUri) {
-        this.endpointUri = endpointUri
+        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(Error.internalServerError(message))
     }
 
     /**
@@ -141,11 +130,12 @@ abstract class Resource {
      * converted to page[number] and page[size].
      *
      * @param params a map of query parameters for the url
+     * @param resourceEndpoint: the endpoint to be appended on the uri.
      * @return the url
      */
-    protected String getPaginationUrl(Map params) {
-        URIBuilder uriBuilder = new URIBuilder(endpointUri).setPath(uriInfo.requestUri.path)
-
+    protected String getPaginationUrl(Map params, String resourceEndpoint) {
+        URI baseUri = UriBuilder.fromUri(endpointUri).path(resourceEndpoint).build()
+        URIBuilder uriBuilder = new URIBuilder(endpointUri).setPath(baseUri.path)
         // use a copy of params since other parameters could be present
         def nonNullParams = params.clone()
         nonNullParams.remove('pageSize')
@@ -188,5 +178,14 @@ abstract class Resource {
         }
 
         pageSize.toInteger()
+    }
+
+    /**
+     * Returns true if page[size] exceeds MAX_PAGE_SIZE
+     *
+     * @return
+     */
+    protected Boolean maxPageSizeExceeded() {
+        getPageSize() > MAX_PAGE_SIZE
     }
 }
