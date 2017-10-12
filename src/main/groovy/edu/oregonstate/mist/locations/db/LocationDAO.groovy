@@ -87,8 +87,8 @@ class LocationDAO {
      * @return
      */
     @Deprecated
-    public static ArrayList mergeMapAndBuildingsDeprecated(
-            HashMap<String, FacilLocation> buildings,
+    public static List mergeMapAndBuildingsDeprecated(
+            Map<String, FacilLocation> buildings,
             List<CampusMapLocationDeprecated> campusMapLocationList) {
         def mapData = [:]
         campusMapLocationList.each {
@@ -125,9 +125,9 @@ class LocationDAO {
      * @return
      */
     public static Map mergeFacilAndArcGis(List<FacilLocation> buildings,
-                                          HashMap<String, GenderInclusiveRRLocation>
+                                          Map<String, GenderInclusiveRRLocation>
                                                   genderInclusiveRR,
-                                          HashMap<String, ArcGisLocation> geometries) {
+                                          Map<String, ArcGisLocation> geometries) {
         HashMap<String, FacilLocation> facilLocationHashMap = new HashMap<String, FacilLocation>()
 
         buildings.each {

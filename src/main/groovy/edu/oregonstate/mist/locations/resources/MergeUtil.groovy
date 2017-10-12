@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.resources
 
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
@@ -12,62 +13,61 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class MergeUtil {
-    ResultObject resultObject
     LibraryDAO libraryDAO
     ExtraDataDAO extraDataDAO
     CampusMapDAO campusMapDAO
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
 
-    MergeUtil(ResultObject resultObject,
-              LibraryDAO libraryDAO,
+    MergeUtil(LibraryDAO libraryDAO,
               ExtraDataDAO extraDataDAO,
               CampusMapDAO campusMapDAO) {
-        this.resultObject = resultObject
         this.libraryDAO = libraryDAO
         this.extraDataDAO = extraDataDAO
         this.campusMapDAO = campusMapDAO
     }
 
     /**
-     * Iterates over the resultObject and merges the hours from the merge:true extra-data.yaml
+     * Iterates over the data and merges the hours from the merge:true extra-data.yaml
      * file into the original resourceObject that comes from arcgis or campusmap.
+     *
+     * @param data list of objects to merge
      */
-    void merge() {
-        def dataToMerge = getMergeData()
+    List<ResourceObject> merge(List<ResourceObject> data) {
+        def dataToMerge = getMergeData(data)
 
         dataToMerge.each { it ->
             // Here we are trying to find the original location (not defined in extra-data.yaml)
             // the hours come from the calendar object defined in extra-data.yaml
-            def foo = resultObject.data.find { primeObject ->
+            def orig = data.find { primeObject ->
                 primeObject.attributes.bldgID == it.attributes.name &&
                         !primeObject.attributes.merge
             }
 
-            if (foo) {
-                foo?.attributes?.openHours = it?.attributes?.openHours
+            if (orig) {
+                orig.attributes.openHours = it?.attributes?.openHours
 
-                LOGGER.debug(foo?.attributes?.name?.toString() + " original tags = " +
-                        foo?.attributes?.tags?.toString())
+                LOGGER.debug(orig.attributes.name?.toString() + " original tags = " +
+                        orig.attributes?.tags?.toString())
                 LOGGER.debug("new tags = " + it?.attributes?.tags)
 
-                foo?.attributes?.tags += it?.attributes?.tags
+                orig.attributes.tags += it?.attributes?.tags
             } else {
-                LOGGER.debug("Original location was NULL data to merge " + foo)
-
+                LOGGER.debug("Original location was NULL data to merge " + orig)
             }
         }
 
-        resultObject.data = resultObject.data - dataToMerge
+        data - dataToMerge
     }
 
     /**
      * Returns the data (originally from extra-data.yaml) where the merge attribute was set
      * to true.
      *
-     * @return
+     * @param data list of data
+     * @return data
      */
-    private ArrayList getMergeData() {
-        resultObject.data.findAll {
+    private List<ResourceObject> getMergeData(List<ResourceObject> data) {
+        data.findAll {
             it.attributes.merge
         }
     }
@@ -75,10 +75,13 @@ class MergeUtil {
     /**
      * Iterates over the services in extra-data.yaml and appends the services to the locations'
      * resultObject
+     *
+     * @param data list of objects to merge
+     * @return data
      */
-    public void appendRelationshipsToLocations() {
+    public List<ResourceObject> appendRelationshipsToLocations(List<ResourceObject> data) {
         extraDataDAO.getLazyServices().each {
-            resultObject.data.findAll( { resourceObject ->
+            data.findAll( { resourceObject ->
                 resourceObject.attributes.bldgID == it.parent && !it.merge
             }).each { resourceObject ->
                 LOGGER.debug("resource about to enter in relationship: " +
@@ -101,13 +104,17 @@ class MergeUtil {
                         new ResourceIdentifierObject(id: id, type: it.type)
             }
         }
+        data
     }
 
     /**
      * Appends relationships to the services resource object.
+     *
+     * @param data list of objects to merge
+     * @return data
      */
-    public void appendRelationshipsToServices() {
-        resultObject.data.each { resourceObject ->
+    static public List<ResourceObject> appendRelationshipsToServices(List<ResourceObject> data) {
+        data.each { resourceObject ->
             def id = resourceObject.attributes.locationId
             LOGGER.debug("services resource about to enter in relationship: $id")
 
@@ -122,37 +129,29 @@ class MergeUtil {
     }
 
     /**
-     * Can populate resource objects' attributes by dynamically calling the
-     * method populateABBREVIATION
+     * Populates library hours
+     * @param data
+     * @return data
      */
-    void populate() {
-        String methodPrefix = "populate"
-        String methodName
-        resultObject.data.each {
-            methodName = methodPrefix + it?.attributes?.bldgID?.capitalize()
-            if (this.metaClass.respondsTo(this, methodName)) {
-                this."$methodName"(it.attributes)
+    List<ResourceObject> populate(List<ResourceObject> data) {
+        data.each {
+            if (it?.attributes?.bldgID == 'VLib') {
+                it.attributes.setOpenHours(libraryDAO.getLibraryHours())
             }
         }
     }
 
     /**
-     * Add library hours
+     * Merge campus map data into data
      *
-     * @param attributes
+     * @param data list of resource objects
+     * @return data
      */
-    void populateVLib(Attributes attributes) {
-        attributes.setOpenHours(libraryDAO.getLibraryHours())
-    }
-
-    /**
-     * Merge campus map data into resultObject
-     */
-    void mergeCampusMapData() {
+    List<ResourceObject> mergeCampusMapData(List<ResourceObject> data) {
         HashMap<String, CampusMapLocation> campusMapData =
                 campusMapDAO.getCampusMapLocations()
 
-        resultObject.data.each {
+        data.each {
             if (campusMapData[it.id]) {
                 it.attributes.address = campusMapData[it.id].address
                 it.attributes.description = campusMapData[it.id].description
