@@ -135,7 +135,7 @@ class MergeUtil {
      */
     List<ResourceObject> populate(List<ResourceObject> data) {
         data.each {
-            if (it?.attributes?.bldgID == 'VLib') {
+            if (it?.attributes?.abbreviation == 'VLib') {
                 it.attributes.setOpenHours(libraryDAO.getLibraryHours())
             }
         }
