@@ -6,9 +6,7 @@ import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import groovy.transform.TypeChecked
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.Test
 
 @TypeChecked
 class MergeUtilTest {
