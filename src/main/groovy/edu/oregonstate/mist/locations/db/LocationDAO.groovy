@@ -55,8 +55,27 @@ class LocationDAO {
 
     public List<ParkingLocation> getParkingLocations() {
         def parkingJson = jsonSlurper.parseText(parkingGeometriesJsonFile.getText())
+        List<ParkingLocation> parkingLocations = []
+        def parkingWithNoZoneGroup = []
 
-        parkingJson['features'].collect { new ParkingLocation(it) }
+        Closure<Boolean> isValidField = { def field ->
+            field && (field.toString().trim().length() > 0)
+        }
+
+        parkingJson['features'].each {
+            def properties = it['properties']
+            def propID = properties['Prop_ID']
+
+            if (isValidField(propID)) {
+                parkingLocations.add(new ParkingLocation(it))
+                if (!isValidField(properties['ZoneGroup'])) {
+                    parkingWithNoZoneGroup.add(propID)
+                }
+            }
+        }
+        logger.warn("These parking lots have ID's, but no ZoneGroup: " + parkingWithNoZoneGroup)
+
+        parkingLocations
     }
 
     /**
