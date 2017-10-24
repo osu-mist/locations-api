@@ -7,6 +7,7 @@ import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
+import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -19,7 +20,10 @@ class LocationDAO {
     private final LocationMapper locationMapper
     private ObjectMapper mapper
     private File mapJsonFile
-    private File geometriesJsonFile
+    private File buildingGeometriesJsonFile
+    private File parkingGeometriesJsonFile
+
+    def jsonSlurper = new JsonSlurper()
 
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
@@ -29,7 +33,8 @@ class LocationDAO {
                 apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
         mapJsonFile = new File(locationConfiguration.get("campusmapJsonOut"))
-        geometriesJsonFile = new File(locationConfiguration.get("geometries"))
+        buildingGeometriesJsonFile = new File(locationConfiguration.get("buildingGeometries"))
+        parkingGeometriesJsonFile = new File(locationConfiguration.get("parkingGeometries"))
     }
 
     /**
@@ -38,8 +43,7 @@ class LocationDAO {
      * @return HashMap<String, ArcGisLocation>
      */
     public HashMap<String, ArcGisLocation> getArcGisCoordinates() {
-        def jsonSlurper = new JsonSlurper()
-        def arcJson = jsonSlurper.parseText(geometriesJsonFile.getText())
+        def arcJson = jsonSlurper.parseText(buildingGeometriesJsonFile.getText())
         HashMap<String, ArcGisLocation> arcHashMap = [:]
 
         arcJson['features'].each {
@@ -47,6 +51,12 @@ class LocationDAO {
         }
 
         arcHashMap
+    }
+
+    public List<ParkingLocation> getParkingLocations() {
+        def parkingJson = jsonSlurper.parseText(parkingGeometriesJsonFile.getText())
+
+        parkingJson['features'].collect { new ParkingLocation(it) }
     }
 
     /**

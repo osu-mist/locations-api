@@ -26,6 +26,7 @@ class Attributes extends ServiceAttributes {
     String giRestroomLocations
     List<String> synonyms = []
     String bldgID
+    String parkingZoneGroup
 
     int getHashCode() {
         int result
