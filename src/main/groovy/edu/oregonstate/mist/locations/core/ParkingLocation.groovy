@@ -13,7 +13,7 @@ class ParkingLocation extends BaseType {
 
     @Override
     protected String getIdField() {
-        propID
+        propID + parkingZoneGroup
     }
 
     ParkingLocation(def arcGisMap) {
