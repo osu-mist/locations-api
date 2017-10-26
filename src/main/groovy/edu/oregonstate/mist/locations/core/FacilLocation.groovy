@@ -42,6 +42,10 @@ class FacilLocation extends BaseType {
     }
 
     String getPrettyCampus() {
+        if (campus == null) {
+            return null
+        }
+
         if (campus.equalsIgnoreCase("CASCADESCAMPUS")) {
             "Cascades"
         } else if (campus.equalsIgnoreCase("OSUCORVALLIS")) {
