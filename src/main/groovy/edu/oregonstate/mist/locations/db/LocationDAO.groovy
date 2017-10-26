@@ -56,7 +56,7 @@ class LocationDAO {
     public List<ParkingLocation> getParkingLocations() {
         def parkingJson = jsonSlurper.parseText(parkingGeometriesJsonFile.getText())
         List<ParkingLocation> parkingLocations = []
-        def parkingWithNoZoneGroup = []
+        def ignoredParking = []
 
         Closure<Boolean> isValidField = { def field ->
             field && (field.toString().trim().length() > 0)
@@ -65,15 +65,16 @@ class LocationDAO {
         parkingJson['features'].each {
             def properties = it['properties']
             def propID = properties['Prop_ID']
+            def parkingZoneGroup = properties['ZoneGroup']
 
-            if (isValidField(propID)) {
+            if (isValidField(propID) && isValidField(parkingZoneGroup)) {
                 parkingLocations.add(new ParkingLocation(it))
-                if (!isValidField(properties['ZoneGroup'])) {
-                    parkingWithNoZoneGroup.add(propID)
-                }
+            } else {
+                ignoredParking.add(properties['OBJECTID'])
             }
         }
-        logger.warn("These parking lots have ID's, but no ZoneGroup: " + parkingWithNoZoneGroup)
+        logger.warn("These parking lot OBJECTID's were ignored because they" +
+                " don't have a valid Prop_ID or ZoneGroup: " + ignoredParking)
 
         parkingLocations
     }
