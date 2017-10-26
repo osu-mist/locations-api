@@ -3,7 +3,6 @@ package edu.oregonstate.mist.locations.mapper
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.Geometry
@@ -19,32 +18,6 @@ class LocationMapper  {
     String campusmapUrl
     String campusmapImageUrl
     String apiEndpointUrl
-
-    public ResourceObject map(CampusMapLocationDeprecated campusMapLocation) {
-        Attributes attributes = new Attributes(
-            name: campusMapLocation.name,
-            abbreviation: campusMapLocation.abbrev,
-            geoLocation: createGeoLocation(campusMapLocation.latitude,
-                                            campusMapLocation.longitude),
-            geometry: new Geometry(
-                coordinates: campusMapLocation.coordinates,
-                type: campusMapLocation.coordinatesType),
-            address: campusMapLocation.address,
-            summary: campusMapLocation.shortDescription,
-            description: campusMapLocation.description,
-            thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
-            images: [getImageUrl(campusMapLocation.largerImage)] - null,
-            type: Constants.TYPE_BUILDING,
-            giRestroomCount: campusMapLocation.giRestroomCount,
-            giRestroomLimit: getGiRestroomLimit(campusMapLocation.giRestroomLimit),
-            giRestroomLocations: campusMapLocation.giRestroomLocations
-        )
-
-        // Some attribute fields are calculated based on campusmap information
-        setCalculatedFields(attributes, campusMapLocation)
-
-        buildResourceObject(campusMapLocation.calculateId(), attributes)
-    }
 
     public ResourceObject map(ServiceLocation serviceLocation) {
         // The ServiceLocation class is used for multiple types of data
@@ -168,22 +141,6 @@ class LocationMapper  {
         }
 
         campusmapImageUrl + URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
-    }
-
-    /**
-     * Sets the state, city, campus and website for the campusmap locations. The zip is not
-     * set since some campusmap buildings have the 97330 or 97331 zip code. All campusmap
-     * locations are from Corvallis and the campusmap url is well known
-     *
-     * @param attributes
-     * @param campusMapLocation
-     */
-    private void setCalculatedFields(
-            Attributes attributes, CampusMapLocationDeprecated campusMapLocation) {
-        attributes.state = "OR"
-        attributes.city = "Corvallis"
-        attributes.campus = Constants.CAMPUS_CORVALLIS
-        attributes.website = getCampusmapWebsite(campusMapLocation.id)
     }
 
     private void setLinks(ResourceObject resourceObject) {

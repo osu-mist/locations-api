@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
@@ -47,73 +46,6 @@ class LocationDAO {
         }
 
         arcHashMap
-    }
-
-    /**
-     * Retrieves campusmap data from json file.
-     *
-     * @return List<CampusMapLocationDeprecated>
-     */
-    public List<CampusMapLocationDeprecated> getCampusMapFromJson() {
-        try {
-            def mapData = mapJsonFile.getText()
-            mapper.readValue(mapData, new TypeReference<List<CampusMapLocationDeprecated>>() {})
-        } catch (FileNotFoundException) {
-            null
-        }
-    }
-
-    /**
-     * Takes campusmap data and writes it to json file
-     *
-     * @param campusMapLocations
-     * @return
-     */
-    public writeMapToJson(List<CampusMapLocationDeprecated> campusMapLocations) {
-        def jsonESInput = mapJsonFile
-        def jsonStringList = campusMapLocations.collect { mapper.writeValueAsString(it) }
-
-        jsonESInput.write("[" +  jsonStringList.join(",") + "]")
-    }
-
-    /**
-     * Takes arcgis and merges it with campusmap data. Arcgis data overwrites map data.
-     * If a building is in the map data, but not in arcgis it is not returned.
-     * Two buildings are considered the same if the abbrev field of the
-     * CampusMapLocationDeprecated matches the bldNamAbr field of the ArcGisLocation.
-     *
-     * @param buildings
-     * @param campusMapLocationList
-     * @return
-     */
-    @Deprecated
-    public static List mergeMapAndBuildingsDeprecated(
-            Map<String, FacilLocation> buildings,
-            List<CampusMapLocationDeprecated> campusMapLocationList) {
-        def mapData = [:]
-        campusMapLocationList.each {
-            mapData[it.abbrev] = it
-        }
-
-        def mergedData = []
-        buildings.each {
-            if (mapData[it.key]) {
-                mapData[it.key].name = it.value.name
-                mapData[it.key].latitude = it.value.latitude
-                mapData[it.key].longitude = it.value.longitude
-                mapData[it.key].coordinates = it.value.coordinates
-                mapData[it.key].coordinatesType = it.value.coordinatesType
-                mapData[it.key].giRestroomCount = it.value.giRestroomCount
-                mapData[it.key].giRestroomLimit = it.value.giRestroomLimit
-                mapData[it.key].giRestroomLocations = it.value.giRestroomLocations
-
-                mergedData += mapData[it.key]
-            } else {
-                mergedData += it.value
-            }
-        }
-
-        mergedData
     }
 
     /**

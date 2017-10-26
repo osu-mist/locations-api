@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
@@ -38,7 +37,6 @@ class LocationResource extends Resource {
     private final ExtraDataDAO extraDataDAO
     private final LibraryDAO libraryDAO
     private ExtraDataManager extraDataManager
-    private final Boolean useHttpCampusMap
     private final CampusMapDAO campusMapDAO
     private final FacilDAO facilDAO
 
@@ -53,7 +51,6 @@ class LocationResource extends Resource {
         this.extraDataDAO = extraDataDAO
         this.extraDataManager = extraDataManager
         this.libraryDAO = libraryDAO
-        this.useHttpCampusMap = useHttpCampusMap
         this.campusMapDAO = campusMapDAO
         this.facilDAO = facilDAO
     }
@@ -102,15 +99,7 @@ class LocationResource extends Resource {
         def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings,
             genderInclusiveRR, arcGisGeometries)
 
-        if (!useHttpCampusMap) {
-            List<CampusMapLocationDeprecated> campusMapLocationList =
-                    locationDAO.getCampusMapFromJson()
-            // Merge the combined arcgis data with campus map data
-            locationDAO.mergeMapAndBuildingsDeprecated(
-                    buildingAndArcGisMerged, campusMapLocationList)
-        } else {
-            new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
-        }
+        new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
     }
 
     @GET
@@ -181,9 +170,7 @@ class LocationResource extends Resource {
                 libraryDAO,
                 extraDataDAO,
                 campusMapDAO)
-        if (useHttpCampusMap) {
-            data = mergeUtil.mergeCampusMapData(data)
-        }
+        data = mergeUtil.mergeCampusMapData(data)
         if (filename != "services.json") {
             data = mergeUtil.merge(data) // only applies to locations
             data = mergeUtil.populate(data) // only applies to locations for now?
