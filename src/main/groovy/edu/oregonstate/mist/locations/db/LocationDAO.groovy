@@ -53,6 +53,10 @@ class LocationDAO {
         arcHashMap
     }
 
+    /**
+     * Get parking locations from a static json file which includes their geometries
+     * @return
+     */
     public List<ParkingLocation> getParkingLocations() {
         def parkingJson = jsonSlurper.parseText(parkingGeometriesJsonFile.getText())
         List<ParkingLocation> parkingLocations = []
