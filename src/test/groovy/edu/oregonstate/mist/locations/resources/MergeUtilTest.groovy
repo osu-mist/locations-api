@@ -26,16 +26,18 @@ class MergeUtilTest {
                         openHours: [:],
                         type: "building",
                         summary: "",
-                        description: "\r\n\tAccessibility:\r\n\r\n\r\n\tENTRIES: North entry: level to 2nd floor.\r\n\tFLOORS: All floors; elevator; access north section power-assisted doors of 1st through Reserve Book staff area.\r\n",
+                        description: "\r\n\tAccessibility:\r\n\r\n\r\n\tENTRIES: North entry: ...",
                         address: "201 SW Waldo Place",
                         city: "CORVALLIS",
                         state: "OR",
                         zip: "97331",
                         thumbnails: [
-                                "https://map.oregonstate.edu/sites/map.oregonstate.edu/files/styles/thumbnail/public/locations/valley-library.jpg"
+                                "https://map.oregonstate.edu/sites/map.oregonstate.edu/files/"
+                                    + "styles/thumbnail/public/locations/valley-library.jpg"
                         ],
                         images: [
-                                "https://map.oregonstate.edu/sites/map.oregonstate.edu/files/locations/valley-library.jpg"
+                                "https://map.oregonstate.edu/sites/map.oregonstate.edu/files/"
+                                    + "locations/valley-library.jpg"
                         ],
                         website: "https://map.oregonstate.edu/?id=d409d908ecc6010a04a3b0387f063145",
                         campus: "Corvallis",
@@ -55,7 +57,7 @@ class MergeUtilTest {
     }
 
     class MockLibraryDAO extends LibraryDAO {
-        MockLibraryDAO(){
+        MockLibraryDAO() {
             super([:], null)
         }
 
