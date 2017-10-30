@@ -147,6 +147,7 @@ class LocationResource extends Resource {
         locationsList  += diningDAO.getDiningLocations()
         locationsList  += extensionDAO.getExtensionLocations()
         locationsList  += extraDataDAO.getLocations()
+        locationsList  += locationDAO.getParkingLocations()
 
         ResultObject resultObject = writeJsonAPIToFile("locations-combined.json", locationsList)
         ok(resultObject).build()
