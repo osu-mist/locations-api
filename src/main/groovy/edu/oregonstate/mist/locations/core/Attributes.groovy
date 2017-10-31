@@ -27,6 +27,7 @@ class Attributes extends ServiceAttributes {
     List<String> synonyms = []
     String bldgID
     String parkingZoneGroup
+    String propID
 
     int getHashCode() {
         int result
@@ -38,6 +39,8 @@ class Attributes extends ServiceAttributes {
         result = 31 * result + (city != null ? city.hashCode() : 0)
         result = 31 * result + (telephone != null ? telephone.hashCode() : 0)
         result = 31 * result + (bldgID != null ? bldgID.hashCode() : 0)
+        result = 31 * result + (parkingZoneGroup != null ? parkingZoneGroup.hashCode() : 0)
+        result = 31 * result + (propID != null ? propID.hashCode() : 0)
 
         Math.abs(result)
     }
