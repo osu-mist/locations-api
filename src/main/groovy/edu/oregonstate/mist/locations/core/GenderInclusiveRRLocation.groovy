@@ -1,8 +1,13 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
-@groovy.transform.EqualsAndHashCode
+@EqualsAndHashCode
+@JsonIgnoreProperties(ignoreUnknown=true)
+@ToString
 class GenderInclusiveRRLocation {
     @JsonProperty("BldID")
     String bldID
@@ -16,13 +21,4 @@ class GenderInclusiveRRLocation {
     String giRestroomLimit
     @JsonProperty("LocaAll")
     String giRestroomLocations
-
-    GenderInclusiveRRLocation(def arcGisMap) {
-        this.bldID = arcGisMap.BldID
-        this.bldNam = arcGisMap.BldNam
-        this.bldNamAbr = arcGisMap.BldNamAbr
-        this.giRestroomCount = arcGisMap.CntAll
-        this.giRestroomLimit = arcGisMap.Limits
-        this.giRestroomLocations = arcGisMap.LocaAll
-    }
 }
