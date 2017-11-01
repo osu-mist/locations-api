@@ -8,7 +8,6 @@ import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
-import edu.oregonstate.mist.api.jsonapi.ResultObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -135,7 +134,8 @@ class MergeUtil {
      */
     List<ResourceObject> populate(List<ResourceObject> data) {
         data.each {
-            if (it?.attributes?.bldgID == 'VLib') {
+            // Note: 0036 is the valley library
+            if (it?.attributes?.bldgID == '0036') {
                 it.attributes.setOpenHours(libraryDAO.getLibraryHours())
             }
         }
