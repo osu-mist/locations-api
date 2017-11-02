@@ -52,16 +52,16 @@ class LocationDAO {
     /**
      * Merge multiple arcGis datasources into FacilLocations
      * @param buildings
-     * @param centroids
      * @param genderInclusiveRR
      * @param geometries
      * @return
      */
-    public static Map mergeFacilAndArcGis(List<FacilLocation> buildings,
-                                          Map<String, GenderInclusiveRRLocation>
-                                                  genderInclusiveRR,
-                                          Map<String, ArcGisLocation> geometries) {
-        HashMap<String, FacilLocation> facilLocationHashMap = new HashMap<String, FacilLocation>()
+    public static Map<String, FacilLocation> mergeFacilAndArcGis(
+            List<FacilLocation> buildings,
+            Map<String, GenderInclusiveRRLocation> genderInclusiveRR,
+            Map<String, ArcGisLocation> geometries
+    ) {
+        def facilLocationHashMap = new HashMap<String, FacilLocation>()
 
         buildings.each {
             facilLocationHashMap[it.bldgID] = it

@@ -22,6 +22,6 @@ class ArcGisLocation {
         obj.longitude = arcGisMap['properties']['Cent_Lon']
         obj.coordinates = arcGisMap['geometry']['coordinates']
         obj.coordinatesType = arcGisMap['geometry']['type']
-        return obj
+        obj
     }
 }

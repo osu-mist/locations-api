@@ -5,7 +5,8 @@ import edu.oregonstate.mist.locations.core.ExtraLocation
 import io.dropwizard.lifecycle.Managed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.*
+import org.yaml.snakeyaml.TypeDescription
+import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 class ExtraDataManager implements Managed {

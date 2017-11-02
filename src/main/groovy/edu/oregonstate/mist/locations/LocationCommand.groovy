@@ -95,17 +95,16 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     }
 
     /**
-     * Returns the combined data from the arcgis and campusmap.
+     * Returns the combined data from the arcgis and facil sources.
      *
      * @return
      */
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
-        // Get acrgis gender inclusive restroom data from http request
-        HashMap<String, GenderInclusiveRRLocation> genderInclusiveRR =
-                arcGisDAO.getGenderInclusiveRR()
+        // Get acrgis gender inclusive restroom data from json file
+        def genderInclusiveRR = arcGisDAO.getGenderInclusiveRR()
         // Get arcgis coordinate data from json file
-        HashMap<String, ArcGisLocation> arcGisGeometries = locationDAO.getArcGisCoordinates()
+        def arcGisGeometries = locationDAO.getArcGisCoordinates()
 
         def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings,
             genderInclusiveRR, arcGisGeometries)
