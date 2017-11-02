@@ -131,18 +131,6 @@ class LocationMapper  {
         buildResourceObject(facilLocation.calculateId(), attributes)
     }
 
-    private String getCampusmapWebsite(Integer id) {
-        campusmapUrl + id
-    }
-
-    private String getImageUrl(String image) {
-        if (!image) {
-            return null
-        }
-
-        campusmapImageUrl + URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
-    }
-
     private void setLinks(ResourceObject resourceObject) {
         String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
                 Constants.LOCATIONS
