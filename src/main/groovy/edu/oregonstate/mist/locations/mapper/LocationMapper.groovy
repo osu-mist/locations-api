@@ -74,25 +74,6 @@ class LocationMapper  {
         buildResourceObject(extensionLocation.calculateId(), attributes)
     }
 
-    public ResourceObject map(ArcGisLocation arcGisLocation) {
-        Attributes attributes = new Attributes(
-                name: arcGisLocation.bldNam,
-                abbreviation: arcGisLocation.bldNamAbr,
-                geoLocation: createGeoLocation(arcGisLocation.latitude,
-                                               arcGisLocation.longitude),
-                geometry: new Geometry(
-                    coordinates: arcGisLocation.coordinates,
-                    type: arcGisLocation.coordinatesType),
-                type: Constants.TYPE_BUILDING,
-                campus: Constants.CAMPUS_CORVALLIS,
-                giRestroomCount: arcGisLocation.giRestroomCount,
-                giRestroomLimit: getGiRestroomLimit(arcGisLocation.giRestroomLimit),
-                giRestroomLocations: arcGisLocation.giRestroomLocations
-        )
-
-        buildResourceObject(arcGisLocation.calculateId(), attributes)
-    }
-
     public ResourceObject map(ExtraLocation extraLocation) {
         Attributes attributes = new Attributes(
                 name: extraLocation.name,
