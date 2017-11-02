@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.locations.mapper
 
 import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
@@ -12,11 +11,7 @@ import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 
-import java.nio.charset.StandardCharsets
-
-class LocationMapper  {
-    String campusmapUrl
-    String campusmapImageUrl
+class LocationMapper {
     String apiEndpointUrl
 
     public ResourceObject map(ServiceLocation serviceLocation) {
