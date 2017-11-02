@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.Geometry
+import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
@@ -85,6 +86,22 @@ class LocationMapper {
         )
 
         buildResourceObject(extraLocation.calculateId(), attributes)
+    }
+
+    public ResourceObject map(ParkingLocation parkingLocation) {
+        Attributes attributes = new Attributes(
+                name: parkingLocation.description,
+                parkingZoneGroup: parkingLocation.parkingZoneGroup,
+                geometry: new Geometry(
+                        coordinates: parkingLocation.coordinates,
+                        type: parkingLocation.coordinatesType
+                ),
+                type: parkingLocation.type,
+                campus: Constants.CAMPUS_CORVALLIS,
+                propID: parkingLocation.propID
+        )
+
+        buildResourceObject(parkingLocation.calculateId(), attributes)
     }
 
     ResourceObject map(FacilLocation facilLocation) {

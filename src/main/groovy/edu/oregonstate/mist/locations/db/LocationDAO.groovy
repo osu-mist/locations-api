@@ -6,6 +6,7 @@ import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
+import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -18,7 +19,10 @@ class LocationDAO {
     private final LocationMapper locationMapper
     private ObjectMapper mapper
     private File mapJsonFile
-    private File geometriesJsonFile
+    private File buildingGeometriesJsonFile
+    private File parkingGeometriesJsonFile
+
+    def jsonSlurper = new JsonSlurper()
 
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
@@ -26,7 +30,8 @@ class LocationDAO {
                 apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
         mapJsonFile = new File(locationConfiguration.get("campusmapJsonOut"))
-        geometriesJsonFile = new File(locationConfiguration.get("geometries"))
+        buildingGeometriesJsonFile = new File(locationConfiguration.get("buildingGeometries"))
+        parkingGeometriesJsonFile = new File(locationConfiguration.get("parkingGeometries"))
     }
 
     /**
@@ -35,8 +40,7 @@ class LocationDAO {
      * @return HashMap<String, ArcGisLocation>
      */
     public HashMap<String, ArcGisLocation> getArcGisCoordinates() {
-        def jsonSlurper = new JsonSlurper()
-        def arcJson = jsonSlurper.parseText(geometriesJsonFile.getText())
+        def arcJson = jsonSlurper.parseText(buildingGeometriesJsonFile.getText())
         HashMap<String, ArcGisLocation> arcHashMap = [:]
 
         arcJson['features'].each {
@@ -45,6 +49,36 @@ class LocationDAO {
         }
 
         arcHashMap
+    }
+
+    /**
+     * Get parking locations from a static json file which includes their geometries
+     * @return
+     */
+    public List<ParkingLocation> getParkingLocations() {
+        def parkingJson = jsonSlurper.parseText(parkingGeometriesJsonFile.getText())
+        List<ParkingLocation> parkingLocations = []
+        def ignoredParking = []
+
+        Closure<Boolean> isValidField = { def field ->
+            field && (field.toString().trim().length() > 0)
+        }
+
+        parkingJson['features'].each {
+            def properties = it['properties']
+            def propID = properties['Prop_ID']
+            def parkingZoneGroup = properties['ZoneGroup']
+
+            if (isValidField(propID) && isValidField(parkingZoneGroup)) {
+                parkingLocations.add(new ParkingLocation(it))
+            } else {
+                ignoredParking.add(properties['OBJECTID'])
+            }
+        }
+        logger.warn("These parking lot OBJECTID's were ignored because they" +
+                " don't have a valid Prop_ID or ZoneGroup: " + ignoredParking)
+
+        parkingLocations
     }
 
     /**

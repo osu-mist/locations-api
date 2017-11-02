@@ -6,6 +6,7 @@ class Constants {
     public static final String TYPE_DINING = "dining"
     public static final String TYPE_OTHER = "other"
     public static final String TYPE_SERVICES = "services"
+    public static final String TYPE_PARKING = "parking"
 
     // Locations frontend endpoint names,
     // used in constructing URLs

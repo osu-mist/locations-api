@@ -119,6 +119,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         locationsList.addAll(diningDAO.getDiningLocations())
         locationsList.addAll(extensionDAO.getExtensionLocations())
         locationsList.addAll(extraDataDAO.getLocations())
+        locationsList.addAll(locationDAO.getParkingLocations())
 
         def data = locationsList.collect { locationDAO.convert(it) }
 
