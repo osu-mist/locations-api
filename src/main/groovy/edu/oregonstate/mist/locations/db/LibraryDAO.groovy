@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.LibraryHours
+import groovy.transform.TypeChecked
 import org.apache.http.HttpEntity
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.StringEntity
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.util.EntityUtils
 import org.apache.http.client.methods.HttpPost
 import org.joda.time.DateTime
@@ -16,10 +16,11 @@ import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 
+@TypeChecked
 class LibraryDAO {
     private final String libraryUrl
 
-    private final HttpClient httpClient
+    private final CloseableHttpClient httpClient
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"
 
@@ -27,7 +28,7 @@ class LibraryDAO {
 
     private ObjectMapper mapper = new ObjectMapper()
 
-    LibraryDAO(Map<String, String> locationConfiguration, HttpClient httpClient) {
+    LibraryDAO(Map<String, String> locationConfiguration, CloseableHttpClient httpClient) {
         libraryUrl = locationConfiguration.get("libraryUrl")
         this.httpClient = httpClient
     }
@@ -76,7 +77,7 @@ class LibraryDAO {
     }
 
     private Map<String, LibraryHours> getLibraryData(DateTime startDate, int numDays) {
-        CloseableHttpResponse response
+        def response
         String parameters = getDatesParameter(startDate, numDays)
         Map<String, LibraryHours> data = new HashMap<>()
 
@@ -91,9 +92,10 @@ class LibraryDAO {
             HttpEntity entity = response.getEntity()
             def entityString = EntityUtils.toString(entity)
 
-            data = this.mapper.readValue(entityString,
-                    new TypeReference<HashMap<String, LibraryHours>>() {
-                    })
+            data = (Map<String,LibraryHours>)this.mapper.readValue(
+                    entityString,
+                    new TypeReference<HashMap<String, LibraryHours>>() {}
+            )
 
             EntityUtils.consume(entity)
         } finally {
