@@ -42,7 +42,8 @@ class LocationDAO {
         HashMap<String, ArcGisLocation> arcHashMap = [:]
 
         arcJson['features'].each {
-            arcHashMap[it['properties']['BldID'].toString()] = new ArcGisLocation(it)
+            def arcgis = ArcGisLocation.fromJson(it)
+            arcHashMap[arcgis.bldID] = ArcGisLocation.fromJson(it)
         }
 
         arcHashMap

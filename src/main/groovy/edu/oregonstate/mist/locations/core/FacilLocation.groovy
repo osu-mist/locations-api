@@ -1,7 +1,11 @@
 package edu.oregonstate.mist.locations.core
 
 import edu.oregonstate.mist.locations.Constants
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
+@ToString
+@EqualsAndHashCode
 class FacilLocation extends BaseType {
     String type = Constants.TYPE_BUILDING
 
