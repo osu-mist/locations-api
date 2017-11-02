@@ -10,7 +10,10 @@ import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 
+@TypeChecked
 class LocationMapper {
     String apiEndpointUrl
 
@@ -28,7 +31,7 @@ class LocationMapper {
             )
 
         } else {
-            def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+            String summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
             attributes = new Attributes(name: serviceLocation.conceptTitle,
                     geoLocation: createGeoLocation(serviceLocation.latitude,
                             serviceLocation.longitude),
@@ -45,6 +48,7 @@ class LocationMapper {
         buildResourceObject(serviceLocation.calculateId(), attributes)
     }
 
+    @TypeChecked(TypeCheckingMode.SKIP)
     private static boolean isService(def serviceLocation) {
         serviceLocation.type == Constants.TYPE_SERVICES
     }
@@ -112,7 +116,8 @@ class LocationMapper {
                 Constants.LOCATIONS
 
         String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
-        resourceObject.links = ['self': selfUrl]
+        def links = ['self': selfUrl]
+        resourceObject.links = links
     }
 
     /**
