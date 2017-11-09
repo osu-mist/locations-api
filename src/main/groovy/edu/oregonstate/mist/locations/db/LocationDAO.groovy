@@ -18,7 +18,6 @@ class LocationDAO {
 
     private final LocationMapper locationMapper
     private ObjectMapper mapper
-    private File mapJsonFile
     private File buildingGeometriesJsonFile
     private File parkingGeometriesJsonFile
 
@@ -29,7 +28,6 @@ class LocationDAO {
         locationMapper = new LocationMapper(
                 apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
-        mapJsonFile = new File(locationConfiguration.get("campusmapJsonOut"))
         buildingGeometriesJsonFile = new File(locationConfiguration.get("buildingGeometries"))
         parkingGeometriesJsonFile = new File(locationConfiguration.get("parkingGeometries"))
     }
