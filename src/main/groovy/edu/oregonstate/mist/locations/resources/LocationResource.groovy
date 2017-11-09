@@ -43,7 +43,7 @@ class LocationResource extends Resource {
     LocationResource(DiningDAO diningDAO, LocationDAO locationDAO, ExtensionDAO extensionDAO,
                      ArcGisDAO arcGisDAO, ExtraDataDAO extraDataDAO,
                      ExtraDataManager extraDataManager, LibraryDAO libraryDAO,
-                     Boolean useHttpCampusMap, CampusMapDAO campusMapDAO, FacilDAO facilDAO) {
+                     CampusMapDAO campusMapDAO, FacilDAO facilDAO) {
         this.diningDAO = diningDAO
         this.locationDAO = locationDAO
         this.extensionDAO = extensionDAO
