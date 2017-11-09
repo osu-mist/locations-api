@@ -69,12 +69,9 @@ class LocationApplication extends Application<LocationConfiguration> {
 
         addHealthChecks(environment, configuration, libraryDAO)
 
-        Boolean useHttpCampusMap = Boolean.parseBoolean(
-                configuration.locationsConfiguration.get("useHttpCampusMap"))
-
         environment.jersey().register(new LocationResource(diningDAO, locationDAO,
                 extensionDAO, arcGisDAO, extraDataDAO, extraDataManager, libraryDAO,
-                useHttpCampusMap, campusMapDAO, facilDAO))
+                campusMapDAO, facilDAO))
     }
 
     private static void addHealthChecks(Environment environment,

@@ -13,13 +13,15 @@ class ArcGisLocation {
     def coordinates
     String coordinatesType
 
-    ArcGisLocation(def arcGisMap) {
-        this.bldID = arcGisMap['properties']['BldID']
-        this.bldNam = arcGisMap['properties']['BldNam']
-        this.bldNamAbr = arcGisMap['properties']['BldNamAbr']
-        this.latitude = arcGisMap['properties']['Cent_Lat']
-        this.longitude = arcGisMap['properties']['Cent_Lon']
-        this.coordinates = arcGisMap['geometry']['coordinates']
-        this.coordinatesType = arcGisMap['geometry']['type']
+    static ArcGisLocation fromJson(def arcGisMap) {
+        def obj = new ArcGisLocation()
+        obj.bldID = arcGisMap['properties']['BldID']
+        obj.bldNam = arcGisMap['properties']['BldNam']
+        obj.bldNamAbr = arcGisMap['properties']['BldNamAbr']
+        obj.latitude = arcGisMap['properties']['Cent_Lat']
+        obj.longitude = arcGisMap['properties']['Cent_Lon']
+        obj.coordinates = arcGisMap['geometry']['coordinates']
+        obj.coordinatesType = arcGisMap['geometry']['type']
+        obj
     }
 }

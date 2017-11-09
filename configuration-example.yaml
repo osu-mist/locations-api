@@ -48,8 +48,7 @@ locations:
   icalUrl: https://www.google.com/calendar/ical/calendar-id%40group.calendar.google.com/public/basic.ics
   diningJsonOut: change-me.json
   cacheDirectory: cache
-  campusmapUrl: http://campusmap.example.com?id=
-  campusmapImageUrl: http://campusmap.example.com/images/
+  campusMapHttpData: https://example.com/locations.json
   campusmapJsonOut: campusmap.json
   extensionUrl: http://example.com/extension_locations.xml
   extensionXmlOut: extension-locations.xml

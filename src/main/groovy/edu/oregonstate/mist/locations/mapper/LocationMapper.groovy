@@ -1,9 +1,7 @@
 package edu.oregonstate.mist.locations.mapper
 
 import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.Attributes
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.Geometry
@@ -13,39 +11,12 @@ import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 
-import java.nio.charset.StandardCharsets
-
-class LocationMapper  {
-    String campusmapUrl
-    String campusmapImageUrl
+@TypeChecked
+class LocationMapper {
     String apiEndpointUrl
-
-    public ResourceObject map(CampusMapLocationDeprecated campusMapLocation) {
-        Attributes attributes = new Attributes(
-            name: campusMapLocation.name,
-            abbreviation: campusMapLocation.abbrev,
-            geoLocation: createGeoLocation(campusMapLocation.latitude,
-                                            campusMapLocation.longitude),
-            geometry: new Geometry(
-                coordinates: campusMapLocation.coordinates,
-                type: campusMapLocation.coordinatesType),
-            address: campusMapLocation.address,
-            summary: campusMapLocation.shortDescription,
-            description: campusMapLocation.description,
-            thumbnails: [getImageUrl(campusMapLocation.thumbnail)] - null,
-            images: [getImageUrl(campusMapLocation.largerImage)] - null,
-            type: Constants.TYPE_BUILDING,
-            giRestroomCount: campusMapLocation.giRestroomCount,
-            giRestroomLimit: getGiRestroomLimit(campusMapLocation.giRestroomLimit),
-            giRestroomLocations: campusMapLocation.giRestroomLocations
-        )
-
-        // Some attribute fields are calculated based on campusmap information
-        setCalculatedFields(attributes, campusMapLocation)
-
-        buildResourceObject(campusMapLocation.calculateId(), attributes)
-    }
 
     public ResourceObject map(ServiceLocation serviceLocation) {
         // The ServiceLocation class is used for multiple types of data
@@ -61,7 +32,7 @@ class LocationMapper  {
             )
 
         } else {
-            def summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
+            String summary = serviceLocation.zone ? "Zone: ${serviceLocation.zone}" : ''
             attributes = new Attributes(name: serviceLocation.conceptTitle,
                     geoLocation: createGeoLocation(serviceLocation.latitude,
                             serviceLocation.longitude),
@@ -78,6 +49,7 @@ class LocationMapper  {
         buildResourceObject(serviceLocation.calculateId(), attributes)
     }
 
+    @TypeChecked(TypeCheckingMode.SKIP)
     private static boolean isService(def serviceLocation) {
         serviceLocation.type == Constants.TYPE_SERVICES
     }
@@ -100,25 +72,6 @@ class LocationMapper  {
         )
 
         buildResourceObject(extensionLocation.calculateId(), attributes)
-    }
-
-    public ResourceObject map(ArcGisLocation arcGisLocation) {
-        Attributes attributes = new Attributes(
-                name: arcGisLocation.bldNam,
-                abbreviation: arcGisLocation.bldNamAbr,
-                geoLocation: createGeoLocation(arcGisLocation.latitude,
-                                               arcGisLocation.longitude),
-                geometry: new Geometry(
-                    coordinates: arcGisLocation.coordinates,
-                    type: arcGisLocation.coordinatesType),
-                type: Constants.TYPE_BUILDING,
-                campus: Constants.CAMPUS_CORVALLIS,
-                giRestroomCount: arcGisLocation.giRestroomCount,
-                giRestroomLimit: getGiRestroomLimit(arcGisLocation.giRestroomLimit),
-                giRestroomLocations: arcGisLocation.giRestroomLocations
-        )
-
-        buildResourceObject(arcGisLocation.calculateId(), attributes)
     }
 
     public ResourceObject map(ExtraLocation extraLocation) {
@@ -175,40 +128,13 @@ class LocationMapper  {
         buildResourceObject(facilLocation.calculateId(), attributes)
     }
 
-    private String getCampusmapWebsite(Integer id) {
-        campusmapUrl + id
-    }
-
-    private String getImageUrl(String image) {
-        if (!image) {
-            return null
-        }
-
-        campusmapImageUrl + URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
-    }
-
-    /**
-     * Sets the state, city, campus and website for the campusmap locations. The zip is not
-     * set since some campusmap buildings have the 97330 or 97331 zip code. All campusmap
-     * locations are from Corvallis and the campusmap url is well known
-     *
-     * @param attributes
-     * @param campusMapLocation
-     */
-    private void setCalculatedFields(
-            Attributes attributes, CampusMapLocationDeprecated campusMapLocation) {
-        attributes.state = "OR"
-        attributes.city = "Corvallis"
-        attributes.campus = Constants.CAMPUS_CORVALLIS
-        attributes.website = getCampusmapWebsite(campusMapLocation.id)
-    }
-
     private void setLinks(ResourceObject resourceObject) {
         String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
                 Constants.LOCATIONS
 
         String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
-        resourceObject.links = ['self': selfUrl]
+        def links = ['self': selfUrl]
+        resourceObject.links = links
     }
 
     /**

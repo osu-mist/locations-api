@@ -1,7 +1,11 @@
 package edu.oregonstate.mist.locations.core
 
 import edu.oregonstate.mist.locations.Constants
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
+@ToString
+@EqualsAndHashCode
 class FacilLocation extends BaseType {
     String type = Constants.TYPE_BUILDING
 
@@ -42,6 +46,10 @@ class FacilLocation extends BaseType {
     }
 
     String getPrettyCampus() {
+        if (campus == null) {
+            return null
+        }
+
         if (campus.equalsIgnoreCase("CASCADESCAMPUS")) {
             "Cascades"
         } else if (campus.equalsIgnoreCase("OSUCORVALLIS")) {

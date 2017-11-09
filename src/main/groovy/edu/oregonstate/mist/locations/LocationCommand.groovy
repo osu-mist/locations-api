@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.LocationConfiguration
 import edu.oregonstate.mist.locations.core.ArcGisLocation
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
@@ -46,7 +45,6 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     private MergeUtil mergeUtil
 
     private ExtraDataManager extraDataManager
-    private Boolean useHttpCampusMap
 
     LocationCommand(LocationApplication app) {
         super(app, "generate", "Generates json files")
@@ -91,39 +89,27 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
 
         mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)
 
-        useHttpCampusMap = Boolean.parseBoolean(
-                configuration.locationsConfiguration.get("useHttpCampusMap"))
-
         writeJsonAPIToFile("services.json", getServices())
         writeJsonAPIToFile("locations-combined.json", getCombinedData())
 
     }
 
     /**
-     * Returns the combined data from the arcgis and campusmap.
+     * Returns the combined data from the arcgis and facil sources.
      *
      * @return
      */
     private List getBuildingData() {
         List<FacilLocation> buildings = facilDAO.getBuildings()
-        // Get acrgis gender inclusive restroom data from http request
-        HashMap<String, GenderInclusiveRRLocation> genderInclusiveRR =
-                arcGisDAO.getGenderInclusiveRR()
+        // Get acrgis gender inclusive restroom data from json file
+        def genderInclusiveRR = arcGisDAO.getGenderInclusiveRR()
         // Get arcgis coordinate data from json file
-        HashMap<String, ArcGisLocation> arcGisGeometries = locationDAO.getArcGisCoordinates()
+        def arcGisGeometries = locationDAO.getArcGisCoordinates()
 
         def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings,
             genderInclusiveRR, arcGisGeometries)
 
-        if (!useHttpCampusMap) {
-            List<CampusMapLocationDeprecated> campusMapLocationList =
-                    locationDAO.getCampusMapFromJson()
-            // Merge the combined arcgis data with campus map data
-            locationDAO.mergeMapAndBuildingsDeprecated(
-                    buildingAndArcGisMerged, campusMapLocationList)
-        } else {
-            new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
-        }
+        new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
     }
 
     List<ResourceObject> getCombinedData() {
@@ -137,9 +123,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
 
         def data = locationsList.collect { locationDAO.convert(it) }
 
-        if (useHttpCampusMap) {
-            data = mergeUtil.mergeCampusMapData(data)
-        }
+        data = mergeUtil.mergeCampusMapData(data)
         data = mergeUtil.merge(data) // only applies to locations
         data = mergeUtil.populate(data) // only applies to locations for now?
         data = mergeUtil.appendRelationshipsToLocations(data)

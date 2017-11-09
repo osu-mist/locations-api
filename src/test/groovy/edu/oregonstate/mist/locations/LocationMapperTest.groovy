@@ -1,36 +1,34 @@
 package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.core.CampusMapLocationDeprecated
-import org.junit.Test
+import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
+import org.junit.Test
 
 @groovy.transform.TypeChecked
 class LocationMapperTest {
     private final LocationMapper locationMapper = new LocationMapper(
-            campusmapImageUrl: "www.example.com",
-            campusmapUrl: "www.examplemap.com",
             apiEndpointUrl: "www.api.example.com"
     )
 
     @Test
     public void testGenderInclusiveRRLimit() {
-        CampusMapLocationDeprecated campusMapLocation = new CampusMapLocationDeprecated(
+        def loc = new FacilLocation(
                 giRestroomLimit: "This should be true"
         )
-        ResourceObject resourceObject = locationMapper.map(campusMapLocation)
+        ResourceObject resourceObject = locationMapper.map(loc)
         assert resourceObject.attributes['giRestroomLimit'] == true
 
-        campusMapLocation.giRestroomLimit = " "
-        resourceObject = locationMapper.map(campusMapLocation)
+        loc.giRestroomLimit = " "
+        resourceObject = locationMapper.map(loc)
         assert resourceObject.attributes['giRestroomLimit'] == false
 
-        campusMapLocation.giRestroomLimit = ""
-        resourceObject = locationMapper.map(campusMapLocation)
+        loc.giRestroomLimit = ""
+        resourceObject = locationMapper.map(loc)
         assert resourceObject.attributes['giRestroomLimit'] == false
 
-        campusMapLocation.giRestroomLimit = null
-        resourceObject = locationMapper.map(campusMapLocation)
+        loc.giRestroomLimit = null
+        resourceObject = locationMapper.map(loc)
         assert resourceObject.attributes['giRestroomLimit'] == null
     }
 }
