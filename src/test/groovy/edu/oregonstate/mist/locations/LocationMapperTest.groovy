@@ -8,8 +8,6 @@ import org.junit.Test
 @groovy.transform.TypeChecked
 class LocationMapperTest {
     private final LocationMapper locationMapper = new LocationMapper(
-            //campusmapImageUrl: "www.example.com",
-            //campusmapUrl: "www.examplemap.com",
             apiEndpointUrl: "www.api.example.com"
     )
 

@@ -48,7 +48,6 @@ class ArcGisDAO {
         def data = new HashMap<String, GenderInclusiveRRLocation>()
 
         mappedData.asList().each {
-            //println(it.get("attributes").toString())
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
             data[rr.bldID] = rr
         }
