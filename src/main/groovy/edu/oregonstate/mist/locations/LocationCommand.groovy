@@ -141,7 +141,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     }
 
     /**
-     * Writes a list of result objects to a json file that can be be sent to ElasticSearch.
+     * Writes a list of result objects to a json file, one record per line
      *
      * @param filename
      * @param locationsList
@@ -152,8 +152,6 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         jsonESInput.write("") // clear out file
 
         data.each { ResourceObject it ->
-            def indexAction = [index: [_id: it.id]]
-            jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
     }
