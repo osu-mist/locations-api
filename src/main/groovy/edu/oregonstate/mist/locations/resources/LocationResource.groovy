@@ -184,8 +184,6 @@ class LocationResource extends Resource {
         ObjectMapper mapper = new ObjectMapper() // can reuse, share globally
 
         data.each {
-            def indexAction = [index: [_id: it.id]]
-            jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
             jsonESInput << mapper.writeValueAsString(it) + "\n"
         }
 
