@@ -79,6 +79,15 @@ shadowJar {
         attributes 'Main-Class': "${mainClass}"
     }
     mergeServiceFiles()
+
+    doLast {
+        copy {
+            from(shadowJar.archivePath) {
+                rename '.*', "${project.archivesBaseName}-latest-all.jar"
+            }
+            into "${buildDir}/latest"
+        }
+    }
 }
 
 // downloads files stored in contrib repository if getContribFiles is yes
