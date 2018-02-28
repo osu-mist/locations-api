@@ -20,7 +20,10 @@ class ParkingLocation extends BaseType {
         this.description = arcGisMap['properties']['AiM_Desc']
         this.propID = arcGisMap['properties']['Prop_ID']
         this.parkingZoneGroup = arcGisMap['properties']['ZoneGroup']
-        this.coordinates = arcGisMap['geometry']['coordinates']
-        this.coordinatesType = arcGisMap['geometry']['type']
+
+        if (arcGisMap['geometry']) {
+            this.coordinates = arcGisMap['geometry']['coordinates']
+            this.coordinatesType = arcGisMap['geometry']['type']
+        }
     }
 }
