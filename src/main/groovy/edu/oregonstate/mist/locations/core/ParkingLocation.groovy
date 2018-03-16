@@ -10,6 +10,9 @@ class ParkingLocation extends BaseType {
     String parkingZoneGroup
     def coordinates
     String coordinatesType
+    Integer adaParkingSpaceCount
+    Integer motorcycleParkingSpaceCount
+    Integer evParkingSpaceCount
 
     @Override
     protected String getIdField() {
@@ -20,6 +23,10 @@ class ParkingLocation extends BaseType {
         this.description = arcGisMap['properties']['AiM_Desc']
         this.propID = arcGisMap['properties']['Prop_ID']
         this.parkingZoneGroup = arcGisMap['properties']['ZoneGroup']
+
+        this.adaParkingSpaceCount = arcGisMap['properties']['ADA_Spc']
+        this.evParkingSpaceCount = arcGisMap['properties']['EV_Spc']
+        this.motorcycleParkingSpaceCount = arcGisMap['properties']['MCycle_Spc']
 
         if (arcGisMap['geometry']) {
             this.coordinates = arcGisMap['geometry']['coordinates']
