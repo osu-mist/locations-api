@@ -28,6 +28,9 @@ class Attributes extends ServiceAttributes {
     String bldgID
     String parkingZoneGroup
     String propID
+    Integer adaParkingSpaceCount
+    Integer motorcycleParkingSpaceCount
+    Integer evParkingSpaceCount
 
     int getHashCode() {
         int result
