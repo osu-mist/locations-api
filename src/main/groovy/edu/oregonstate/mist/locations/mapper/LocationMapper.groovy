@@ -101,7 +101,8 @@ class LocationMapper {
                 propID: parkingLocation.propID,
                 adaParkingSpaceCount : parkingLocation.adaParkingSpaceCount,
                 motorcycleParkingSpaceCount : parkingLocation.motorcycleParkingSpaceCount,
-                evParkingSpaceCount : parkingLocation.evParkingSpaceCount
+                evParkingSpaceCount : parkingLocation.evParkingSpaceCount,
+                geoLocation: createGeoLocation(parkingLocation.latitude, parkingLocation.longitude)
         )
 
         buildResourceObject(parkingLocation.calculateId(), attributes)
