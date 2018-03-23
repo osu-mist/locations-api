@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations
 
 import com.codahale.metrics.annotation.Timed
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.LocationConfiguration
@@ -31,7 +32,9 @@ import org.skife.jdbi.v2.DBI
 
 @groovy.transform.TypeChecked
 class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
+    // Note: without this configure line, mapper.writeValue will close the file after writing.
     ObjectMapper mapper = new ObjectMapper()
+        .configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false)
     private ArcGisDAO arcGisDAO
     private CampusMapDAO campusMapDAO
     private DiningDAO diningDAO
@@ -140,20 +143,20 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     }
 
     /**
-     * Writes a list of result objects to a json file that can be be sent to ElasticSearch.
+     * Writes a list of result objects to a json file, one record per line
      *
      * @param filename
      * @param locationsList
      * @return
      */
     private void writeJsonAPIToFile(String filename, List<ResourceObject> data) {
-        def jsonESInput = new File(filename)
-        jsonESInput.write("") // clear out file
+        def out = new File(filename).newWriter()
 
         data.each { ResourceObject it ->
-            def indexAction = [index: [_id: it.id]]
-            jsonESInput << mapper.writeValueAsString(indexAction) + "\n"
-            jsonESInput << mapper.writeValueAsString(it) + "\n"
+            mapper.writeValue(out, it)
+            out.newLine()
         }
+
+        out.close()
     }
 }
