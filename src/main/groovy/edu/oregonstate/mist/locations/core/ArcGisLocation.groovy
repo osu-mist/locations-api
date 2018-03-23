@@ -20,8 +20,12 @@ class ArcGisLocation {
         obj.bldNamAbr = arcGisMap['properties']['BldNamAbr']
         obj.latitude = arcGisMap['properties']['Cent_Lat']
         obj.longitude = arcGisMap['properties']['Cent_Lon']
-        obj.coordinates = arcGisMap['geometry']['coordinates']
-        obj.coordinatesType = arcGisMap['geometry']['type']
+
+        if (arcGisMap['geometry']) {
+            obj.coordinates = arcGisMap['geometry']['coordinates']
+            obj.coordinatesType = arcGisMap['geometry']['type']
+        }
+
         obj
     }
 }

@@ -20,7 +20,6 @@ import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
 import edu.oregonstate.mist.api.jsonapi.ResultObject
-import edu.oregonstate.mist.locations.resources.MergeUtil
 import io.dropwizard.cli.EnvironmentCommand
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jdbi.DBIFactory

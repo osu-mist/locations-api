@@ -1,7 +1,0 @@
-{
-    "hostname": "https://api.example.com/api/v1/locations",
-    "access_token": "secret sauce",
-    "max_invalid_dining": 3,
-    "min_valid_days": 3,
-    "debug": false
-}

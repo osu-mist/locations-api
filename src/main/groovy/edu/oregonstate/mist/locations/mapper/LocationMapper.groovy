@@ -98,7 +98,11 @@ class LocationMapper {
                 ),
                 type: parkingLocation.type,
                 campus: Constants.CAMPUS_CORVALLIS,
-                propID: parkingLocation.propID
+                propID: parkingLocation.propID,
+                adaParkingSpaceCount : parkingLocation.adaParkingSpaceCount,
+                motorcycleParkingSpaceCount : parkingLocation.motorcycleParkingSpaceCount,
+                evParkingSpaceCount : parkingLocation.evParkingSpaceCount,
+                geoLocation: createGeoLocation(parkingLocation.latitude, parkingLocation.longitude)
         )
 
         buildResourceObject(parkingLocation.calculateId(), attributes)

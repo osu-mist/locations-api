@@ -1,4 +1,4 @@
-package edu.oregonstate.mist.locations.resources
+package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
