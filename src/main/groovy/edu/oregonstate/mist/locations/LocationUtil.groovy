@@ -79,6 +79,9 @@ class LocationUtil {
      * @return
      */
     private String getFilePath(String fileName) {
+        if (fileName == null) {
+            throw new Exception("fileName must not be null")
+        }
         cacheDirectory + "/" + fileName
     }
 
