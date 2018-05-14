@@ -47,14 +47,14 @@ class LocationUtil {
         def data
         def filePath = getFilePath(cachedFile)
 
-        try {
-            // Check that cached file is within the current api directory
-            Path child = Paths.get(filePath).toAbsolutePath()
-            def parent = Paths.get(cacheDirectory).toAbsolutePath()
-            if (!child.startsWith(parent)) {
-                throw new Exception("Cache directory is outside of api directory")
-            }
+        // Check that cached file is within the current api directory
+        Path child = Paths.get(filePath).toAbsolutePath()
+        def parent = Paths.get(cacheDirectory).toAbsolutePath()
+        if (!child.startsWith(parent)) {
+            throw new Exception("Cache directory is outside of api directory")
+        }
 
+        try {
             data = new URL(url).getText()
             if (data && isDataSourceNew(cachedFile, data)) {
                 LOGGER.info("New content found for: ${url}")
