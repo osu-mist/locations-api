@@ -17,11 +17,15 @@ import org.joda.time.DateTimeZone
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @TypeChecked
 class LibraryDAO {
-    private final String libraryUrl
+    private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDAO)
 
+    public static final String LIBRARY_PATH = "library.json"
+    private final String libraryUrl
     private final CloseableHttpClient httpClient
     private final LocationUtil locationUtil
 
@@ -82,13 +86,19 @@ class LibraryDAO {
     }
 
     private Map<String, LibraryHours> getLibraryData(DateTime startDate, int numDays) {
-
         String parameters = getDatesParameter(startDate, numDays)
-        Map<String, LibraryHours> data = new HashMap<>()
 
-        def entityString = doPostRequest(libraryUrl, parameters)
+        def entityString
+        try {
+            entityString = doPostRequest(libraryUrl, parameters)
+            // TODO: Wait to write data to cache until we've successfully parsed it
+            locationUtil.writeDataToCache(LIBRARY_PATH, entityString)
+        } catch (IOException e) {
+            LOGGER.error("Error getting library json data", e)
+            entityString = locationUtil.getCachedData(LIBRARY_PATH)
+        }
 
-        data = (Map<String,LibraryHours>)this.mapper.readValue(
+        def data = (Map<String,LibraryHours>)this.mapper.readValue(
                 entityString,
                 new TypeReference<HashMap<String, LibraryHours>>() {}
         )

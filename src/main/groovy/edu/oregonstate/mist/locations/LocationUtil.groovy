@@ -73,6 +73,37 @@ class LocationUtil {
     }
 
     /**
+     * Returns data stored in the cache
+     * @param cachedFile    path within the cache directory
+     * @throws IOException  if the file does not exist
+     * @return cached data
+     */
+    public String getCachedData(String cachedFile) {
+        def filePath = getFilePath(cachedFile)
+        LOGGER.info(filePath)
+        def data = new File(filePath).getText()
+        data
+    }
+
+    /**
+     * Writes data to the cache
+     * @param cachedFile path within the cache directory
+     * @param data       data to write
+     */
+    public void writeDataToCache(String cachedFile, String data) {
+        createCacheDirectory()
+        def filePath = getFilePath(cachedFile)
+        if (data && isDataSourceNew(cachedFile, data)) {
+            LOGGER.info("New content found for ${cachedFile}")
+            createCacheDirectory()
+
+            new File(filePath).write(data)
+        } else {
+            LOGGER.info("No new content for ${cachedFile}")
+        }
+    }
+
+    /**
      * Returns path to file within cacheDirectory
      *
      * @param fileName
