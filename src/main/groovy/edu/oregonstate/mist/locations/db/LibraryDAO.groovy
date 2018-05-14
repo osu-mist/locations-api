@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.LibraryHours
 import groovy.transform.TypeChecked
@@ -22,16 +23,19 @@ class LibraryDAO {
     private final String libraryUrl
 
     private final CloseableHttpClient httpClient
+    private final LocationUtil locationUtil
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"
-
     public static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mma"
 
     private ObjectMapper mapper = new ObjectMapper()
 
-    LibraryDAO(Map<String, String> locationConfiguration, CloseableHttpClient httpClient) {
+    LibraryDAO(Map<String, String> locationConfiguration,
+               CloseableHttpClient httpClient,
+               LocationUtil locationUtil) {
         libraryUrl = locationConfiguration.get("libraryUrl")
         this.httpClient = httpClient
+        this.locationUtil = locationUtil
     }
 
     /**

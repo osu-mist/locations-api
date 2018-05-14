@@ -86,7 +86,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         extensionDAO = new ExtensionDAO(configMap, locationUtil)
         extraDataDAO = new ExtraDataDAO(configuration, locationUtil, extraDataManager)
         facilDAO = jdbi.onDemand(FacilDAO.class)
-        libraryDAO = new LibraryDAO(configMap, httpClient)
+        libraryDAO = new LibraryDAO(configMap, httpClient, locationUtil)
         locationDAO = new LocationDAO(configMap)
 
         mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)

@@ -58,7 +58,7 @@ class MergeUtilTest {
 
     class MockLibraryDAO extends LibraryDAO {
         MockLibraryDAO() {
-            super([:], null)
+            super([:], null, null)
         }
 
         @Override
