@@ -105,6 +105,10 @@ class LibraryDAO {
         CloseableHttpResponse response = null
         try {
             response = httpClient.execute(post)
+            int code = response.getStatusLine().getStatusCode()
+            if (code != 200) {
+                throw new IOException("HTTP status code ${code} returned for url ${url}")
+            }
             HttpEntity entity = response.getEntity()
             try {
                 return EntityUtils.toString(entity)
