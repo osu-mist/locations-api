@@ -6,6 +6,7 @@ import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.LibraryHours
 import groovy.transform.TypeChecked
 import org.apache.http.HttpEntity
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.util.EntityUtils
@@ -77,31 +78,38 @@ class LibraryDAO {
     }
 
     private Map<String, LibraryHours> getLibraryData(DateTime startDate, int numDays) {
-        def response
+
         String parameters = getDatesParameter(startDate, numDays)
         Map<String, LibraryHours> data = new HashMap<>()
 
+        def entityString = doPostRequest(libraryUrl, parameters)
+
+        data = (Map<String,LibraryHours>)this.mapper.readValue(
+                entityString,
+                new TypeReference<HashMap<String, LibraryHours>>() {}
+        )
+
+        data
+    }
+
+    private String doPostRequest(String url, String body) {
+        HttpPost post = new HttpPost(url)
+        post.setHeader("Content-Type", "application/json")
+        post.setHeader("Accept", "application/vnd.kiosks.v1")
+        post.setEntity(new StringEntity(body))
+
+        CloseableHttpResponse response = null
         try {
-            HttpPost post = new HttpPost(libraryUrl)
-            post.setHeader("Content-Type", "application/json")
-            post.setHeader("Accept", "application/vnd.kiosks.v1")
-
-            post.setEntity(new StringEntity(parameters))
-
             response = httpClient.execute(post)
             HttpEntity entity = response.getEntity()
-            def entityString = EntityUtils.toString(entity)
-
-            data = (Map<String,LibraryHours>)this.mapper.readValue(
-                    entityString,
-                    new TypeReference<HashMap<String, LibraryHours>>() {}
-            )
-
-            EntityUtils.consume(entity)
+            try {
+                return EntityUtils.toString(entity)
+            } finally {
+                EntityUtils.consume(entity)
+            }
         } finally {
             response?.close()
         }
-        data
     }
 
     /**
