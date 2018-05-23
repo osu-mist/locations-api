@@ -11,6 +11,7 @@ import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
+import edu.oregonstate.mist.locations.db.CachedFacilDAO
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
@@ -40,7 +41,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     private DiningDAO diningDAO
     private ExtensionDAO extensionDAO
     private ExtraDataDAO extraDataDAO
-    private FacilDAO facilDAO
+    private CachedFacilDAO cachedFacilDAO
     private LibraryDAO libraryDAO
     private LocationDAO locationDAO
 
@@ -85,7 +86,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         diningDAO = new DiningDAO(configuration, locationUtil)
         extensionDAO = new ExtensionDAO(configMap, locationUtil)
         extraDataDAO = new ExtraDataDAO(configuration, locationUtil, extraDataManager)
-        facilDAO = jdbi.onDemand(FacilDAO.class)
+        cachedFacilDAO = new CachedFacilDAO(jdbi, locationUtil)
         libraryDAO = new LibraryDAO(configMap, httpClient, locationUtil)
         locationDAO = new LocationDAO(configMap)
 
@@ -102,7 +103,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      * @return
      */
     private List getBuildingData() {
-        List<FacilLocation> buildings = facilDAO.getBuildings()
+        List<FacilLocation> buildings = cachedFacilDAO.getBuildings()
         // Get acrgis gender inclusive restroom data from json file
         def genderInclusiveRR = arcGisDAO.getGenderInclusiveRR()
         // Get arcgis coordinate data from json file
