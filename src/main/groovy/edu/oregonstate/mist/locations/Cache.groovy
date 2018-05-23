@@ -1,11 +1,13 @@
 package edu.oregonstate.mist.locations
 
+import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@CompileStatic
 class Cache {
     private static final Logger LOGGER = LoggerFactory.getLogger(Cache.class)
 

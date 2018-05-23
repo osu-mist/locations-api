@@ -1,5 +1,6 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import edu.oregonstate.mist.locations.Constants
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
@@ -28,23 +29,28 @@ class FacilLocation extends BaseType {
     String giRestroomLimit
     String giRestroomLocations
 
+    @JsonIgnore
     Integer getGiRestroomCount() {
         giRestroomCount ?: 0
     }
 
+    @JsonIgnore
     String getGiRestroomLocations() {
         giRestroomLocations?.trim()
     }
 
+    @JsonIgnore
     @Override
     protected String getIdField() {
         bldgID
     }
 
+    @JsonIgnore
     String getAddress() {
         address2 ? address1 + "\n" + address2 : address1
     }
 
+    @JsonIgnore
     String getPrettyCampus() {
         if (campus == null) {
             return null
