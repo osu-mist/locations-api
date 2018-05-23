@@ -131,7 +131,7 @@ class LocationUtil {
     }
 
     /**
-     * Checks whether the datasource is new or not by comparing md5 hash
+     * Checks whether the datasource is new or not by comparing the contents
      *
      * @param filename
      * @param recentData
@@ -148,6 +148,6 @@ class LocationUtil {
             return true
         }
 
-        getMD5Hash(fileContent) != getMD5Hash(recentData)
+        fileContent != recentData
     }
 }
