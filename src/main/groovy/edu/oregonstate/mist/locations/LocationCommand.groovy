@@ -1,15 +1,9 @@
 package edu.oregonstate.mist.locations
 
-import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.LocationConfiguration
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
-import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
-import edu.oregonstate.mist.locations.core.ServiceLocation
-import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.db.ArcGisDAO
 import edu.oregonstate.mist.locations.db.CachedFacilDAO
 import edu.oregonstate.mist.locations.db.CampusMapDAO
@@ -17,14 +11,11 @@ import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
-import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
-import edu.oregonstate.mist.api.jsonapi.ResultObject
 import io.dropwizard.cli.EnvironmentCommand
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jdbi.DBIFactory
-import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import net.sourceforge.argparse4j.inf.Namespace
 import net.sourceforge.argparse4j.inf.Subparser
@@ -73,7 +64,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         final DBI jdbi = factory.build(environment, configuration.getDatabase(), "jdbi")
 
         def configMap = configuration.locationsConfiguration
-        final LocationUtil locationUtil = new LocationUtil(configMap)
+        final Cache cache = new Cache(configMap)
 
         extraDataManager = new ExtraDataManager()
         // Managed objects are tied to the lifecycle of the http server.
@@ -81,13 +72,13 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         //environment.lifecycle().manage(extraDataManager)
         extraDataManager.start()
 
-        arcGisDAO = new ArcGisDAO(configMap, locationUtil)
-        campusMapDAO = new CampusMapDAO(configMap, locationUtil)
-        diningDAO = new DiningDAO(configuration, locationUtil)
-        extensionDAO = new ExtensionDAO(configMap, locationUtil)
-        extraDataDAO = new ExtraDataDAO(configuration, locationUtil, extraDataManager)
-        cachedFacilDAO = new CachedFacilDAO(jdbi, locationUtil)
-        libraryDAO = new LibraryDAO(configMap, httpClient, locationUtil)
+        arcGisDAO = new ArcGisDAO(configMap, cache)
+        campusMapDAO = new CampusMapDAO(configMap, cache)
+        diningDAO = new DiningDAO(configuration, cache)
+        extensionDAO = new ExtensionDAO(configMap, cache)
+        extraDataDAO = new ExtraDataDAO(configuration, cache, extraDataManager)
+        cachedFacilDAO = new CachedFacilDAO(jdbi, cache)
+        libraryDAO = new LibraryDAO(configMap, httpClient, cache)
         locationDAO = new LocationDAO(configMap)
 
         mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)

@@ -2,16 +2,16 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.LocationConfiguration
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 
 class IcalDAO {
     protected static final ObjectMapper MAPPER = new ObjectMapper()
-    LocationUtil locationUtil
+    Cache cache
     LocationConfiguration configuration
 
-    IcalDAO(LocationConfiguration configuration, LocationUtil locationUtil) {
+    IcalDAO(LocationConfiguration configuration, Cache cache) {
         this.configuration = configuration
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     String getMetadataURL() {

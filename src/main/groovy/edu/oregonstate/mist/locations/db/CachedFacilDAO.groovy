@@ -1,6 +1,6 @@
 package edu.oregonstate.mist.locations.db
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.FacilLocation
 import org.skife.jdbi.v2.DBI
 
@@ -9,11 +9,11 @@ import org.skife.jdbi.v2.DBI
  */
 class CachedFacilDAO implements Closeable {
     private final FacilDAO facilDAO
-    private final LocationUtil locationUtil
-    CachedFacilDAO(DBI jdbi, LocationUtil locationUtil) {
+    private final Cache cache
+    CachedFacilDAO(DBI jdbi, Cache cache) {
         // TODO: should we construct FacilDAO here or require that it be passed in?
         this.facilDAO = jdbi.onDemand(FacilDAO.class)
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     List<FacilLocation> getBuildings() {

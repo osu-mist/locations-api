@@ -2,7 +2,6 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
 
@@ -21,7 +20,7 @@ public class DiningDAO extends IcalDAO {
         diners.unique(true)
         diners.each { it.type = Constants.TYPE_DINING }
 
-        IcalUtil.addLocationHours(diners, icalURL, locationUtil)
+        IcalUtil.addLocationHours(diners, icalURL, cache)
         //@todo: how to deal with html in title?
 
         diners
@@ -35,7 +34,7 @@ public class DiningDAO extends IcalDAO {
      * @return String json format of dining locations
      */
     private String getDiningLocationList() throws Exception {
-        locationUtil.getDataFromUrlOrCache(metadataURL, jsonOut)
+        cache.getDataFromUrlOrCache(metadataURL, jsonOut)
     }
 
     @Override

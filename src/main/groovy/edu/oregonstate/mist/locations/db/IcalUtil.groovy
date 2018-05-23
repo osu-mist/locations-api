@@ -1,6 +1,6 @@
 package edu.oregonstate.mist.locations.db
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovyx.gpars.GParsPool
@@ -21,14 +21,14 @@ class IcalUtil {
 
     public static List<ServiceLocation> addLocationHours(List<ServiceLocation> diners,
                                                          String icalURLTemplate,
-                                                         LocationUtil locationUtil) {
+                                                         Cache cache) {
         GParsPool.withPool {
             diners.eachParallel {
                 def icalURL = icalURLTemplate.replace("calendar-id", "${it.calendarId}")
                 def icalFileName = it.calendarId + ".ics"
                 LOGGER.debug(icalURL)
 
-                String icalData = getIcalData(icalURL, icalFileName, locationUtil)
+                String icalData = getIcalData(icalURL, icalFileName, cache)
                 it.openHours = parseDiningICAL(icalData)
             }
         }
@@ -37,9 +37,9 @@ class IcalUtil {
     }
 
     private static String getIcalData(String icalURL, String icalFileName,
-                                      LocationUtil locationUtil) {
+                                      Cache cache) {
         // @todo: what if it's not new, but the open hours in calendar are different for next week?
-        locationUtil.getDataFromUrlOrCache(icalURL, icalFileName)
+        cache.getDataFromUrlOrCache(icalURL, icalFileName)
     }
 
     public static HashMap<Integer, List<DayOpenHours>> parseDiningICAL(String icalData) {

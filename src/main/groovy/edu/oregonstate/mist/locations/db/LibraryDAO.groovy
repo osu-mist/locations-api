@@ -2,7 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.LibraryHours
 import groovy.transform.TypeChecked
@@ -27,7 +27,7 @@ class LibraryDAO {
     public static final String LIBRARY_PATH = "library.json"
     private final String libraryUrl
     private final CloseableHttpClient httpClient
-    private final LocationUtil locationUtil
+    private final Cache cache
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"
     public static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mma"
@@ -36,10 +36,10 @@ class LibraryDAO {
 
     LibraryDAO(Map<String, String> locationConfiguration,
                CloseableHttpClient httpClient,
-               LocationUtil locationUtil) {
+               Cache cache) {
         libraryUrl = locationConfiguration.get("libraryUrl")
         this.httpClient = httpClient
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     /**
@@ -92,10 +92,10 @@ class LibraryDAO {
         try {
             entityString = doPostRequest(libraryUrl, parameters)
             // TODO: Wait to write data to cache until we've successfully parsed it
-            locationUtil.writeDataToCache(LIBRARY_PATH, entityString)
+            cache.writeDataToCache(LIBRARY_PATH, entityString)
         } catch (IOException e) {
             LOGGER.error("Error getting library json data", e)
-            entityString = locationUtil.getCachedData(LIBRARY_PATH)
+            entityString = cache.getCachedData(LIBRARY_PATH)
         }
 
         def data = (Map<String,LibraryHours>)this.mapper.readValue(

@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
@@ -28,16 +28,16 @@ class ArcGisDAO {
     /**
      * Helper for caching and getting data from web requests
      */
-    private final LocationUtil locationUtil
+    private final Cache cache
 
-    public ArcGisDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
+    public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
         arcGisGenderInclusiveRRJsonOut = locationConfiguration.get("arcGisGenderInclusiveJsonOut")
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     public HashMap<String, GenderInclusiveRRLocation> getGenderInclusiveRR() {
-        String gisData = locationUtil.getDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
+        String gisData = cache.getDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
                 arcGisGenderInclusiveRRJsonOut)
         mapRR(gisData)
     }
