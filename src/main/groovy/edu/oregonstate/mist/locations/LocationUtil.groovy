@@ -3,7 +3,6 @@ package edu.oregonstate.mist.locations
 import java.security.MessageDigest
 
 class LocationUtil {
-    public static final String VALID_LAT_LONG = "-?\\d+(\\.\\d+)?"
     final Map<String, String> locationConfiguration
 
     LocationUtil(Map<String, String> locationConfiguration) {
