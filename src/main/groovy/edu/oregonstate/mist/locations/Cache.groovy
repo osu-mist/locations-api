@@ -31,20 +31,21 @@ class Cache {
      */
     public String getDataFromUrlOrCache(String url, String cachedFile) {
         def data
-        def filePath = getFilePath(cachedFile)
+        def file = getFile(cachedFile)
         try {
             data = new URL(url).getText()
             if (data && isDataSourceNew(cachedFile, data)) {
                 LOGGER.info("New content found for: ${url}")
                 createCacheDirectory()
 
-                new File(filePath).write(data)
+                file.write(data)
             } else {
                 LOGGER.info("No new content for: ${url}")
             }
         } catch (Exception e) {
             LOGGER.error("Ran into an exception grabbing the url data", e)
-            data = new File(filePath).getText()
+            // @todo: catch the IOException if the file doesn't exist and raise NotCachedError or something
+            data = file.getText()
         }
 
         data
@@ -57,9 +58,10 @@ class Cache {
      * @return cached data
      */
     public String getCachedData(String cachedFile) {
-        def filePath = getFilePath(cachedFile)
-        LOGGER.info(filePath)
-        def data = new File(filePath).getText()
+        def file = getFile(cachedFile)
+        LOGGER.info(file.toString())
+        // @todo: catch the IOException if the file doesn't exist and raise NotCachedError or something
+        def data = file.getText()
         data
     }
 
@@ -70,24 +72,24 @@ class Cache {
      */
     public void writeDataToCache(String cachedFile, String data) {
         createCacheDirectory()
-        def filePath = getFilePath(cachedFile)
+        def file = getFile(cachedFile)
         if (data && isDataSourceNew(cachedFile, data)) {
             LOGGER.info("New content found for ${cachedFile}")
             createCacheDirectory()
 
-            new File(filePath).write(data)
+            file.write(data)
         } else {
             LOGGER.info("No new content for ${cachedFile}")
         }
     }
 
     /**
-     * Returns path to file within cacheDirectory
+     * Returns a File within the cache directory
      *
-     * @param fileName
+     * @param fileName path relative to cacheDirectory
      * @return
      */
-    private String getFilePath(String fileName) {
+    private File getFile(String fileName) {
         if (fileName == null) {
             throw new Exception("fileName must not be null")
         }
@@ -101,7 +103,7 @@ class Cache {
             throw new Exception("Cache directory is outside of api directory")
         }
 
-        filePath
+        new File(filePath)
     }
 
     /**
@@ -126,7 +128,7 @@ class Cache {
      * @return
      */
     private Boolean isDataSourceNew(String filename, String recentData) {
-        def file = new File(getFilePath(filename))
+        def file = getFile(filename)
         if (!file.exists()) {
             return true
         }
