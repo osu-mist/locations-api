@@ -32,14 +32,6 @@ class Cache {
     public String getDataFromUrlOrCache(String url, String cachedFile) {
         def data
         def filePath = getFilePath(cachedFile)
-
-        // Check that cached file is within the current api directory
-        Path child = Paths.get(filePath).toAbsolutePath()
-        Path parent = Paths.get(cacheDirectory).toAbsolutePath()
-        if (!child.startsWith(parent)) {
-            throw new Exception("Cache directory is outside of api directory")
-        }
-
         try {
             data = new URL(url).getText()
             if (data && isDataSourceNew(cachedFile, data)) {
@@ -99,7 +91,17 @@ class Cache {
         if (fileName == null) {
             throw new Exception("fileName must not be null")
         }
-        cacheDirectory + "/" + fileName
+
+        String filePath = cacheDirectory + "/" + fileName
+
+        // Check that cached file is within the current api directory
+        Path child = Paths.get(filePath).toAbsolutePath()
+        Path parent = Paths.get(cacheDirectory).toAbsolutePath()
+        if (!child.startsWith(parent)) {
+            throw new Exception("Cache directory is outside of api directory")
+        }
+
+        filePath
     }
 
     /**
