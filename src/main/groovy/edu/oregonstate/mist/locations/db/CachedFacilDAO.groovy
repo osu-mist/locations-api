@@ -25,7 +25,8 @@ class CachedFacilDAO implements Closeable {
     private final Cache cache
     CachedFacilDAO(DBI jdbi, Cache cache) {
         // @todo: should we construct FacilDAO here or require that it be passed in?
-        // @todo: we should catch errors connecting to the database and fall back to the cached data
+        // we don't have to worry about connection errors here because onDemand
+        // doesn't connect until the first request, which is in getBuildings below
         this.facilDAO = jdbi.onDemand(FacilDAO.class)
         this.cache = cache
     }

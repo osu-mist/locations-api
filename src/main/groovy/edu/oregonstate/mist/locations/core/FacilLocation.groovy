@@ -7,6 +7,9 @@ import groovy.transform.ToString
 
 @ToString
 @EqualsAndHashCode
+/**
+ * FacilLocation represents a building from the FACIL_LOCATION database table
+ */
 class FacilLocation extends BaseType {
     String type = Constants.TYPE_BUILDING
 
@@ -66,4 +69,8 @@ class FacilLocation extends BaseType {
             "Other"
         }
     }
+
+    // Note: FacilLocation is seralized to json as part of the caching infrastructure.
+    // If you add any more accessor methods above, remember to mark them as
+    // @JsonIgnore or else deserialization will fail
 }
