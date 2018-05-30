@@ -6,7 +6,8 @@ import org.junit.Test
 class FacilLocationTest extends GroovyTestCase {
     /**
      * Verify that FacilLocation can be sucessfully serialized/unserialized to json.
-     * This is because CachedFacilDAO relies on being able to serialize a list of FacilLocations in order to cache them.
+     * This is because CachedFacilDAO relies on being able to serialize a list of
+     * FacilLocations in order to cache them.
      */
     @Test
     void testSerializeUnserialize() {

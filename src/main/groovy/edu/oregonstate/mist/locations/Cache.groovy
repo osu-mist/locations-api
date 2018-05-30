@@ -44,7 +44,8 @@ class Cache {
             }
         } catch (Exception e) {
             LOGGER.error("Ran into an exception grabbing the url data", e)
-            // @todo: catch the IOException if the file doesn't exist and raise NotCachedError or something
+            // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
+            // or something
             data = file.getText()
         }
 
@@ -60,7 +61,8 @@ class Cache {
     public String getCachedData(String cachedFile) {
         def file = getFile(cachedFile)
         LOGGER.info(file.toString())
-        // @todo: catch the IOException if the file doesn't exist and raise NotCachedError or something
+        // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
+        // or something
         def data = file.getText()
         data
     }

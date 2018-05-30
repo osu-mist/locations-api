@@ -59,7 +59,8 @@ class CachedFacilDAO implements Closeable {
 
     private List<FacilLocation> getBuildingsFromCache() {
         def cachedData = cache.getCachedData(CACHE_FILENAME)
-        def buildings = (List<FacilLocation>)mapper.readValue(cachedData, new TypeReference<List<FacilLocation>>() {})
+        def buildings = (List<FacilLocation>)mapper.readValue(cachedData,
+                new TypeReference<List<FacilLocation>>() {})
         //@todo: catch exceptions?
         buildings
     }
