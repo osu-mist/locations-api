@@ -23,6 +23,7 @@ class CachedFacilDAO implements Closeable {
     final private static String CACHE_FILENAME = "buildings.json"
     private final FacilDAO facilDAO
     private final Cache cache
+
     CachedFacilDAO(DBI jdbi, Cache cache) {
         // @todo: should we construct FacilDAO here or require that it be passed in?
         // we don't have to worry about connection errors here because onDemand
@@ -45,6 +46,7 @@ class CachedFacilDAO implements Closeable {
             LOGGER.error("got exception while querying facil database", e)
             buildings = getBuildingsFromCache()
         } catch (SQLException e) {
+            //@todo: i think jdbi wraps all SQLExceptions in a DBIException
             LOGGER.error("got exception while querying facil database", e)
             buildings = getBuildingsFromCache()
         }
@@ -61,5 +63,4 @@ class CachedFacilDAO implements Closeable {
         //@todo: catch exceptions?
         buildings
     }
-
 }
