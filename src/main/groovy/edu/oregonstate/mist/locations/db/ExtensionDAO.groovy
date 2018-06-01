@@ -25,12 +25,15 @@ class ExtensionDAO {
      * @return
      */
     public List<ExtensionLocation> getExtensionLocations() {
-        String extensionXML = getExtensionData()
-        def node = new XmlSlurper().parseText(extensionXML)
-        List<ExtensionLocation> extensionLocations = new ArrayList<>()
+        cache.withDataFromUrlOrCache(extensionUrl, extensionXmlOut) { extensionXML ->
+            parseExtensionData(extensionXML)
+        }
+    }
 
-        node.group.each {
-            extensionLocations += new ExtensionLocation(
+    static private List<ExtensionLocation> parseExtensionData(String extensionXML) {
+        def node = new XmlSlurper().parseText(extensionXML)
+        node.group.collect {
+            new ExtensionLocation(
                     geoLocation: it.GeoLocation,
                     groupName: it.GroupName,
                     streetAddress: it.StreetAddress,
@@ -43,8 +46,6 @@ class ExtensionDAO {
                     locationUrl: it.location_url
             )
         }
-
-        extensionLocations
     }
 
     private String getExtensionData() {

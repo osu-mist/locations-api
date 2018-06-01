@@ -20,6 +20,41 @@ class Cache {
         cacheDirectory = locationConfiguration.get("cacheDirectory")
     }
 
+    public <T> T withDataFromUrlOrCache(String url, String cacheFilename, Closure closure) {
+        def file = getFile(cacheFilename)
+        String data
+        try {
+            def conn = (HttpURLConnection) new URL(url).openConnection()
+            // @todo: set read timeout?
+            // @todo: verify content type
+            int code = conn.getResponseCode()
+            if (code != HttpURLConnection.HTTP_OK) {
+                throw new IOException("HTTP status code ${code} returned for url ${url}")
+            }
+
+            data = conn.getInputStream().withStream { stream ->
+                stream.getText()
+            }
+        } catch (Exception e) {
+            LOGGER.error("Ran into an exception grabbing the url data", e)
+            // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
+            // or something
+            data = file.getText()
+        }
+
+        T returnValue = closure(data)
+
+        if (data && isDataSourceNew(file, data)) {
+            LOGGER.info("New content found for: ${url}")
+            createCacheDirectory()
+            file.write(data)
+        } else {
+            LOGGER.info("No new content for: ${url}")
+        }
+
+        return returnValue
+    }
+
     /**
      * Tries to get the data from the url. If fetching from the url fails, it retrieves the
      * data from the cache directory.
@@ -30,6 +65,10 @@ class Cache {
      * @throws Exception
      */
     public String getDataFromUrlOrCache(String url, String cachedFile) {
+        // @todo: this should probably be implemented as a context manager
+        // e.g. withDataFromUrlOrCache(url,cachepath) { data -> ... }
+        // the new data is only written to cache if the closure completes successfully
+
         def file = getFile(cachedFile)
         try {
             def conn = (HttpURLConnection)new URL(url).openConnection()
