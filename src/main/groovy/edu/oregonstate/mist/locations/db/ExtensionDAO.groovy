@@ -50,6 +50,8 @@ class ExtensionDAO {
     }
 
     private String getExtensionData() {
-        locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
+        // Temporary fix for CO-1122: always pull from the cache, not the url
+        //locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
+        locationUtil.getCachedData(extensionXmlOut)
     }
 }
