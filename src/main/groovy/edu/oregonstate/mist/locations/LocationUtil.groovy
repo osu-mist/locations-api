@@ -73,6 +73,25 @@ class LocationUtil {
     }
 
     /**
+     * Read data from a file in the cache directory.
+     *
+     * @param cachedFile the filename within the cache directory
+     * @return data
+     * @throws Exception
+     */
+    public String getCachedData(String cachedFile) {
+        def filePath = getFilePath(cachedFile)
+        // Check that cached file is within the current api directory
+        Path child = Paths.get(filePath).toAbsolutePath()
+        def parent = Paths.get(cacheDirectory).toAbsolutePath()
+        if (!child.startsWith(parent)) {
+            throw new Exception("Cache directory is outside of api directory")
+        }
+        def data = new File(filePath).getText()
+        data
+    }
+
+    /**
      * Returns path to file within cacheDirectory
      *
      * @param fileName
