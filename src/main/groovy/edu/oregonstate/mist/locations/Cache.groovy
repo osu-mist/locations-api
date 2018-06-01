@@ -30,26 +30,34 @@ class Cache {
      * @throws Exception
      */
     public String getDataFromUrlOrCache(String url, String cachedFile) {
-        def data
         def file = getFile(cachedFile)
         try {
-            data = new URL(url).getText()
+            def conn = (HttpURLConnection)new URL(url).openConnection()
+            // @todo: set read timeout?
+            // @todo: verify content type
+            int code = conn.getResponseCode()
+            if (code != HttpURLConnection.HTTP_OK) {
+                throw new IOException("HTTP status code ${code} returned for url ${url}")
+            }
+
+            def data = conn.getInputStream().withStream{ stream ->
+                stream.getText()
+            }
+
             if (data && isDataSourceNew(cachedFile, data)) {
                 LOGGER.info("New content found for: ${url}")
                 createCacheDirectory()
-
                 file.write(data)
             } else {
                 LOGGER.info("No new content for: ${url}")
             }
+            return data
         } catch (Exception e) {
             LOGGER.error("Ran into an exception grabbing the url data", e)
             // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
             // or something
-            data = file.getText()
+            return file.getText()
         }
-
-        data
     }
 
     /**
