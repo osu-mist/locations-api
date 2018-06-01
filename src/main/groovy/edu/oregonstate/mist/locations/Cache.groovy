@@ -44,7 +44,7 @@ class Cache {
                 stream.getText()
             }
 
-            if (data && isDataSourceNew(cachedFile, data)) {
+            if (data && isDataSourceNew(file, data)) {
                 LOGGER.info("New content found for: ${url}")
                 createCacheDirectory()
                 file.write(data)
@@ -113,7 +113,7 @@ class Cache {
     public void writeDataToCache(String cachedFile, String data) {
         createCacheDirectory()
         def file = getFile(cachedFile)
-        if (data && isDataSourceNew(cachedFile, data)) {
+        if (data && isDataSourceNew(file, data)) {
             LOGGER.info("New content found for ${cachedFile}")
             createCacheDirectory()
 
@@ -167,8 +167,7 @@ class Cache {
      * @param recentData
      * @return
      */
-    private Boolean isDataSourceNew(String filename, String recentData) {
-        def file = getFile(filename)
+    private Boolean isDataSourceNew(File file, String recentData) {
         if (!file.exists()) {
             return true
         }
