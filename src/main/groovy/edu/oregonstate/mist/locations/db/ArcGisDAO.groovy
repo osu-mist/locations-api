@@ -37,7 +37,7 @@ class ArcGisDAO {
     }
 
     public HashMap<String, GenderInclusiveRRLocation> getGenderInclusiveRR() {
-        String gisData = cache.getDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
+        String gisData = cache.getJsonFromUrlOrCache(arcGisGenderInclusiveRRUrl,
                 arcGisGenderInclusiveRRJsonOut)
         mapRR(gisData)
     }

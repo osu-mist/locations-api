@@ -34,7 +34,7 @@ public class DiningDAO extends IcalDAO {
      * @return String json format of dining locations
      */
     private String getDiningLocationList() throws Exception {
-        cache.getDataFromUrlOrCache(metadataURL, jsonOut)
+        cache.getJsonFromUrlOrCache(metadataURL, jsonOut)
     }
 
     @Override

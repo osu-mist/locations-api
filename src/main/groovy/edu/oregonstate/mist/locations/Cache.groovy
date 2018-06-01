@@ -22,7 +22,7 @@ class Cache {
 
     /**
      * Tries to get the data from the url. If fetching from the url fails, it retrieves the
-     * data from the cache directory
+     * data from the cache directory.
      *
      * @param url
      * @param cachedFile
@@ -58,6 +58,36 @@ class Cache {
             // or something
             return file.getText()
         }
+    }
+
+    /**
+     * Tries to get json data from the url. If fetching from the url fails, it retrieves the
+     * data from the cache directory. This method checks that the returned content type is
+     * application/json, but it does not actually try to parse the data.
+     *
+     * @param url
+     * @param cachedFile
+     * @return
+     * @throws Exception
+     */
+    public String getJsonFromUrlOrCache(String url, String cachedFile) {
+        // @todo: check content type
+        getDataFromUrlOrCache(url,cachedFile)
+    }
+
+    /**
+     * Tries to get xml data from the url. If fetching from the url fails, it retrieves the
+     * data from the cache directory. This method checks that the returned content type is
+     * application/xml, but it does not actually try to parse the data.
+     *
+     * @param url
+     * @param cachedFile
+     * @return
+     * @throws Exception
+     */
+    public String getXmlFromUrlOrCache(String url, String cachedFile) {
+        // @todo: check content type
+        getDataFromUrlOrCache(url,cachedFile)
     }
 
     /**

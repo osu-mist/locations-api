@@ -39,7 +39,7 @@ class CampusMapDAO {
      */
     private List<CampusMapLocation> getCampusMapJson() {
         def jsonSlurper = new JsonSlurper()
-        String campusMapData = cache.getDataFromUrlOrCache(
+        String campusMapData = cache.getJsonFromUrlOrCache(
                 campusMapJsonUrl,
                 campusMapJsonOut)
 

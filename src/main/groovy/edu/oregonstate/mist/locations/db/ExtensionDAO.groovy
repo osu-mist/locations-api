@@ -48,6 +48,6 @@ class ExtensionDAO {
     }
 
     private String getExtensionData() {
-        cache.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
+        cache.getXmlFromUrlOrCache(extensionUrl, extensionXmlOut)
     }
 }
