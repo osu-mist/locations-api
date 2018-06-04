@@ -25,18 +25,6 @@ public class DiningDAO extends IcalDAO {
         diners
     }
 
-    /**
-     * Gets the list of dining locations from UHDS.
-     * Tries to get the data from the web, if it fails
-     * it reads it from the cache.
-     *
-     * @return String json format of dining locations
-     */
-    @Deprecated
-    private String getDiningLocationList() throws Exception {
-        cache.getJsonFromUrlOrCache(metadataURL, jsonOut)
-    }
-
     static private List<ServiceLocation> mapDiningLocations(String diningData) {
         MAPPER.readValue(diningData, new TypeReference<List<ServiceLocation>>(){})
     }

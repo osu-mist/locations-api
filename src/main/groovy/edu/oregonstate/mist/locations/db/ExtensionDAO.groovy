@@ -47,8 +47,4 @@ class ExtensionDAO {
             )
         }
     }
-
-    private String getExtensionData() {
-        cache.getXmlFromUrlOrCache(extensionUrl, extensionXmlOut)
-    }
 }

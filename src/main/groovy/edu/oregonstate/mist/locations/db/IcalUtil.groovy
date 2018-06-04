@@ -28,18 +28,16 @@ class IcalUtil {
                 def icalFileName = it.calendarId + ".ics"
                 LOGGER.debug(icalURL)
 
-                String icalData = getIcalData(icalURL, icalFileName, cache)
-                it.openHours = parseDiningICAL(icalData)
+                // @todo: what if it's not new, but the open hours in calendar are different for
+                // next week?
+                // answer: ical data is always new; google regenerates it every time we request it.
+                it.openHours = cache.withDataFromUrlOrCache(icalURL, icalFileName) { icalData ->
+                    parseDiningICAL(icalData)
+                }
             }
         }
 
         diners
-    }
-
-    private static String getIcalData(String icalURL, String icalFileName,
-                                      Cache cache) {
-        // @todo: what if it's not new, but the open hours in calendar are different for next week?
-        cache.getDataFromUrlOrCache(icalURL, icalFileName)
     }
 
     public static HashMap<Integer, List<DayOpenHours>> parseDiningICAL(String icalData) {
