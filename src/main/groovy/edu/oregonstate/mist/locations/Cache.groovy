@@ -42,18 +42,18 @@ class Cache {
      * @returns the value returned by the closure
      */
     public <T> T withDataFromUrlOrCache(String url, String cacheFilename, Closure closure) {
-        withDataFromUrlOrCacheInternal(url, cacheFilename, Optional.empty(), closure)
+        withDataFromUrlOrCacheInternal(url, cacheFilename, MediaType.WILDCARD_TYPE, closure)
     }
 
     //* Like withDataFromUrlOrCache, but expects an application/json response
     public <T> T withJsonFromUrlOrCache(String url, String cacheFilename, Closure closure) {
-        withDataFromUrlOrCacheInternal(url, cacheFilename, Optional.of(MediaType.APPLICATION_JSON), closure)
+        withDataFromUrlOrCacheInternal(url, cacheFilename, MediaType.APPLICATION_JSON_TYPE, closure)
     }
 
     private <T> T withDataFromUrlOrCacheInternal(
             String url,
             String cacheFilename,
-            Optional<String> expectedContentType,
+            MediaType expectedMediaType,
             Closure closure
     ) {
         def file = getFile(cacheFilename)
@@ -61,7 +61,7 @@ class Cache {
         try {
             // First, try to use data fetched from the url
 
-            data = getURL(url, expectedContentType)
+            data = getURL(url, expectedMediaType)
             T returnValue = closure(data)
 
             // If successful, save to the cache
@@ -104,7 +104,7 @@ class Cache {
         }
     }
 
-    static private String getURL(String url, Optional<String> expectedContentType) {
+    static private String getURL(String url, MediaType expectedMediaType) {
         def conn = (HttpURLConnection) new URL(url).openConnection()
         // @todo: set read timeout?
         // @todo: verify content type
@@ -113,9 +113,10 @@ class Cache {
             throw new IOException("HTTP status code ${code} returned for url ${url}")
         }
         String contentType = conn.getContentType()
-        if (expectedContentType.isPresent() && contentType != expectedContentType.get()) {
-            throw new IOException("Unexpected content type from url ${url}: " +
-                    "got ${contentType}, want ${expectedContentType.get()}")
+        MediaType mediaType = MediaType.valueOf(contentType)
+        if (!mediaType.isCompatible(expectedMediaType)) {
+            throw new IOException("Incompatible content type from url ${url}: " +
+                    "got ${contentType}, want ${expectedMediaType}")
         }
         conn.getInputStream().withStream { stream ->
             stream.getText()
@@ -138,7 +139,7 @@ class Cache {
 
         def file = getFile(cachedFile)
         try {
-            def data = getURL(url, Optional.empty())
+            def data = getURL(url, MediaType.WILDCARD_TYPE)
 
             if (data && isDataSourceNew(file, data)) {
                 LOGGER.info("New content found for: ${url}")
