@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import javax.ws.rs.core.MediaType
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -20,39 +21,105 @@ class Cache {
         cacheDirectory = locationConfiguration.get("cacheDirectory")
     }
 
+    /**
+     * Runs a closure using data from either the url or the cache
+     *
+     * The new data is only written to cache if the closure completes successfully.
+     * Note that the closure may be called twice -- if it fails on the url data,
+     * it will be re-run using the cached data.
+     *
+     * If you would like to more carefully control what gets written to cache,
+     * and how fallback is implemented, use the getCachedData and writeDataToCache methods.
+     *
+     * Example usage:
+     *
+     *      def parsedData = cache.withDataFromUrlOrCache(url, path) { data ->
+     *          parse(data)
+     *}*
+     * @param url the url to fetch
+     * @param cacheFilename filename in the cache directory to read/write cached data from
+     * @param closure block to be executed
+     * @returns the value returned by the closure
+     */
     public <T> T withDataFromUrlOrCache(String url, String cacheFilename, Closure closure) {
+        withDataFromUrlOrCacheInternal(url, cacheFilename, Optional.empty(), closure)
+    }
+
+    //* Like withDataFromUrlOrCache, but expects an application/json response
+    public <T> T withJsonFromUrlOrCache(String url, String cacheFilename, Closure closure) {
+        withDataFromUrlOrCacheInternal(url, cacheFilename, Optional.of(MediaType.APPLICATION_JSON), closure)
+    }
+
+    private <T> T withDataFromUrlOrCacheInternal(
+            String url,
+            String cacheFilename,
+            Optional<String> expectedContentType,
+            Closure closure
+    ) {
         def file = getFile(cacheFilename)
         String data
         try {
-            def conn = (HttpURLConnection) new URL(url).openConnection()
-            // @todo: set read timeout?
-            // @todo: verify content type
-            int code = conn.getResponseCode()
-            if (code != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP status code ${code} returned for url ${url}")
+            // First, try to use data fetched from the url
+
+            data = getURL(url, expectedContentType)
+            T returnValue = closure(data)
+
+            // If successful, save to the cache
+            if (data && isDataSourceNew(file, data)) {
+                LOGGER.info("New content found for: ${url}")
+                createCacheDirectory()
+                file.write(data)
+            } else {
+                LOGGER.info("No new content for: ${url}")
             }
 
-            data = conn.getInputStream().withStream { stream ->
-                stream.getText()
-            }
+            return returnValue
         } catch (Exception e) {
-            LOGGER.error("Ran into an exception grabbing the url data", e)
+            if (data == null) {
+                LOGGER.error("Ran into an exception grabbing the url data", e)
+            } else {
+                LOGGER.error("Ran into an exception processing the data from url ${url}", e)
+            }
+
+            // Attempt to fall back on cached data
+            withCachedFile(file, closure)
+        }
+    }
+
+    static private <T> T withCachedFile(File file, Closure closure) {
+        String data
+        try {
             // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
             // or something
             data = file.getText()
+        } catch (Exception e) {
+            LOGGER.error("Ran into an exception reading the cache", e)
+            throw e
         }
-
-        T returnValue = closure(data)
-
-        if (data && isDataSourceNew(file, data)) {
-            LOGGER.info("New content found for: ${url}")
-            createCacheDirectory()
-            file.write(data)
-        } else {
-            LOGGER.info("No new content for: ${url}")
+        try {
+            return closure(data)
+        } catch (Exception e) {
+            LOGGER.error("Ran into an exception processing the cached data (${file})", e)
+            throw e
         }
+    }
 
-        return returnValue
+    static private String getURL(String url, Optional<String> expectedContentType) {
+        def conn = (HttpURLConnection) new URL(url).openConnection()
+        // @todo: set read timeout?
+        // @todo: verify content type
+        int code = conn.getResponseCode()
+        if (code != HttpURLConnection.HTTP_OK) {
+            throw new IOException("HTTP status code ${code} returned for url ${url}")
+        }
+        String contentType = conn.getContentType()
+        if (expectedContentType.isPresent() && contentType != expectedContentType.get()) {
+            throw new IOException("Unexpected content type from url ${url}: " +
+                    "got ${contentType}, want ${expectedContentType.get()}")
+        }
+        conn.getInputStream().withStream { stream ->
+            stream.getText()
+        }
     }
 
     /**
@@ -71,17 +138,7 @@ class Cache {
 
         def file = getFile(cachedFile)
         try {
-            def conn = (HttpURLConnection)new URL(url).openConnection()
-            // @todo: set read timeout?
-            // @todo: verify content type
-            int code = conn.getResponseCode()
-            if (code != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP status code ${code} returned for url ${url}")
-            }
-
-            def data = conn.getInputStream().withStream{ stream ->
-                stream.getText()
-            }
+            def data = getURL(url, Optional.empty())
 
             if (data && isDataSourceNew(file, data)) {
                 LOGGER.info("New content found for: ${url}")
@@ -111,7 +168,7 @@ class Cache {
      */
     public String getJsonFromUrlOrCache(String url, String cachedFile) {
         // @todo: check content type
-        getDataFromUrlOrCache(url,cachedFile)
+        getDataFromUrlOrCache(url, cachedFile)
     }
 
     /**
@@ -126,20 +183,20 @@ class Cache {
      */
     public String getXmlFromUrlOrCache(String url, String cachedFile) {
         // @todo: check content type
-        getDataFromUrlOrCache(url,cachedFile)
+        getDataFromUrlOrCache(url, cachedFile)
     }
 
     /**
      * Returns data stored in the cache
-     * @param cachedFile    path within the cache directory
+     * @param cachedFile path within the cache directory
      * @throws IOException  if the file does not exist
      * @return cached data
      */
     public String getCachedData(String cachedFile) {
         def file = getFile(cachedFile)
         LOGGER.info(file.toString())
-        // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
-        // or something
+        // @todo: catch the IOException if the file doesn't exist
+        //        and raise NotCachedError or something
         def data = file.getText()
         data
     }
@@ -147,7 +204,7 @@ class Cache {
     /**
      * Writes data to the cache
      * @param cachedFile path within the cache directory
-     * @param data       data to write
+     * @param data data to write
      */
     public void writeDataToCache(String cachedFile, String data) {
         createCacheDirectory()
@@ -193,7 +250,7 @@ class Cache {
         def directory = new File(cacheDirectory)
 
         // If it doesn't exist
-        if( !directory.exists() ) {
+        if (!directory.exists()) {
             LOGGER.info("Creating cache directory: ${cacheDirectory}")
             directory.mkdirs()
         }

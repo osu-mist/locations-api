@@ -11,10 +11,9 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
     List<ServiceLocation> getDiningLocations() {
-        String diningData = getDiningLocationList()
-
-        List<ServiceLocation> diners =
-                MAPPER.readValue(diningData, new TypeReference<List<ServiceLocation>>(){})
+        List<ServiceLocation> diners = cache.withJsonFromUrlOrCache(metadataURL, jsonOut) {
+            diningData -> mapDiningLocations(diningData)
+        }
 
         // the json datasource lists the location multiple time if it's open twice a day
         diners.unique(true)
@@ -33,8 +32,13 @@ public class DiningDAO extends IcalDAO {
      *
      * @return String json format of dining locations
      */
+    @Deprecated
     private String getDiningLocationList() throws Exception {
         cache.getJsonFromUrlOrCache(metadataURL, jsonOut)
+    }
+
+    static private List<ServiceLocation> mapDiningLocations(String diningData) {
+        MAPPER.readValue(diningData, new TypeReference<List<ServiceLocation>>(){})
     }
 
     @Override
