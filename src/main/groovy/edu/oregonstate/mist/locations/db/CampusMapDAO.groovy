@@ -40,7 +40,12 @@ class CampusMapDAO {
     private List<CampusMapLocation> getCampusMapJson() {
         def jsonSlurper = new JsonSlurper()
         cache.withJsonFromUrlOrCache(campusMapJsonUrl, campusMapJsonOut) {
-            campusMapData -> jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
+            campusMapData ->
+                def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
+                if (locations.size() == 0) {
+                    throw new DAOException("found zero campus map locations")
+                }
+                locations
         }
     }
 }

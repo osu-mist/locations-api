@@ -32,6 +32,9 @@ class ExtensionDAO {
 
     static private List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def node = new XmlSlurper().parseText(extensionXML)
+        if (node.group.isEmpty()) {
+            throw new DAOException("found zero extension locations")
+        }
         node.group.collect {
             new ExtensionLocation(
                     geoLocation: it.GeoLocation,

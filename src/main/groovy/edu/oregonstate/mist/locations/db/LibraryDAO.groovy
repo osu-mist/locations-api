@@ -91,19 +91,26 @@ class LibraryDAO {
         def entityString
         try {
             entityString = doPostRequest(libraryUrl, parameters)
-            // TODO: Wait to write data to cache until we've successfully parsed it
+
+            def data = mapLibraryHours(entityString)
+
+            if (data.isEmpty()) {
+                throw new DAOException("found no library hours")
+            }
+
             cache.writeDataToCache(LIBRARY_PATH, entityString)
-        } catch (IOException e) {
+
+            return data
+        } catch (Exception e) {
             LOGGER.error("Error getting library json data", e)
             entityString = cache.getCachedData(LIBRARY_PATH)
+            return mapLibraryHours(entityString)
         }
+    }
 
-        def data = (Map<String,LibraryHours>)this.mapper.readValue(
-                entityString,
-                new TypeReference<HashMap<String, LibraryHours>>() {}
-        )
-
-        data
+    private Map<String,LibraryHours> mapLibraryHours(String entityString) {
+        (Map<String,LibraryHours>)this.mapper.readValue(entityString,
+                new TypeReference<HashMap<String, LibraryHours>>() {})
     }
 
     private String doPostRequest(String url, String body) {

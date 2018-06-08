@@ -41,7 +41,13 @@ class CachedFacilDAO implements Closeable {
         def buildings
         try {
             buildings = facilDAO.getBuildings()
+            if (buildings.isEmpty()) {
+                throw new DAOException("found zero buildings in facil database")
+            }
             saveBuildingsToCache(buildings)
+        } catch (DAOException e) {
+            LOGGER.error("got exception while querying facil database", e)
+            buildings = getBuildingsFromCache()
         } catch (DBIException e) {
             LOGGER.error("got exception while querying facil database", e)
             buildings = getBuildingsFromCache()

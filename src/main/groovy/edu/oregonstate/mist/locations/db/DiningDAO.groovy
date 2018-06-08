@@ -11,8 +11,13 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
     List<ServiceLocation> getDiningLocations() {
+
         List<ServiceLocation> diners = cache.withJsonFromUrlOrCache(metadataURL, jsonOut) {
             diningData -> mapDiningLocations(diningData)
+        }
+
+        if (diners.isEmpty()) {
+            throw new DAOException("found zero dining locations")
         }
 
         // the json datasource lists the location multiple time if it's open twice a day

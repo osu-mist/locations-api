@@ -48,6 +48,10 @@ class ArcGisDAO {
         def mappedData = mapper.readTree(gisData).get("features")
         def data = new HashMap<String, GenderInclusiveRRLocation>()
 
+        if (mappedData.size() == 0) {
+            throw new DAOException("found zero gender inclusive restrooms")
+        }
+
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
             data[rr.bldID] = rr
