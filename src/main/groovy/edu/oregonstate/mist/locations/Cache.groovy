@@ -139,6 +139,7 @@ class Cache {
      * @return
      * @throws Exception
      */
+    @Deprecated
     public String getDataFromUrlOrCache(String url, String cachedFile) {
         // @todo: this should probably be implemented as a context manager
         // e.g. withDataFromUrlOrCache(url,cachepath) { data -> ... }
