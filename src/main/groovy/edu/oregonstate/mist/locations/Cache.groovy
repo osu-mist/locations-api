@@ -42,15 +42,22 @@ class Cache {
      * @returns the value returned by the closure
      */
     public <T> T withDataFromUrlOrCache(String url, String cacheFilename, Closure closure) {
-        withDataFromUrlOrCacheInternal(url, cacheFilename, MediaType.WILDCARD_TYPE, closure)
+        withDataFromUrlOrCache(url, cacheFilename, MediaType.WILDCARD_TYPE, closure)
     }
 
-    //* Like withDataFromUrlOrCache, but expects an application/json response
+    /**
+     * Like withDataFromUrlOrCache, but checks that the returned content type is application/json.
+     * It does not actually try to parse the data to check if it is valid JSON.
+     */
     public <T> T withJsonFromUrlOrCache(String url, String cacheFilename, Closure closure) {
-        withDataFromUrlOrCacheInternal(url, cacheFilename, MediaType.APPLICATION_JSON_TYPE, closure)
+        withDataFromUrlOrCache(url, cacheFilename, MediaType.APPLICATION_JSON_TYPE, closure)
     }
 
-    private <T> T withDataFromUrlOrCacheInternal(
+    /**
+     * Like withDataFromUrlOrCache, but checks that the returned content type is compatible
+     * with the expected media type.
+     */
+    public <T> T withDataFromUrlOrCache(
             String url,
             String cacheFilename,
             MediaType expectedMediaType,
