@@ -28,11 +28,9 @@ class ExtensionDAO {
      */
     public List<ExtensionLocation> getExtensionLocations() {
         String extensionXML = getExtensionData()
-        def node = new XmlSlurper().parseText(extensionXML)
-        List<ExtensionLocation> extensionLocations = new ArrayList<>()
-
-        node.group.each {
-            extensionLocations += new ExtensionLocation(
+        def response = new XmlSlurper().parseText(extensionXML)
+        response.item.collect {
+            new ExtensionLocation(
                     geoLocation: it.GeoLocation,
                     groupName: it.GroupName,
                     streetAddress: it.StreetAddress,
@@ -45,13 +43,9 @@ class ExtensionDAO {
                     locationUrl: it.location_url
             )
         }
-
-        extensionLocations
     }
 
     private String getExtensionData() {
-        // Temporary fix for CO-1122: always pull from the cache, not the url
-        //locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
-        locationUtil.getCachedData(extensionXmlOut)
+        locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
     }
 }
