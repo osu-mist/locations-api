@@ -87,6 +87,7 @@ class Cache {
             } else {
                 LOGGER.error("Ran into an exception processing the data from url ${url}", e)
             }
+            LOGGER.info("Attempting to fall back on cached data")
 
             // Attempt to fall back on cached data
             withCachedFile(file, closure)
@@ -159,6 +160,7 @@ class Cache {
             return data
         } catch (Exception e) {
             LOGGER.error("Ran into an exception grabbing the url data", e)
+            LOGGER.info("Attempting to fall back on cached data")
             // @todo: catch the IOException if the file doesn't exist and raise NotCachedError
             // or something
             return file.getText()
