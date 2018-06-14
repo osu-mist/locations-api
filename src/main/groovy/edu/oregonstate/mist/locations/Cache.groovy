@@ -176,7 +176,7 @@ class Cache {
      */
     public String getCachedData(String cachedFile) {
         def file = getFile(cachedFile)
-        LOGGER.info(file.toString())
+        LOGGER.info("Reading cached data from ${file.toString()}")
         // @todo: catch the IOException if the file doesn't exist
         //        and raise NotCachedError or something
         def data = file.getText()

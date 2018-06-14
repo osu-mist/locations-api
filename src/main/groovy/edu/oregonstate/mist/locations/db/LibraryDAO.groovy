@@ -102,7 +102,8 @@ class LibraryDAO {
 
             return data
         } catch (Exception e) {
-            LOGGER.error("Error getting library json data", e)
+            LOGGER.error("Error getting library json data from url ${libraryUrl}", e)
+            LOGGER.info("Attempting to fall back on cached data")
             entityString = cache.getCachedData(LIBRARY_PATH)
             return mapLibraryHours(entityString)
         }

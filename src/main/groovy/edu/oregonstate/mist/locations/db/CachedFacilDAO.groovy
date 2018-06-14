@@ -42,18 +42,13 @@ class CachedFacilDAO implements Closeable {
         try {
             buildings = facilDAO.getBuildings()
             if (buildings.isEmpty()) {
-                throw new DAOException("found zero buildings in facil database")
+                throw new DAOException("Found zero buildings in facil database")
             }
             saveBuildingsToCache(buildings)
-        } catch (DAOException e) {
-            LOGGER.error("got exception while querying facil database", e)
-            buildings = getBuildingsFromCache()
-        } catch (DBIException e) {
-            LOGGER.error("got exception while querying facil database", e)
-            buildings = getBuildingsFromCache()
-        } catch (SQLException e) {
+        } catch (DAOException | DBIException | SQLException e) {
             //@todo: i think jdbi wraps all SQLExceptions in a DBIException
-            LOGGER.error("got exception while querying facil database", e)
+            LOGGER.error("Got exception while querying facil database", e)
+            LOGGER.error("Attempting to fall back on cached data")
             buildings = getBuildingsFromCache()
         }
         buildings
