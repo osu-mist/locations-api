@@ -123,7 +123,7 @@ class LibraryDAO {
         try {
             response = httpClient.execute(post)
             int code = response.getStatusLine().getStatusCode()
-            if (code != 200) {
+            if (code != HttpURLConnection.HTTP_OK) {
                 throw new IOException("HTTP status code ${code} returned for url ${url}")
             }
             HttpEntity entity = response.getEntity()
