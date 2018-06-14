@@ -143,10 +143,6 @@ class Cache {
      */
     @Deprecated
     public String getDataFromUrlOrCache(String url, String cachedFile) {
-        // @todo: this should probably be implemented as a context manager
-        // e.g. withDataFromUrlOrCache(url,cachepath) { data -> ... }
-        // the new data is only written to cache if the closure completes successfully
-
         def file = getFile(cachedFile)
         try {
             def data = getURL(url, MediaType.WILDCARD_TYPE)
