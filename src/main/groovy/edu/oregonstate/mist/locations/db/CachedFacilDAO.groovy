@@ -20,7 +20,7 @@ class CachedFacilDAO implements Closeable {
     final static Logger LOGGER = LoggerFactory.getLogger(CachedFacilDAO)
     final ObjectMapper mapper = new ObjectMapper()
 
-    final private static String CACHE_FILENAME = "buildings.json"
+    final private static String CACHE_FILENAME = "facil-buildings.json"
     private final FacilDAO facilDAO
     private final Cache cache
 
