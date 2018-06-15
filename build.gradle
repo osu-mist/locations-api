@@ -37,6 +37,7 @@ repositories {
 dependencies {
     testCompile "junit:junit:4.12"
     testCompile "io.dropwizard:dropwizard-testing:${dropwizardVersion}"
+    testCompile "org.mockito:mockito-core:2.18.3"
     codenarc "org.codenarc:CodeNarc:${codenarcVersion}"
     compile 'org.yaml:snakeyaml:1.16'
     compile "org.codehaus.groovy:groovy:${groovyVersion}"

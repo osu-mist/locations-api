@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -18,6 +19,7 @@ class Cache {
     private final String cacheDirectory
 
     Cache(Map<String, String> locationConfiguration) {
+        //@todo: accept cacheDirectory as a single parameter instead of accepting a map?
         cacheDirectory = locationConfiguration.get("cacheDirectory")
     }
 
@@ -84,7 +86,7 @@ class Cache {
             return returnValue
         } catch (Exception e) {
             if (data == null) {
-                LOGGER.error("Ran into an exception grabbing the url data", e)
+                LOGGER.error("Ran into an exception grabbing the url ${url}", e)
             } else {
                 LOGGER.error("Ran into an exception processing the data from url ${url}", e)
             }
@@ -113,8 +115,11 @@ class Cache {
         }
     }
 
-    static private String getURL(String url, MediaType expectedMediaType) {
-        def conn = (HttpURLConnection) new URL(url).openConnection()
+    // getURL should be private static, but it is a
+    // package-protected instance method so we can stub it out during testing
+    @PackageScope
+    String getURL(String url, MediaType expectedMediaType) {
+        def conn = openHttpUrlConnection(new URL(url))
         // @todo: set read timeout?
         // @todo: verify content type
         int code = conn.getResponseCode()
@@ -130,6 +135,12 @@ class Cache {
         conn.getInputStream().withStream { stream ->
             stream.getText()
         }
+    }
+
+    // for testing
+    @PackageScope
+    HttpURLConnection openHttpUrlConnection(URL url) {
+        (HttpURLConnection)url.openConnection()
     }
 
     /**
