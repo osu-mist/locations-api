@@ -1,10 +1,12 @@
 package edu.oregonstate.mist.locations.core
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Represent the data that the library API returns
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class LibraryHours {
     String open
     String close
