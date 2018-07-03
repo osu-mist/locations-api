@@ -1,15 +1,12 @@
 package edu.oregonstate.mist.locations
 
 import groovy.test.GroovyAssert
-
+import javax.ws.rs.core.MediaType
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-
-import javax.ws.rs.core.MediaType
-
 
 class CacheTest {
     private Cache cache
@@ -35,7 +32,6 @@ class CacheTest {
     void teardown() {
         //FileUtils.deleteDirectory(CACHE_DIRECTORY)
     }
-
 
     @Test
     void testWithDataFromUrlOrCache() {
@@ -66,7 +62,7 @@ class CacheTest {
         Cache cache = new Cache([cacheDirectory: CACHE_DIRECTORY]) {
             @Override
             String getURL(String url, MediaType expectedMediaType) {
-                return "{}"
+                "{}"
             }
         }
 
@@ -97,7 +93,7 @@ class CacheTest {
             }
             @Override
             String getFile(File x) {
-                return "{}"
+                "{}"
             }
         }
 
@@ -178,7 +174,6 @@ class CacheTest {
     void testWithJsonFromUrlOrCache() {
         // checks content-type
     }
-
 
     @Test
     void testGetCachedData() {
