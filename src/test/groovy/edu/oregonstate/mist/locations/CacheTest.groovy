@@ -82,7 +82,7 @@ class CacheTest {
         }
     }
 
-//    @Test
+    @Test
     void testWithDataFromUrlOrCache_fail1() {
         // if the http fetch fails we retry
 
@@ -91,16 +91,18 @@ class CacheTest {
             String getURL(String url, MediaType expectedMediaType) {
                 throw new IOException("simulated http request failure")
             }
-//            @Override
-            String getFile(File x) {
-                "{}"
-            }
         }
 
         int n = 0
         Integer ret = cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") {
             n += 1
-            42
+            try {
+                cache.getURL("https://this-is-ignored/", null)
+                41
+            } catch (IOException e) {
+                n += 1
+                42
+            }
         }
         assert ret == 42
 
