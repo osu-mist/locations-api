@@ -52,6 +52,7 @@ dependencies {
     compile "org.codehaus.gpars:gpars:1.1.0"
     compile "io.dropwizard:dropwizard-jdbi:${dropwizardVersion}"
     compile ':ojdbc8:'
+    compile 'commons-io:commons-io:2.6'
 }
 
 codenarc {

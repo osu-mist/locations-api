@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations
 
 import groovy.test.GroovyAssert
 import javax.ws.rs.core.MediaType
+import org.apache.commons.io.FileUtils
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -11,6 +12,8 @@ import org.mockito.Mockito
 class CacheTest {
     private Cache cache
     private final String CACHE_DIRECTORY = "test-cache"
+    private final String CACHE_FILE = "test1.json"
+    private final String IGNORED_URL = "https://this-is-ignored/"
 
     abstract class MockCache extends Cache {
         MockCache(Map x) { super(x) }
@@ -25,12 +28,15 @@ class CacheTest {
 
     @Before
     void setup() {
+        File file = new File("${CACHE_DIRECTORY}/${CACHE_FILE}")
+        file.getParentFile().mkdirs()
+        file.createNewFile()
         cache = new Cache([cacheDirectory: CACHE_DIRECTORY])
     }
 
     @After
     void teardown() {
-        //FileUtils.deleteDirectory(CACHE_DIRECTORY)
+        FileUtils.deleteDirectory(new File(CACHE_DIRECTORY))
     }
 
     @Test
@@ -50,8 +56,8 @@ class CacheTest {
             }
         }
 
-        String ret1 = cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") { it }
-        String ret2 = cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") { it }
+        String ret1 = cache.withDataFromUrlOrCache(IGNORED_URL, CACHE_FILE) { it }
+        String ret2 = cache.withDataFromUrlOrCache(IGNORED_URL, CACHE_FILE) { it }
         assert ret1 == ret2
     }
 
@@ -67,7 +73,7 @@ class CacheTest {
         }
 
         int n = 0
-        Integer ret = cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") {
+        Integer ret = cache.withDataFromUrlOrCache(IGNORED_URL, CACHE_FILE) {
             n += 1
             42
         }
@@ -83,7 +89,7 @@ class CacheTest {
     }
 
     @Test
-    void testWithDataFromUrlOrCache_fail1() {
+    void testWithDataFromUrlOrCache_fail() {
         // if the http fetch fails we retry
 
         Cache cache = new Cache([cacheDirectory: CACHE_DIRECTORY]) {
@@ -94,10 +100,10 @@ class CacheTest {
         }
 
         int n = 0
-        Integer ret = cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") {
+        Integer ret = cache.withDataFromUrlOrCache(IGNORED_URL, CACHE_FILE) {
             n += 1
             try {
-                cache.getURL("https://this-is-ignored/", null)
+                cache.getURL(IGNORED_URL, null)
                 41
             } catch (IOException e) {
                 n += 1
@@ -116,20 +122,8 @@ class CacheTest {
             }
         }
     }
-//    @Test
-    void testWithDataFromUrlOrCache_() {
-        // if the closure fails we retry
-        cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") {
-            throw new RuntimeException("ruh-roh")
-        }
 
-        // if both fail we explode
-        cache.withDataFromUrlOrCache("https://this-is-ignored/", "test1.json") {
-            throw new RuntimeException("ruh-roh")
-        }
-    }
-
-//    @Test
+    @Test
     void testGetUrl() {
         // getURL succeeds
         HttpURLConnection conn = Mockito.mock(HttpURLConnection)
@@ -137,7 +131,8 @@ class CacheTest {
         Mockito.when(conn.getContentType()).thenReturn("text/plain; charset=UTF-8")
         Mockito.when(conn.getInputStream()).thenReturn(new ByteArrayInputStream("42".bytes))
     }
-//    @Test
+
+    @Test
     void testGetUrl_statusFailure() {
         HttpURLConnection conn = Mockito.mock(HttpURLConnection)
         Mockito.when(conn.getResponseCode()).thenReturn(404)
@@ -151,9 +146,12 @@ class CacheTest {
                 conn
             }
         }
-        cache.getURL("http://this-is-ignored", MediaType.WILDCARD_TYPE)
+        GroovyAssert.shouldFail(IOException) {
+            cache.getURL(IGNORED_URL, MediaType.WILDCARD_TYPE)
+        }
     }
-//    @Test
+
+    @Test
     void testGetUrl_contentTypeFailure() {
         HttpURLConnection conn = Mockito.mock(HttpURLConnection)
         Mockito.when(conn.getResponseCode()).thenReturn(200)
@@ -168,22 +166,7 @@ class CacheTest {
         }
 
         GroovyAssert.shouldFail(IOException) {
-            cache.getURL("http://this-is-ignored", MediaType.APPLICATION_XML_TYPE)
+            cache.getURL(IGNORED_URL, MediaType.APPLICATION_XML_TYPE)
         }
-    }
-
-//    @Test
-    void testWithJsonFromUrlOrCache() {
-        // checks content-type
-    }
-
-//    @Test
-    void testGetCachedData() {
-
-    }
-
-//    @Test
-    void testWriteDataToCache() {
-
     }
 }
