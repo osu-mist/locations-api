@@ -1,9 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.ExtensionLocation
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class ExtensionDAO {
     /**
@@ -13,12 +11,12 @@ class ExtensionDAO {
 
     private final String extensionXmlOut
 
-    private final LocationUtil locationUtil
+    private final Cache cache
 
-    ExtensionDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
+    ExtensionDAO(Map<String, String> locationConfiguration, Cache cache) {
         extensionUrl = locationConfiguration.get("extensionUrl")
         extensionXmlOut = locationConfiguration.get("extensionXmlOut")
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     /**
@@ -27,8 +25,16 @@ class ExtensionDAO {
      * @return
      */
     public List<ExtensionLocation> getExtensionLocations() {
-        String extensionXML = getExtensionData()
+        cache.withDataFromUrlOrCache(extensionUrl, extensionXmlOut) { extensionXML ->
+            parseExtensionData(extensionXML)
+        }
+    }
+
+    static private List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def response = new XmlSlurper().parseText(extensionXML)
+        if (response.item.isEmpty()) {
+            throw new DAOException("found zero extension locations")
+        }
         response.item.collect {
             new ExtensionLocation(
                     geoLocation: it.GeoLocation,
@@ -43,9 +49,5 @@ class ExtensionDAO {
                     locationUrl: it.location_url
             )
         }
-    }
-
-    private String getExtensionData() {
-        locationUtil.getDataFromUrlOrCache(extensionUrl, extensionXmlOut)
     }
 }

@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import edu.oregonstate.mist.locations.LocationConfiguration
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
 
@@ -13,9 +13,9 @@ import groovy.transform.InheritConstructors
 public class ExtraDataDAO extends IcalDAO {
     ExtraDataManager extraDataManager
 
-    ExtraDataDAO(LocationConfiguration configuration, LocationUtil locationUtil,
+    ExtraDataDAO(LocationConfiguration configuration, Cache cache,
                  ExtraDataManager extraDataManager) {
-        super(configuration, locationUtil)
+        super(configuration, cache)
         this.extraDataManager = extraDataManager
     }
 
@@ -30,7 +30,7 @@ public class ExtraDataDAO extends IcalDAO {
     private List<ServiceLocation> getExtraDataLocations(Closure filter) {
         List<ServiceLocation> centers = getServiceLocationList(filter)
 
-        IcalUtil.addLocationHours(centers, icalURL, locationUtil)
+        IcalUtil.addLocationHours(centers, icalURL, cache)
         centers
     }
 

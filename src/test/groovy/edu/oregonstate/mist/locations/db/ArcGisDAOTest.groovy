@@ -1,12 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.core.type.TypeReference
-import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.junit.Test
 
 @TypeChecked

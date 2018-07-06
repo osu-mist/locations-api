@@ -1,6 +1,6 @@
 package edu.oregonstate.mist.locations.db
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import groovy.json.JsonSlurper
 
@@ -10,12 +10,12 @@ class CampusMapDAO {
 
     private final String campusMapJsonOut
 
-    private final LocationUtil locationUtil
+    private final Cache cache
 
-    CampusMapDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
+    CampusMapDAO(Map<String, String> locationConfiguration, Cache cache) {
         campusMapJsonUrl = locationConfiguration.get("campusMapHttpData")
         campusMapJsonOut = locationConfiguration.get("campusmapJsonOut")
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     /**
@@ -39,10 +39,13 @@ class CampusMapDAO {
      */
     private List<CampusMapLocation> getCampusMapJson() {
         def jsonSlurper = new JsonSlurper()
-        String campusMapData = locationUtil.getDataFromUrlOrCache(
-                campusMapJsonUrl,
-                campusMapJsonOut)
-
-        jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
+        cache.withJsonFromUrlOrCache(campusMapJsonUrl, campusMapJsonOut) {
+            campusMapData ->
+                def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
+                if (locations.size() == 0) {
+                    throw new DAOException("found zero campus map locations")
+                }
+                locations
+        }
     }
 }

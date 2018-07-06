@@ -1,6 +1,6 @@
 package edu.oregonstate.mist.locations.core
 
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Constants
 
 @groovy.transform.EqualsAndHashCode
 class ExtensionLocation extends BaseType {
@@ -28,7 +28,7 @@ class ExtensionLocation extends BaseType {
     }
 
     private String getCoordToken(Integer index) {
-        def matcher = geoLocation =~ LocationUtil.VALID_LAT_LONG
+        def matcher = geoLocation =~ Constants.VALID_LAT_LONG
         if (matcher.count) {
             matcher[index][0]
         }

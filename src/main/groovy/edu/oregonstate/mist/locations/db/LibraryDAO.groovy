@@ -2,10 +2,12 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.DayOpenHours
 import edu.oregonstate.mist.locations.core.LibraryHours
 import groovy.transform.TypeChecked
 import org.apache.http.HttpEntity
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.util.EntityUtils
@@ -15,22 +17,29 @@ import org.joda.time.DateTimeZone
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @TypeChecked
 class LibraryDAO {
-    private final String libraryUrl
+    private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDAO)
 
+    public static final String LIBRARY_PATH = "library.json"
+    private final String libraryUrl
     private final CloseableHttpClient httpClient
+    private final Cache cache
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"
-
     public static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mma"
 
     private ObjectMapper mapper = new ObjectMapper()
 
-    LibraryDAO(Map<String, String> locationConfiguration, CloseableHttpClient httpClient) {
+    LibraryDAO(Map<String, String> locationConfiguration,
+               CloseableHttpClient httpClient,
+               Cache cache) {
         libraryUrl = locationConfiguration.get("libraryUrl")
         this.httpClient = httpClient
+        this.cache = cache
     }
 
     /**
@@ -77,31 +86,56 @@ class LibraryDAO {
     }
 
     private Map<String, LibraryHours> getLibraryData(DateTime startDate, int numDays) {
-        def response
         String parameters = getDatesParameter(startDate, numDays)
-        Map<String, LibraryHours> data = new HashMap<>()
 
+        def entityString
         try {
-            HttpPost post = new HttpPost(libraryUrl)
-            post.setHeader("Content-Type", "application/json")
-            post.setHeader("Accept", "application/vnd.kiosks.v1")
+            entityString = doPostRequest(libraryUrl, parameters)
 
-            post.setEntity(new StringEntity(parameters))
+            def data = mapLibraryHours(entityString)
 
+            if (data.isEmpty()) {
+                throw new DAOException("found no library hours")
+            }
+
+            cache.writeDataToCache(LIBRARY_PATH, entityString)
+
+            return data
+        } catch (Exception e) {
+            LOGGER.error("Error getting library json data from url ${libraryUrl}", e)
+            LOGGER.info("Attempting to fall back on cached data")
+            entityString = cache.getCachedData(LIBRARY_PATH)
+            return mapLibraryHours(entityString)
+        }
+    }
+
+    private Map<String,LibraryHours> mapLibraryHours(String entityString) {
+        (Map<String,LibraryHours>)this.mapper.readValue(entityString,
+                new TypeReference<HashMap<String, LibraryHours>>() {})
+    }
+
+    private String doPostRequest(String url, String body) {
+        HttpPost post = new HttpPost(url)
+        post.setHeader("Content-Type", "application/json")
+        post.setHeader("Accept", "application/vnd.kiosks.v1")
+        post.setEntity(new StringEntity(body))
+
+        CloseableHttpResponse response = null
+        try {
             response = httpClient.execute(post)
+            int code = response.getStatusLine().getStatusCode()
+            if (code != HttpURLConnection.HTTP_OK) {
+                throw new IOException("HTTP status code ${code} returned for url ${url}")
+            }
             HttpEntity entity = response.getEntity()
-            def entityString = EntityUtils.toString(entity)
-
-            data = (Map<String,LibraryHours>)this.mapper.readValue(
-                    entityString,
-                    new TypeReference<HashMap<String, LibraryHours>>() {}
-            )
-
-            EntityUtils.consume(entity)
+            try {
+                return EntityUtils.toString(entity)
+            } finally {
+                EntityUtils.consume(entity)
+            }
         } finally {
             response?.close()
         }
-        data
     }
 
     /**

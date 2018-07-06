@@ -66,6 +66,16 @@ abstract class Resource {
     }
 
     /**
+     * Returns a builder for an HTTP 202 ("accepted") response with the argument entity as body.
+     * @param entity
+     * @return
+     */
+    protected static ResponseBuilder accepted(Object entity) {
+        Response.status(Response.Status.ACCEPTED)
+                .entity(entity)
+    }
+
+    /**
      * Returns a builder for an HTTP 400 ("bad request") response with an error message as body.
      *
      * @param message
@@ -159,7 +169,7 @@ abstract class Resource {
      */
     protected Integer getPageNumber() {
         def pageNumber = uriInfo.getQueryParameters().getFirst('page[number]')
-        if (!pageNumber || !pageNumber.isInteger() || pageNumber.toInteger() < 0) {
+        if (!pageNumber || !pageNumber.isInteger() || pageNumber.toInteger() <= 0) {
             return DEFAULT_PAGE_NUMBER
         }
 
@@ -173,7 +183,7 @@ abstract class Resource {
      */
     protected Integer getPageSize() {
         def pageSize = uriInfo.getQueryParameters().getFirst('page[size]')
-        if (!pageSize || !pageSize.isInteger() || pageSize.toInteger() < 0) {
+        if (!pageSize || !pageSize.isInteger() || pageSize.toInteger() <= 0) {
             return DEFAULT_PAGE_SIZE
         }
 

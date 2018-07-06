@@ -1,8 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.core.type.TypeReference
-import edu.oregonstate.mist.locations.LocationUtil
+import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
@@ -29,23 +28,29 @@ class ArcGisDAO {
     /**
      * Helper for caching and getting data from web requests
      */
-    private final LocationUtil locationUtil
+    private final Cache cache
 
-    public ArcGisDAO(Map<String, String> locationConfiguration, LocationUtil locationUtil) {
+    public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
         arcGisGenderInclusiveRRJsonOut = locationConfiguration.get("arcGisGenderInclusiveJsonOut")
-        this.locationUtil = locationUtil
+        this.cache = cache
     }
 
     public HashMap<String, GenderInclusiveRRLocation> getGenderInclusiveRR() {
-        String gisData = locationUtil.getDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
-                arcGisGenderInclusiveRRJsonOut)
-        mapRR(gisData)
+        //@todo we should expect application/json, but arcgis actually returns text/plain. oops
+        cache.withDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
+                arcGisGenderInclusiveRRJsonOut) {
+            String gisData -> mapRR(gisData)
+        }
     }
 
     HashMap<String, GenderInclusiveRRLocation> mapRR(String gisData) {
         def mappedData = mapper.readTree(gisData).get("features")
         def data = new HashMap<String, GenderInclusiveRRLocation>()
+
+        if (mappedData.size() == 0) {
+            throw new DAOException("found zero gender inclusive restrooms")
+        }
 
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
