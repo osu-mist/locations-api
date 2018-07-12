@@ -66,7 +66,10 @@ class LocationDAO {
             def propID = properties['Prop_ID']
             def parkingZoneGroup = properties['ZoneGroup']
 
-            if (isValidField(propID) && isValidField(parkingZoneGroup)) {
+            Boolean isValidParkingZoneGroup = isValidField(parkingZoneGroup) &&
+                    (parkingZoneGroup != "Non-Public")
+
+            if (isValidField(propID) && isValidParkingZoneGroup) {
                 parkingLocations.add(new ParkingLocation(it))
             } else {
                 ignoredParking.add(properties['OBJECTID'])
