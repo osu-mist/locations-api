@@ -23,9 +23,9 @@ import pprint
 args = docopt(__doc__, version='1.0.0rc2')
 
 def reportDiffsInCommonIDS(common_ids, old_mapped_locations, new_mapped_locations):
-    print "Reporting common ids diffs"
+    print "\nReporting common ids diffs"
     print "{} ids have differences.".format(len(common_ids))
-    print "====================================="
+    print "\n====================================="
     for idx in common_ids:
         if(old_mapped_locations[idx] != new_mapped_locations[idx]):
             print 'Location ID {}'.format(idx)
@@ -34,7 +34,7 @@ def reportDiffsInCommonIDS(common_ids, old_mapped_locations, new_mapped_location
 
 def reportAddsAndRemoves(added_ids, removed_ids):
     print "====================================="
-    print "New or missing id's"
+    print "\nNew or missing id's"
     print "# of new features: {}".format(len(added_ids))
     print "# of removed features: {}".format(len(removed_ids))
     if(added_ids):
@@ -45,7 +45,7 @@ def reportAddsAndRemoves(added_ids, removed_ids):
         print "-------------------------------------"
         print "Deprecated feature ids:"
         print removed_ids
-    print "====================================="
+    print "\n====================================="
 
 """
     Splits the dictdiffer diff by category: adds, removes, changes
