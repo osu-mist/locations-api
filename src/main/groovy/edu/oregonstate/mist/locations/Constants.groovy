@@ -14,8 +14,11 @@ class Constants {
     public static final String LOCATIONS = "locations"
 
     // Valid values for Attributes.campus
-    public static final String CAMPUS_CORVALLIS = "corvallis"
-    public static final String CAMPUS_EXTENSION = "extension"
+    public static final String CAMPUS_CORVALLIS = "Corvallis"
+    public static final String CAMPUS_CASCADES = "Cascades"
+    public static final String CAMPUS_HMSC = "HMSC"
+    public static final String CAMPUS_EXTENSION = "Extension"
+    public static final String CAMPUS_OTHER = "Other"
 
     // Regexp which matches a valid latitude or longitude value
     public static final String VALID_LAT_LONG = "-?\\d+(\\.\\d+)?"

@@ -55,18 +55,16 @@ class FacilLocation extends BaseType {
 
     @JsonIgnore
     String getPrettyCampus() {
-        if (campus == null) {
-            return null
-        }
-
-        if (campus.equalsIgnoreCase("CASCADESCAMPUS")) {
-            "Cascades"
+        if (!campus) {
+            null
+        } else if (campus.equalsIgnoreCase("CASCADESCAMPUS")) {
+            Constants.CAMPUS_CASCADES
         } else if (campus.equalsIgnoreCase("OSUCORVALLIS")) {
-            "Corvallis"
+            Constants.CAMPUS_CORVALLIS
         } else if (campus.equalsIgnoreCase("HMSC")) {
-            "HMSC"
+            Constants.CAMPUS_HMSC
         } else {
-            "Other"
+            Constants.CAMPUS_OTHER
         }
     }
 
