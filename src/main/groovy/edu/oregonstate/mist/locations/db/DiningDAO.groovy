@@ -10,6 +10,10 @@ import groovy.transform.InheritConstructors
  */
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
+
+    private final int diningThreshold =
+            this.configuration.locationsConfiguration.get("diningThreshold").toInteger()
+
     List<ServiceLocation> getDiningLocations() {
 
         List<ServiceLocation> diners = cache.withJsonFromUrlOrCache(metadataURL, jsonOut) {
@@ -35,10 +39,9 @@ public class DiningDAO extends IcalDAO {
                 diningData, new TypeReference<List<ServiceLocation>>(){}
         )
         int numFound = locations.size()
-        int thresh = this.configuration.locationsConfiguration.get("diningThreshold").toInteger()
-        if(numFound < thresh) {
+        if(numFound < diningThreshold) {
             throw new DAOException("Found ${numFound} dining locations. Not sufficient with " +
-                    "threshold of ${thresh}")
+                    "threshold of ${diningThreshold}")
         }
         locations
     }
