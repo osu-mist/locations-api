@@ -77,7 +77,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         diningDAO = new DiningDAO(configuration, cache)
         extensionDAO = new ExtensionDAO(configMap, cache)
         extraDataDAO = new ExtraDataDAO(configuration, cache, extraDataManager)
-        cachedFacilDAO = new CachedFacilDAO(jdbi, cache)
+        cachedFacilDAO = new CachedFacilDAO(jdbi, cache, configMap)
         libraryDAO = new LibraryDAO(configMap, httpClient, cache)
         locationDAO = new LocationDAO(configMap)
 

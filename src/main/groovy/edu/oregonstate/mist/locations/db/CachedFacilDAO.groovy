@@ -23,13 +23,15 @@ class CachedFacilDAO implements Closeable {
     final private static String CACHE_FILENAME = "facil-buildings.json"
     private final FacilDAO facilDAO
     private final Cache cache
+    private final int facilLocationThreshold
 
-    CachedFacilDAO(DBI jdbi, Cache cache) {
+    CachedFacilDAO(DBI jdbi, Cache cache, Map<String, String> locationConfiguration) {
         // @todo: should we construct FacilDAO here or require that it be passed in?
         // we don't have to worry about connection errors here because onDemand
         // doesn't connect until the first request, which is in getBuildings below
         this.facilDAO = jdbi.onDemand(FacilDAO.class)
         this.cache = cache
+        facilLocationThreshold = locationConfiguration.get("facilLocationThreshold").toInteger()
     }
 
     @Override
@@ -41,8 +43,10 @@ class CachedFacilDAO implements Closeable {
         def buildings
         try {
             buildings = facilDAO.getBuildings()
-            if (buildings.isEmpty()) {
-                throw new DAOException("Found zero buildings in facil database")
+            int numFound = buildings.size()
+            if (numFound < facilLocationThreshold) {
+                throw new DAOException("Found ${numFound} buildings. Not sufficient with" +
+                        " threshold of ${facilLocationThreshold}")
             }
             saveBuildingsToCache(buildings)
         } catch (DAOException | DBIException | SQLException e) {

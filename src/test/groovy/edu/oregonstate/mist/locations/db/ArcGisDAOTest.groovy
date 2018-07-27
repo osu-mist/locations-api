@@ -6,7 +6,7 @@ import org.junit.Test
 
 @TypeChecked
 class ArcGisDAOTest {
-    ArcGisDAO dao = new ArcGisDAO([:], null)
+    ArcGisDAO dao = new ArcGisDAO(["arcGisThreshold":"0"], null)
 
     @Test
     void testRR() {

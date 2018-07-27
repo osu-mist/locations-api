@@ -30,8 +30,17 @@ public class DiningDAO extends IcalDAO {
         diners
     }
 
-    static private List<ServiceLocation> mapDiningLocations(String diningData) {
-        MAPPER.readValue(diningData, new TypeReference<List<ServiceLocation>>(){})
+    private List<ServiceLocation> mapDiningLocations(String diningData) {
+        List<ServiceLocation> locations = MAPPER.readValue(
+                diningData, new TypeReference<List<ServiceLocation>>(){}
+        )
+        int numFound = locations.size()
+        int thresh = this.configuration.locationsConfiguration.get("diningThreshold").toInteger()
+        if(numFound < thresh) {
+            throw new DAOException("Found ${numFound} dining locations. Not sufficient with " +
+                    "threshold of ${thresh}")
+        }
+        locations
     }
 
     @Override
