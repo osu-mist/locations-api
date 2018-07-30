@@ -11,14 +11,13 @@ class ExtensionDAO {
 
     private final String extensionXmlOut
 
-    private final int extensionThreshold
+    private static final int EXTENSION_THRESHOLD = 30
 
     private final Cache cache
 
     ExtensionDAO(Map<String, String> locationConfiguration, Cache cache) {
         extensionUrl = locationConfiguration.get("extensionUrl")
         extensionXmlOut = locationConfiguration.get("extensionXmlOut")
-        extensionThreshold = locationConfiguration.get("extensionThreshold").toInteger()
         this.cache = cache
     }
 
@@ -33,12 +32,12 @@ class ExtensionDAO {
         }
     }
 
-    private List<ExtensionLocation> parseExtensionData(String extensionXML) {
+    static private List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def response = new XmlSlurper().parseText(extensionXML)
         int numFound = response.item.size()
-        if (numFound < extensionThreshold) {
+        if (numFound < EXTENSION_THRESHOLD) {
             throw new DAOException("Found ${numFound} extension locations." +
-                    " Not sufficient with threshold of ${extensionThreshold}")
+                    " Not sufficient with threshold of ${EXTENSION_THRESHOLD}")
         }
         response.item.collect {
             new ExtensionLocation(

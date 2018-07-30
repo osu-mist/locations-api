@@ -2,8 +2,6 @@ package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
@@ -16,6 +14,9 @@ class MergeUtil {
     ExtraDataDAO extraDataDAO
     CampusMapDAO campusMapDAO
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
+
+    // Ratio of how many locations are allowed be missing from campus map data
+    private static final float MISSING_LOCATIONS_THRESHOLD = 0.85
 
     MergeUtil(LibraryDAO libraryDAO,
               ExtraDataDAO extraDataDAO,
@@ -162,5 +163,17 @@ class MergeUtil {
             }
         }
 
+        def missingLocations = []
+        campusMapData.each { key, value ->
+            if(!data.find { it.id == value.id }) {
+                missingLocations.add(value.id)
+            }
+        }
+        float ratioMissing = missingLocations.size() / campusMapData.size()
+        if(ratioMissing < MISSING_LOCATIONS_THRESHOLD) {
+            throw new Exception("Ratio of locations missing from campus maps: ${ratioMissing} " +
+                    "not sufficient with threshold of ${MISSING_LOCATIONS_THRESHOLD}")
+        }
+        data
     }
 }

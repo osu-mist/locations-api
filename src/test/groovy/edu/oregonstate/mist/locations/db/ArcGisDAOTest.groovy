@@ -4,9 +4,12 @@ import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.junit.Test
 
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
+
 @TypeChecked
 class ArcGisDAOTest {
-    ArcGisDAO dao = new ArcGisDAO(["arcGisThreshold":"0"], null)
+    ArcGisDAO dao = new ArcGisDAO([:], null)
 
     @Test
     void testRR() {
@@ -36,6 +39,15 @@ class ArcGisDAOTest {
                 '       }\n' +
                 '  ]\n' +
                 '}\n'
+
+        // Force ARCGIS_THRESHOLD to be 1
+        Field field = ArcGisDAO.getDeclaredField("ARCGIS_THRESHOLD")
+        field.setAccessible(true)
+        Field modifiersField = Field.class.getDeclaredField("modifiers")
+        modifiersField.setAccessible(true)
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL)
+        field.set(null, 1)
+
         assert dao.mapRR(testData) == ["0075": new GenderInclusiveRRLocation(
                 bldID: "0075",
                 bldNam: "Withycombe Hall",

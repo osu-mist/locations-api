@@ -10,14 +10,13 @@ class CampusMapDAO {
 
     private final String campusMapJsonOut
 
-    private final int campusMapThreshold
+    private static final int CAMPUS_MAP_THRESHOLD = 50
 
     private final Cache cache
 
     CampusMapDAO(Map<String, String> locationConfiguration, Cache cache) {
         campusMapJsonUrl = locationConfiguration.get("campusMapHttpData")
         campusMapJsonOut = locationConfiguration.get("campusmapJsonOut")
-        campusMapThreshold = locationConfiguration.get("campusMapThreshold").toInteger()
         this.cache = cache
     }
 
@@ -46,9 +45,9 @@ class CampusMapDAO {
             campusMapData ->
                 def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
                 int numFound = locations.size()
-                if (numFound < campusMapThreshold) {
+                if (numFound < CAMPUS_MAP_THRESHOLD) {
                     throw new DAOException("Found ${numFound} campus map locations. " +
-                            "Not sufficient with threshold of ${campusMapThreshold}")
+                            "Not sufficient with threshold of ${CAMPUS_MAP_THRESHOLD}")
                 }
                 locations
         }

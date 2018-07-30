@@ -77,7 +77,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         diningDAO = new DiningDAO(configuration, cache)
         extensionDAO = new ExtensionDAO(configMap, cache)
         extraDataDAO = new ExtraDataDAO(configuration, cache, extraDataManager)
-        cachedFacilDAO = new CachedFacilDAO(jdbi, cache, configMap)
+        cachedFacilDAO = new CachedFacilDAO(jdbi, cache)
         libraryDAO = new LibraryDAO(configMap, httpClient, cache)
         locationDAO = new LocationDAO(configMap)
 
@@ -95,7 +95,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      */
     private List getBuildingData() {
         List<FacilLocation> buildings = cachedFacilDAO.getBuildings()
-        // Get acrgis gender inclusive restroom data from json file
+        // Get arcgis gender inclusive restroom data from json file
         def genderInclusiveRR = arcGisDAO.getGenderInclusiveRR()
         // Get arcgis coordinate data from json file
         def arcGisGeometries = locationDAO.getArcGisCoordinates()
