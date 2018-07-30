@@ -16,7 +16,7 @@ class MergeUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
 
     // Ratio of how many locations are allowed be missing from campus map data
-    private static final float MISSING_LOCATIONS_THRESHOLD = 0.85
+    private static final float MISSING_LOCATIONS_THRESHOLD = 0.9
 
     MergeUtil(LibraryDAO libraryDAO,
               ExtraDataDAO extraDataDAO,
