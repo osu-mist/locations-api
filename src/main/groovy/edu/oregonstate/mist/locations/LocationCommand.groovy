@@ -77,11 +77,12 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         diningDAO = new DiningDAO(configuration, cache)
         extensionDAO = new ExtensionDAO(configMap, cache)
         extraDataDAO = new ExtraDataDAO(configuration, cache, extraDataManager)
-        cachedFacilDAO = new CachedFacilDAO(jdbi, cache)
+        cachedFacilDAO = new CachedFacilDAO(jdbi, cache,
+                configMap.get("facilLocationThreshold").toInteger())
         libraryDAO = new LibraryDAO(configMap, httpClient, cache)
         locationDAO = new LocationDAO(configMap)
-
-        mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)
+        mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO,
+                configMap.get("missingLocationsRatio").toFloat())
 
         writeJsonAPIToFile("services.json", getServices())
         writeJsonAPIToFile("locations-combined.json", getCombinedData())

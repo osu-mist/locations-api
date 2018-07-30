@@ -14,7 +14,7 @@ class MergeUtilTest {
     @Test
     void testLibraryHours() {
         def libraryDAO = new MockLibraryDAO()
-        def mergeUtil = new MergeUtil(libraryDAO, null, null)
+        def mergeUtil = new MergeUtil(libraryDAO, null, null, 0)
         def data = [new ResourceObject(
                 id: "d409d908ecc6010a04a3b0387f063145",
                 type: "locations",

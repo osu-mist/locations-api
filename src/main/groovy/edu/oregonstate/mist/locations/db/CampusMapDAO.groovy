@@ -10,13 +10,14 @@ class CampusMapDAO {
 
     private final String campusMapJsonOut
 
-    private static final int CAMPUS_MAP_THRESHOLD = 50
+    private final int CAMPUS_MAP_THRESHOLD
 
     private final Cache cache
 
     CampusMapDAO(Map<String, String> locationConfiguration, Cache cache) {
         campusMapJsonUrl = locationConfiguration.get("campusMapHttpData")
         campusMapJsonOut = locationConfiguration.get("campusmapJsonOut")
+        CAMPUS_MAP_THRESHOLD = locationConfiguration.get("campusMapThreshold").toInteger()
         this.cache = cache
     }
 

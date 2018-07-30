@@ -25,7 +25,7 @@ class ArcGisDAO {
      */
     private final String arcGisGenderInclusiveRRJsonOut
 
-    private static final int ARCGIS_THRESHOLD = 30
+    private final int ARC_GIS_THRESHOLD
 
     /**
      * Helper for caching and getting data from web requests
@@ -35,6 +35,7 @@ class ArcGisDAO {
     public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
         arcGisGenderInclusiveRRJsonOut = locationConfiguration.get("arcGisGenderInclusiveJsonOut")
+        ARC_GIS_THRESHOLD = locationConfiguration.get("arcGisThreshold").toInteger()
         this.cache = cache
     }
 
@@ -52,9 +53,9 @@ class ArcGisDAO {
 
         int numFound = mappedData.size()
 
-        if (numFound < ARCGIS_THRESHOLD) {
+        if (numFound < ARC_GIS_THRESHOLD) {
             throw new DAOException("Found ${numFound} gender inclusive restrooms." +
-                    " Not sufficient with threshold of ${ARCGIS_THRESHOLD}")
+                    " Not sufficient with threshold of ${ARC_GIS_THRESHOLD}")
         }
 
         mappedData.asList().each {

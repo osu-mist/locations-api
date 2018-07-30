@@ -58,6 +58,12 @@ locations:
   libraryUrl: https://api.library.com/v1/
   buildingGeometries: buildings/converted-coordinates.json
   parkingGeometries: parking/converted-coordinates.json
+  arcGisThreshold: 30
+  campusMapThreshold: 50
+  facilLocationThreshold: 50
+  diningThreshold: 30
+  extensionThreshold: 30
+  missingLocationsRatio: 0.9
 
 httpClientConfiguration:
   timeout: 150ms

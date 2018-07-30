@@ -11,7 +11,8 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 public class DiningDAO extends IcalDAO {
 
-    private static final int DINING_THRESHOLD = 30
+    private final int DINING_THRESHOLD =
+            configuration.locationsConfiguration.get("diningThreshold").toInteger()
 
     List<ServiceLocation> getDiningLocations() {
 
@@ -33,7 +34,7 @@ public class DiningDAO extends IcalDAO {
         diners
     }
 
-    static private List<ServiceLocation> mapDiningLocations(String diningData) {
+    private List<ServiceLocation> mapDiningLocations(String diningData) {
         List<ServiceLocation> locations = MAPPER.readValue(
                 diningData, new TypeReference<List<ServiceLocation>>(){}
         )
