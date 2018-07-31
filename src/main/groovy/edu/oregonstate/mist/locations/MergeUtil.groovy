@@ -167,7 +167,7 @@ class MergeUtil {
 
         def missingLocations = campusMapData.keySet() - data.collect { it.id }
         float ratioMissing = missingLocations.size() / campusMapData.size()
-        LOGGER.info("Ratio of locations missing in campus maps: ${ratioMissing}")
+        LOGGER.info("Ratio of missing campus maps locations: ${ratioMissing}")
         if (ratioMissing > MISSING_LOCATIONS_RATIO) {
             throw new Exception("Missing campus maps locations ratio of " +
                     "${MISSING_LOCATIONS_RATIO} not satisfied")
