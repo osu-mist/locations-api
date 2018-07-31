@@ -15,7 +15,7 @@ class MergeUtil {
     CampusMapDAO campusMapDAO
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
 
-    // Ratio of how many locations are allowed be missing from campus map data
+    // Ratio of how many campus maps locations are allowed to be missing
     private final float MISSING_LOCATIONS_RATIO
 
     MergeUtil(LibraryDAO libraryDAO,
@@ -165,16 +165,12 @@ class MergeUtil {
             }
         }
 
-        def missingLocations = []
-        campusMapData.each { key, value ->
-            if(!data.find { it.id == value.id }) {
-                missingLocations.add(value.id)
-            }
-        }
+        def missingLocations = campusMapData.keySet() - data.collect { it.id }
         float ratioMissing = missingLocations.size() / campusMapData.size()
-        if(ratioMissing < MISSING_LOCATIONS_RATIO) {
-            throw new Exception("Ratio of locations missing from campus maps: ${ratioMissing} " +
-                    "not sufficient with threshold of ${MISSING_LOCATIONS_RATIO}")
+        LOGGER.info("Ratio of locations missing in campus maps: ${ratioMissing}")
+        if (ratioMissing > MISSING_LOCATIONS_RATIO) {
+            throw new Exception("Missing campus maps locations ratio of " +
+                    "${MISSING_LOCATIONS_RATIO} not satisfied")
         }
         data
     }

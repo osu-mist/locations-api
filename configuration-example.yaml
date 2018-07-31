@@ -63,7 +63,7 @@ locations:
   facilLocationThreshold: 50
   diningThreshold: 30
   extensionThreshold: 30
-  missingLocationsRatio: 0.9
+  missingLocationsRatio: 0.1
 
 httpClientConfiguration:
   timeout: 150ms
