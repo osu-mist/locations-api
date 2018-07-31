@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import groovy.json.JsonSlurper
 
@@ -45,11 +46,8 @@ class CampusMapDAO {
         cache.withJsonFromUrlOrCache(campusMapJsonUrl, campusMapJsonOut) {
             campusMapData ->
                 def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
-                int numFound = locations.size()
-                if (numFound < CAMPUS_MAP_THRESHOLD) {
-                    throw new DAOException("Found ${numFound} campus map locations. " +
-                            "Not sufficient with threshold of ${CAMPUS_MAP_THRESHOLD}")
-                }
+                LocationUtil.checkThreshold(locations.size(),
+                        CAMPUS_MAP_THRESHOLD, "campus map locations")
                 locations
         }
     }

@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
@@ -50,14 +51,8 @@ class ArcGisDAO {
     HashMap<String, GenderInclusiveRRLocation> mapRR(String gisData) {
         def mappedData = mapper.readTree(gisData).get("features")
         def data = new HashMap<String, GenderInclusiveRRLocation>()
-
-        int numFound = mappedData.size()
-
-        if (numFound < ARC_GIS_THRESHOLD) {
-            throw new DAOException("Found ${numFound} gender inclusive restrooms." +
-                    " Not sufficient with threshold of ${ARC_GIS_THRESHOLD}")
-        }
-
+        LocationUtil.checkThreshold(mappedData.size(),
+                ARC_GIS_THRESHOLD, "gender inclusive restrooms")
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
             data[rr.bldID] = rr

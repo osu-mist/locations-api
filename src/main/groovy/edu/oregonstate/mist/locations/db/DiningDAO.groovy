@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import edu.oregonstate.mist.locations.Constants
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
 
@@ -38,11 +39,7 @@ public class DiningDAO extends IcalDAO {
         List<ServiceLocation> locations = MAPPER.readValue(
                 diningData, new TypeReference<List<ServiceLocation>>(){}
         )
-        int numFound = locations.size()
-        if(numFound < DINING_THRESHOLD) {
-            throw new DAOException("Found ${numFound} dining locations. Not sufficient with " +
-                    "threshold of ${DINING_THRESHOLD}")
-        }
+        LocationUtil.checkThreshold(locations.size(), DINING_THRESHOLD, "dining locations")
         locations
     }
 

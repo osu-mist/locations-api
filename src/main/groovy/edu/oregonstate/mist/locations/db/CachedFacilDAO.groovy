@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations.db
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.FacilLocation
 import groovy.transform.CompileStatic
 import org.skife.jdbi.v2.DBI
@@ -43,11 +44,7 @@ class CachedFacilDAO implements Closeable {
         def buildings
         try {
             buildings = facilDAO.getBuildings()
-            int numFound = buildings.size()
-            if (numFound < FACIL_LOCATION_THRESHOLD) {
-                throw new DAOException("Found ${numFound} buildings. Not sufficient with" +
-                        " threshold of ${FACIL_LOCATION_THRESHOLD}")
-            }
+            LocationUtil.checkThreshold(buildings.size(), FACIL_LOCATION_THRESHOLD, "buildings")
             saveBuildingsToCache(buildings)
         } catch (DAOException | DBIException | SQLException e) {
             //@todo: i think jdbi wraps all SQLExceptions in a DBIException

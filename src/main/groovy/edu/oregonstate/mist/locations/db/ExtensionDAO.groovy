@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.locations.db
 
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ExtensionLocation
 
 class ExtensionDAO {
@@ -35,11 +36,8 @@ class ExtensionDAO {
 
     private List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def response = new XmlSlurper().parseText(extensionXML)
-        int numFound = response.item.size()
-        if (numFound < EXTENSION_THRESHOLD) {
-            throw new DAOException("Found ${numFound} extension locations." +
-                    " Not sufficient with threshold of ${EXTENSION_THRESHOLD}")
-        }
+        LocationUtil.checkThreshold(response.item.size(),
+                EXTENSION_THRESHOLD, "extension locations")
         response.item.collect {
             new ExtensionLocation(
                     geoLocation: it.GeoLocation,
