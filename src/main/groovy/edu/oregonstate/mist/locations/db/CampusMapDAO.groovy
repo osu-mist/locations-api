@@ -4,6 +4,7 @@ import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import groovy.json.JsonSlurper
+import groovy.transform.PackageScope
 
 class CampusMapDAO {
 
@@ -12,6 +13,8 @@ class CampusMapDAO {
     private final String campusMapJsonOut
 
     private final int CAMPUS_MAP_THRESHOLD
+
+    private JsonSlurper jsonSlurper = new JsonSlurper()
 
     private final Cache cache
 
@@ -41,14 +44,16 @@ class CampusMapDAO {
      * Get List of campus map locations from json via http request
      * @return
      */
-    private List<CampusMapLocation> getCampusMapJson() {
-        def jsonSlurper = new JsonSlurper()
+    List<CampusMapLocation> getCampusMapJson() {
         cache.withJsonFromUrlOrCache(campusMapJsonUrl, campusMapJsonOut) {
-            campusMapData ->
-                def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
-                LocationUtil.checkThreshold(locations.size(),
-                        CAMPUS_MAP_THRESHOLD, "campus map locations")
-                locations
+            String campusMapData -> parseCampusMaps(campusMapData)
         }
+    }
+
+    @PackageScope
+    List<CampusMapLocation> parseCampusMaps(String campusMapData) {
+        def locations = jsonSlurper.parseText(campusMapData) as List<CampusMapLocation>
+        LocationUtil.checkThreshold(locations.size(), CAMPUS_MAP_THRESHOLD, "campus map locations")
+        locations
     }
 }

@@ -1,6 +1,8 @@
 package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.locations.core.DayOpenHours
+import edu.oregonstate.mist.locations.db.DAOException
+import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.IcalUtil
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.Calendar
@@ -9,6 +11,12 @@ import org.joda.time.DateTimeZone
 import org.junit.Test
 
 class DiningDAOTest {
+
+    LocationConfiguration locationConfiguration = new LocationConfiguration(
+            locationsConfiguration: ["diningThreshold": "1"]
+    )
+    DiningDAO diningDAO = new DiningDAO(locationConfiguration, new Cache([:]))
+
     @Test
     public void testFilterEvents() {
         // Parse test calendar
@@ -62,5 +70,30 @@ class DiningDAOTest {
                 lastModified: new net.fortuna.ical4j.model.DateTime("20160913T191159Z"),
             )
         ]
+    }
+
+    // Threshold is satisfied
+    @Test
+    void testMapDiningLocations() {
+        String testData = """\
+            [
+                {
+                    "concept_title": "Test",
+                    "zone": "Test",
+                    "calendar_id": "Test",
+                    "concept_coord": "Test, Test",
+                    "start": "Test",
+                    "end": "Test"
+                }
+            ]
+        """.stripIndent()
+        diningDAO.mapDiningLocations(testData)
+    }
+
+    // Threshold is not satisfied
+    @Test(expected = DAOException.class)
+    void testUnderThreshold() {
+        String testData = "[]"
+        diningDAO.mapDiningLocations(testData)
     }
 }

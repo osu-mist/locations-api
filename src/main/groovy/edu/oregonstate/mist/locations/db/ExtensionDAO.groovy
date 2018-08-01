@@ -3,6 +3,7 @@ package edu.oregonstate.mist.locations.db
 import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ExtensionLocation
+import groovy.transform.PackageScope
 
 class ExtensionDAO {
     /**
@@ -34,7 +35,8 @@ class ExtensionDAO {
         }
     }
 
-    private List<ExtensionLocation> parseExtensionData(String extensionXML) {
+    @PackageScope
+    List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def response = new XmlSlurper().parseText(extensionXML)
         LocationUtil.checkThreshold(response.item.size(),
                 EXTENSION_THRESHOLD, "extension locations")

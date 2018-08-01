@@ -11,8 +11,9 @@ import java.lang.reflect.Modifier
 class ArcGisDAOTest {
     ArcGisDAO dao = new ArcGisDAO(["arcGisThreshold":"1"], null)
 
+    // Threshold is satisfied
     @Test
-    void testRR() {
+    void testMapRR() {
         def testData =
                 '{\n' +
                 '   "features":[\n' +
@@ -47,6 +48,16 @@ class ArcGisDAOTest {
                 giRestroomLimit: " ",
                 giRestroomLocations: "0071, 0123, 0167A, 0307, 0169"
         )]
+    }
+
+    // Threshold is not satisfied
+    @Test(expected = DAOException.class)
+    void testUnderThreshold() {
+        def testData =
+                '{\n' +
+                '   "features":[]\n' +
+                '}\n'
+        dao.mapRR(testData)
     }
 }
 

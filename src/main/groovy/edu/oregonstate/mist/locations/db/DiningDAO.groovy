@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.InheritConstructors
+import groovy.transform.PackageScope
 
 /**
  * The Dining data comes from google calendar
@@ -35,7 +36,8 @@ public class DiningDAO extends IcalDAO {
         diners
     }
 
-    private List<ServiceLocation> mapDiningLocations(String diningData) {
+    @PackageScope
+    List<ServiceLocation> mapDiningLocations(String diningData) {
         List<ServiceLocation> locations = MAPPER.readValue(
                 diningData, new TypeReference<List<ServiceLocation>>(){}
         )
