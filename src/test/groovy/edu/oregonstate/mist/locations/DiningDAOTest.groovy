@@ -8,7 +8,9 @@ import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.Calendar
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 
 class DiningDAOTest {
 
@@ -72,6 +74,9 @@ class DiningDAOTest {
         ]
     }
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none()
+
     // Threshold is satisfied
     @Test
     void testMapDiningLocations() {
@@ -91,8 +96,10 @@ class DiningDAOTest {
     }
 
     // Threshold is not satisfied
-    @Test(expected = DAOException.class)
+    @Test
     void testUnderThreshold() {
+        exception.expect(DAOException.class)
+        exception.expectMessage("dining locations")
         String testData = "[]"
         diningDAO.mapDiningLocations(testData)
     }

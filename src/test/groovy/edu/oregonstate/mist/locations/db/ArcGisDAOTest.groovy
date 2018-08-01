@@ -2,14 +2,16 @@ package edu.oregonstate.mist.locations.db
 
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
+import org.junit.Rule
 import org.junit.Test
-
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
+import org.junit.rules.ExpectedException
 
 @TypeChecked
 class ArcGisDAOTest {
     ArcGisDAO dao = new ArcGisDAO(["arcGisThreshold":"1"], null)
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none()
 
     // Threshold is satisfied
     @Test
@@ -51,8 +53,10 @@ class ArcGisDAOTest {
     }
 
     // Threshold is not satisfied
-    @Test(expected = DAOException.class)
+    @Test
     void testUnderThreshold() {
+        exception.expect(DAOException.class)
+        exception.expectMessage("gender inclusive restrooms")
         def testData =
                 '{\n' +
                 '   "features":[]\n' +

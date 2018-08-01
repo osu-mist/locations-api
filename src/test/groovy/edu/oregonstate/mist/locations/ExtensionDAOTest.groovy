@@ -2,11 +2,16 @@ package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.locations.db.DAOException
 import edu.oregonstate.mist.locations.db.ExtensionDAO
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 
 class ExtensionDAOTest {
 
     ExtensionDAO extensionDAO = new ExtensionDAO(["extensionThreshold": "1"], new Cache([:]))
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none()
 
     // Threshold is satisfied
     @Test
@@ -35,8 +40,10 @@ class ExtensionDAOTest {
     }
 
     // Threshold is not satisfied
-    @Test(expected = DAOException.class)
+    @Test
     void testUnderThreshold() {
+        exception.expect(DAOException.class)
+        exception.expectMessage("extension locations")
         extensionDAO.parseExtensionData("<response></response>")
     }
 }

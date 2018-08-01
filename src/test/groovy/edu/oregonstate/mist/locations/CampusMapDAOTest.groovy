@@ -2,11 +2,16 @@ package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.DAOException
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 
 class CampusMapDAOTest {
 
     CampusMapDAO campusMapDAO = new CampusMapDAO(["campusMapThreshold": "1"], new Cache([:]))
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none()
 
     // Threshold is satisfied
     @Test
@@ -32,8 +37,10 @@ class CampusMapDAOTest {
     }
 
     // Threshold is not satisfied
-    @Test(expected = DAOException.class)
+    @Test
     void testUnderThreshold() {
+        exception.expect(DAOException.class)
+        exception.expectMessage("campus map locations")
         campusMapDAO.parseCampusMaps("[]")
     }
 }
