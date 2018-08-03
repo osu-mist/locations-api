@@ -41,8 +41,7 @@ class ArcGisDAO {
 
     public HashMap<String, GenderInclusiveRRLocation> getGenderInclusiveRR() {
         //@todo we should expect application/json, but arcgis actually returns text/plain. oops
-        cache.withDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
-                CACHE_FILENAME) {
+        cache.withDataFromUrlOrCache(arcGisGenderInclusiveRRUrl, CACHE_FILENAME) {
             String gisData -> mapRR(gisData)
         }
     }
