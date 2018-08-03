@@ -1,14 +1,14 @@
 package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.Application
-import edu.oregonstate.mist.locations.LocationCommand
+import groovy.transform.TypeChecked
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 
 /**
  * Main application class.
  */
-@groovy.transform.TypeChecked
+@TypeChecked
 class LocationApplication extends Application<LocationConfiguration> {
     @Override
     public void initialize(Bootstrap bootstrap) {

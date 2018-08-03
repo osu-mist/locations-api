@@ -11,8 +11,10 @@ import edu.oregonstate.mist.locations.db.ExtraDataDAO
 import edu.oregonstate.mist.locations.db.DiningDAO
 import edu.oregonstate.mist.locations.db.ExtensionDAO
 import edu.oregonstate.mist.locations.db.ExtraDataManager
+import edu.oregonstate.mist.locations.db.FacilDAO
 import edu.oregonstate.mist.locations.db.LibraryDAO
 import edu.oregonstate.mist.locations.db.LocationDAO
+import groovy.transform.TypeChecked
 import io.dropwizard.cli.EnvironmentCommand
 import io.dropwizard.client.HttpClientBuilder
 import io.dropwizard.jdbi.DBIFactory
@@ -22,7 +24,7 @@ import net.sourceforge.argparse4j.inf.Subparser
 import org.apache.http.client.HttpClient
 import org.skife.jdbi.v2.DBI
 
-@groovy.transform.TypeChecked
+@TypeChecked
 class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
     // Note: without this configure line, mapper.writeValue will close the file after writing.
     ObjectMapper mapper = new ObjectMapper()
@@ -65,6 +67,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
 
         def configMap = configuration.locationsConfiguration
         final Cache cache = new Cache(configMap)
+        final FacilDAO facilDAO = jdbi.onDemand(FacilDAO.class)
 
         extraDataManager = new ExtraDataManager()
         // Managed objects are tied to the lifecycle of the http server.
@@ -77,11 +80,12 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         diningDAO = new DiningDAO(configuration, cache)
         extensionDAO = new ExtensionDAO(configMap, cache)
         extraDataDAO = new ExtraDataDAO(configuration, cache, extraDataManager)
-        cachedFacilDAO = new CachedFacilDAO(jdbi, cache)
+        cachedFacilDAO = new CachedFacilDAO(facilDAO, cache,
+                configMap.get("facilLocationThreshold").toInteger())
         libraryDAO = new LibraryDAO(configMap, httpClient, cache)
         locationDAO = new LocationDAO(configMap)
-
-        mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO)
+        mergeUtil = new MergeUtil(libraryDAO, extraDataDAO, campusMapDAO,
+                configMap.get("missingLocationsRatio").toFloat())
 
         writeJsonAPIToFile("services.json", getServices())
         writeJsonAPIToFile("locations-combined.json", getCombinedData())
@@ -95,7 +99,7 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
      */
     private List getBuildingData() {
         List<FacilLocation> buildings = cachedFacilDAO.getBuildings()
-        // Get acrgis gender inclusive restroom data from json file
+        // Get arcgis gender inclusive restroom data from json file
         def genderInclusiveRR = arcGisDAO.getGenderInclusiveRR()
         // Get arcgis coordinate data from json file
         def arcGisGeometries = locationDAO.getArcGisCoordinates()

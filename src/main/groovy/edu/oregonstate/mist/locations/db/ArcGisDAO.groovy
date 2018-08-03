@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
@@ -25,6 +26,8 @@ class ArcGisDAO {
      */
     private final String arcGisGenderInclusiveRRJsonOut
 
+    private final int ARC_GIS_THRESHOLD
+
     /**
      * Helper for caching and getting data from web requests
      */
@@ -33,6 +36,7 @@ class ArcGisDAO {
     public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
         arcGisGenderInclusiveRRJsonOut = locationConfiguration.get("arcGisGenderInclusiveJsonOut")
+        ARC_GIS_THRESHOLD = locationConfiguration.get("arcGisThreshold").toInteger()
         this.cache = cache
     }
 
@@ -47,11 +51,8 @@ class ArcGisDAO {
     HashMap<String, GenderInclusiveRRLocation> mapRR(String gisData) {
         def mappedData = mapper.readTree(gisData).get("features")
         def data = new HashMap<String, GenderInclusiveRRLocation>()
-
-        if (mappedData.size() == 0) {
-            throw new DAOException("found zero gender inclusive restrooms")
-        }
-
+        LocationUtil.checkThreshold(mappedData.size(),
+                ARC_GIS_THRESHOLD, "gender inclusive restrooms")
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
             data[rr.bldID] = rr

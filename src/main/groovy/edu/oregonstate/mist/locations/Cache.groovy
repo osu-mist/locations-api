@@ -1,7 +1,7 @@
 package edu.oregonstate.mist.locations
 
-import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import groovy.transform.TypeChecked
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -9,7 +9,7 @@ import javax.ws.rs.core.MediaType
 import java.nio.file.Path
 import java.nio.file.Paths
 
-@CompileStatic
+@TypeChecked
 class Cache {
     private static final Logger LOGGER = LoggerFactory.getLogger(Cache.class)
 

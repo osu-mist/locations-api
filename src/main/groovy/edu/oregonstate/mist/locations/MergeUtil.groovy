@@ -2,8 +2,6 @@ package edu.oregonstate.mist.locations
 
 import edu.oregonstate.mist.api.jsonapi.ResourceIdentifierObject
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.locations.Constants
-import edu.oregonstate.mist.locations.core.Attributes
 import edu.oregonstate.mist.locations.core.CampusMapLocation
 import edu.oregonstate.mist.locations.db.CampusMapDAO
 import edu.oregonstate.mist.locations.db.ExtraDataDAO
@@ -17,12 +15,17 @@ class MergeUtil {
     CampusMapDAO campusMapDAO
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeUtil.class)
 
+    // Ratio of how many campus maps locations are allowed to be missing
+    private final float MISSING_LOCATIONS_RATIO
+
     MergeUtil(LibraryDAO libraryDAO,
               ExtraDataDAO extraDataDAO,
-              CampusMapDAO campusMapDAO) {
+              CampusMapDAO campusMapDAO,
+              float missingLocationsRatio) {
         this.libraryDAO = libraryDAO
         this.extraDataDAO = extraDataDAO
         this.campusMapDAO = campusMapDAO
+        MISSING_LOCATIONS_RATIO = missingLocationsRatio
     }
 
     /**
@@ -162,5 +165,13 @@ class MergeUtil {
             }
         }
 
+        def missingLocations = campusMapData.keySet() - data.collect { it.id }
+        float ratioMissing = missingLocations.size() / campusMapData.size()
+        LOGGER.info("Ratio of missing campus maps locations: ${ratioMissing}")
+        if (ratioMissing > MISSING_LOCATIONS_RATIO) {
+            throw new Exception("Missing campus maps locations ratio of " +
+                    "${MISSING_LOCATIONS_RATIO} not satisfied")
+        }
+        data
     }
 }

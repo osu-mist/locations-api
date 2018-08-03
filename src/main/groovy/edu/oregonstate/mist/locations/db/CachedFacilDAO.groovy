@@ -3,9 +3,10 @@ package edu.oregonstate.mist.locations.db
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.FacilLocation
-import groovy.transform.CompileStatic
-import org.skife.jdbi.v2.DBI
+import groovy.transform.PackageScope
+import groovy.transform.TypeChecked
 import org.skife.jdbi.v2.exceptions.DBIException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,7 +16,7 @@ import java.sql.SQLException
 /**
  * CachedFacilDAO is a wrapper around FacilDAO that adds caching.
  */
-@CompileStatic
+@TypeChecked
 class CachedFacilDAO implements Closeable {
     final static Logger LOGGER = LoggerFactory.getLogger(CachedFacilDAO)
     final ObjectMapper mapper = new ObjectMapper()
@@ -23,13 +24,15 @@ class CachedFacilDAO implements Closeable {
     final private static String CACHE_FILENAME = "facil-buildings.json"
     private final FacilDAO facilDAO
     private final Cache cache
+    private final int FACIL_LOCATION_THRESHOLD
 
-    CachedFacilDAO(DBI jdbi, Cache cache) {
+    CachedFacilDAO(FacilDAO facilDAO, Cache cache, int facilLocationThreshold) {
         // @todo: should we construct FacilDAO here or require that it be passed in?
         // we don't have to worry about connection errors here because onDemand
         // doesn't connect until the first request, which is in getBuildings below
-        this.facilDAO = jdbi.onDemand(FacilDAO.class)
+        this.facilDAO = facilDAO
         this.cache = cache
+        FACIL_LOCATION_THRESHOLD = facilLocationThreshold
     }
 
     @Override
@@ -41,20 +44,20 @@ class CachedFacilDAO implements Closeable {
         def buildings
         try {
             buildings = facilDAO.getBuildings()
-            if (buildings.isEmpty()) {
-                throw new DAOException("Found zero buildings in facil database")
-            }
+            LocationUtil.checkThreshold(buildings.size(), FACIL_LOCATION_THRESHOLD, "buildings")
             saveBuildingsToCache(buildings)
         } catch (DAOException | DBIException | SQLException e) {
             //@todo: i think jdbi wraps all SQLExceptions in a DBIException
             LOGGER.error("Got exception while querying facil database", e)
             LOGGER.error("Attempting to fall back on cached data")
             buildings = getBuildingsFromCache()
+            LocationUtil.checkThreshold(buildings.size(), FACIL_LOCATION_THRESHOLD, "buildings")
         }
         buildings
     }
 
-    private void saveBuildingsToCache(List<FacilLocation> buildings) {
+    @PackageScope
+    void saveBuildingsToCache(List<FacilLocation> buildings) {
         cache.writeDataToCache(CACHE_FILENAME, mapper.writeValueAsString(buildings))
     }
 

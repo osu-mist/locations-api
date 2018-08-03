@@ -1,7 +1,9 @@
 package edu.oregonstate.mist.locations.db
 
 import edu.oregonstate.mist.locations.Cache
+import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.ExtensionLocation
+import groovy.transform.PackageScope
 
 class ExtensionDAO {
     /**
@@ -11,11 +13,14 @@ class ExtensionDAO {
 
     private final String extensionXmlOut
 
+    private final int EXTENSION_THRESHOLD
+
     private final Cache cache
 
     ExtensionDAO(Map<String, String> locationConfiguration, Cache cache) {
         extensionUrl = locationConfiguration.get("extensionUrl")
         extensionXmlOut = locationConfiguration.get("extensionXmlOut")
+        EXTENSION_THRESHOLD = locationConfiguration.get("extensionThreshold").toInteger()
         this.cache = cache
     }
 
@@ -30,11 +35,11 @@ class ExtensionDAO {
         }
     }
 
-    static private List<ExtensionLocation> parseExtensionData(String extensionXML) {
+    @PackageScope
+    List<ExtensionLocation> parseExtensionData(String extensionXML) {
         def response = new XmlSlurper().parseText(extensionXML)
-        if (response.item.isEmpty()) {
-            throw new DAOException("found zero extension locations")
-        }
+        LocationUtil.checkThreshold(response.item.size(),
+                EXTENSION_THRESHOLD, "extension locations")
         response.item.collect {
             new ExtensionLocation(
                     geoLocation: it.GeoLocation,
