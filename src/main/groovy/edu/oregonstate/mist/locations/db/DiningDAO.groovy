@@ -16,9 +16,11 @@ public class DiningDAO extends IcalDAO {
     private final int DINING_THRESHOLD =
             configuration.locationsConfiguration.get("diningThreshold").toInteger()
 
+    private static final String CACHE_FILENAME = "dining.json"
+
     List<ServiceLocation> getDiningLocations() {
 
-        List<ServiceLocation> diners = cache.withJsonFromUrlOrCache(metadataURL, jsonOut) {
+        List<ServiceLocation> diners = cache.withJsonFromUrlOrCache(metadataURL, CACHE_FILENAME) {
             diningData -> mapDiningLocations(diningData)
         }
 
@@ -43,10 +45,5 @@ public class DiningDAO extends IcalDAO {
         )
         LocationUtil.checkThreshold(locations.size(), DINING_THRESHOLD, "dining locations")
         locations
-    }
-
-    @Override
-    String getJsonOut() {
-        this.configuration.locationsConfiguration.get("diningJsonOut")
     }
 }

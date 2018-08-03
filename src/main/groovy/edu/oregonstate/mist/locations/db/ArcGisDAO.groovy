@@ -24,7 +24,7 @@ class ArcGisDAO {
     /**
      * File where the arcgis data is downloaded to
      */
-    private final String arcGisGenderInclusiveRRJsonOut
+    private static final String CACHE_FILENAME = "gender-inclusive-rr.json"
 
     private final int ARC_GIS_THRESHOLD
 
@@ -35,7 +35,6 @@ class ArcGisDAO {
 
     public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
-        arcGisGenderInclusiveRRJsonOut = locationConfiguration.get("arcGisGenderInclusiveJsonOut")
         ARC_GIS_THRESHOLD = locationConfiguration.get("arcGisThreshold").toInteger()
         this.cache = cache
     }
@@ -43,7 +42,7 @@ class ArcGisDAO {
     public HashMap<String, GenderInclusiveRRLocation> getGenderInclusiveRR() {
         //@todo we should expect application/json, but arcgis actually returns text/plain. oops
         cache.withDataFromUrlOrCache(arcGisGenderInclusiveRRUrl,
-                arcGisGenderInclusiveRRJsonOut) {
+                CACHE_FILENAME) {
             String gisData -> mapRR(gisData)
         }
     }
