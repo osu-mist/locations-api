@@ -21,8 +21,4 @@ class IcalDAO {
     String getIcalURL() {
         this.configuration.locationsConfiguration.get("icalUrl")
     }
-
-    String getJsonOut() {
-        this.configuration.locationsConfiguration.get("jsonOut")
-    }
 }

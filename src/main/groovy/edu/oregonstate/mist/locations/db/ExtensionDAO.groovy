@@ -11,7 +11,7 @@ class ExtensionDAO {
      */
     private final String extensionUrl
 
-    private final String extensionXmlOut
+    private static final String CACHE_FILENAME = "extension-locations.xml"
 
     private final int EXTENSION_THRESHOLD
 
@@ -19,7 +19,6 @@ class ExtensionDAO {
 
     ExtensionDAO(Map<String, String> locationConfiguration, Cache cache) {
         extensionUrl = locationConfiguration.get("extensionUrl")
-        extensionXmlOut = locationConfiguration.get("extensionXmlOut")
         EXTENSION_THRESHOLD = locationConfiguration.get("extensionThreshold").toInteger()
         this.cache = cache
     }
@@ -30,7 +29,7 @@ class ExtensionDAO {
      * @return
      */
     public List<ExtensionLocation> getExtensionLocations() {
-        cache.withDataFromUrlOrCache(extensionUrl, extensionXmlOut) { extensionXML ->
+        cache.withDataFromUrlOrCache(extensionUrl, CACHE_FILENAME) { extensionXML ->
             parseExtensionData(extensionXML)
         }
     }

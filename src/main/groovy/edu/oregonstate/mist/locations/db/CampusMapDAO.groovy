@@ -10,7 +10,7 @@ class CampusMapDAO {
 
     private final String campusMapJsonUrl
 
-    private final String campusMapJsonOut
+    private static final String CACHE_FILENAME = "campusmap.json"
 
     private final int CAMPUS_MAP_THRESHOLD
 
@@ -20,7 +20,6 @@ class CampusMapDAO {
 
     CampusMapDAO(Map<String, String> locationConfiguration, Cache cache) {
         campusMapJsonUrl = locationConfiguration.get("campusMapHttpData")
-        campusMapJsonOut = locationConfiguration.get("campusmapJsonOut")
         CAMPUS_MAP_THRESHOLD = locationConfiguration.get("campusMapThreshold").toInteger()
         this.cache = cache
     }
@@ -45,7 +44,7 @@ class CampusMapDAO {
      * @return
      */
     List<CampusMapLocation> getCampusMapJson() {
-        cache.withJsonFromUrlOrCache(campusMapJsonUrl, campusMapJsonOut) {
+        cache.withJsonFromUrlOrCache(campusMapJsonUrl, CACHE_FILENAME) {
             String campusMapData -> parseCampusMaps(campusMapData)
         }
     }
