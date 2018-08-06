@@ -9,9 +9,9 @@ curl -s -XDELETE http://localhost:9200/locations/ ; echo
 curl -s -XDELETE http://localhost:9200/services/ ; echo
 
 # Upload template mappings
-curl -s -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-services-index-template.json"; echo
-curl -s -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-services-index-template.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
 
 # Upload documents to ES
-curl -s -XPOST localhost:9200/locations/locations/_bulk --data-binary "@locations-combined.json"; echo
-curl -s -XPOST localhost:9200/services/services/_bulk --data-binary "@services.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST localhost:9200/locations/locations/_bulk --data-binary "@locations-combined.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST localhost:9200/services/services/_bulk --data-binary "@services.json"; echo
