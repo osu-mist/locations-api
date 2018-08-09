@@ -261,10 +261,10 @@ Follow the below steps to post locations data to Elasticsearch
 curl -s -XDELETE http://localhost:9200/locations/ ; echo
 
 #Post index template to locations:
-curl -s -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/template_1 --data-binary "@ES-locations-index-template.json"; echo
 
 #Post index template to services:
-curl -s -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-services-index-template.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST http://localhost:9200/_template/template_2 --data-binary "@ES-services-index-template.json"; echo
 
 #Fetch dining/arcgis/extension JSON and post them to ES.
 ```
@@ -280,5 +280,5 @@ export USER=secret
 export PASSWORD=sauce
 
 # Run bash script
-./reset-data.sh
+./data-reset.sh
 ```
