@@ -7,6 +7,7 @@ class CampusMapLocation {
     List<String> synonyms
     String address
     String description
+    String descriptionHTML
     List<String> images
     List<String> thumbnail
     String mapUrl
