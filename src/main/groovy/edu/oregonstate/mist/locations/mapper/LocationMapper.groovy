@@ -1,22 +1,22 @@
 package edu.oregonstate.mist.locations.mapper
 
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.Attributes
+import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
+import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
-import edu.oregonstate.mist.locations.core.ExtensionLocation
-import edu.oregonstate.mist.locations.core.GeoLocation
-import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 
-@TypeChecked
 class LocationMapper {
     String apiEndpointUrl
+    String weeklyMenuUrl
 
     public ResourceObject map(ServiceLocation serviceLocation) {
         // The ServiceLocation class is used for multiple types of data
@@ -42,7 +42,8 @@ class LocationMapper {
                     openHours: serviceLocation.openHours,
                     merge: serviceLocation.merge,
                     tags: serviceLocation.tags,
-                    parent: serviceLocation.parent
+                    parent: serviceLocation.parent,
+                    locId: serviceLocation.locId
             )
         }
 
@@ -132,12 +133,16 @@ class LocationMapper {
         buildResourceObject(facilLocation.calculateId(), attributes)
     }
 
-    private void setLinks(ResourceObject resourceObject) {
+    private void setLinks(ResourceObject resourceObject, String locId) {
         String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
                 Constants.LOCATIONS
 
         String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
         def links = ['self': selfUrl]
+        if(resourceObject.attributes.type == "dining" && locId != null) {
+            String menuLink = "${weeklyMenuUrl}?loc=${locId}"
+            links.put("weeklyMenu", menuLink)
+        }
         resourceObject.links = links
     }
 
@@ -150,8 +155,9 @@ class LocationMapper {
     private ResourceObject buildResourceObject(String id, def attributes) {
         def type = isService(attributes) ? Constants.TYPE_SERVICES : "locations"
         def resourceObject = new ResourceObject(id: id, type: type, attributes: attributes)
+        String locId = attributes.locId ?: null
 
-        setLinks(resourceObject)
+        setLinks(resourceObject, locId)
         resourceObject
     }
 

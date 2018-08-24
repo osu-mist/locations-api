@@ -15,6 +15,8 @@ class ServiceLocation extends BaseType implements Comparable {
     String calendarId
     @JsonProperty("concept_coord")
     String conceptCoord //"latitude, longitude"
+    @JsonProperty("loc_id")
+    String locId
     String start
     String end
     HashMap<Integer, List<DayOpenHours>> openHours = new HashMap<Integer, List<DayOpenHours>>()

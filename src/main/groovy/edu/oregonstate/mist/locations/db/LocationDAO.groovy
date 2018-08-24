@@ -1,8 +1,8 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ParkingLocation
@@ -25,7 +25,8 @@ class LocationDAO {
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
         locationMapper = new LocationMapper(
-                apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
+                apiEndpointUrl: locationConfiguration.get("apiEndpointUrl"),
+                weeklyMenuUrl: locationConfiguration.get("weeklyMenuUrl")
         )
         buildingGeometriesJsonFile = new File(locationConfiguration.get("buildingGeometries"))
         parkingGeometriesJsonFile = new File(locationConfiguration.get("parkingGeometries"))
