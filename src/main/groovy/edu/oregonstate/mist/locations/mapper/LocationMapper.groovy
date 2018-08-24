@@ -14,6 +14,7 @@ import edu.oregonstate.mist.locations.core.ServiceLocation
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 
+@TypeChecked
 class LocationMapper {
     String apiEndpointUrl
 
