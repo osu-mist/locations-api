@@ -37,7 +37,7 @@ public class DiningDAO extends IcalDAO {
             it.type = Constants.TYPE_DINING
             if(it.locId != null) {
                 uriBuilder.setParameter("loc", it.locId)
-                it.weeklyMenu = uriBuilder.build()
+                it.weeklyMenu = uriBuilder.build().toString()
             }
         }
 
