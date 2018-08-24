@@ -25,8 +25,7 @@ class LocationDAO {
     public LocationDAO(Map<String, String> locationConfiguration) {
         mapper = new ObjectMapper()
         locationMapper = new LocationMapper(
-                apiEndpointUrl: locationConfiguration.get("apiEndpointUrl"),
-                weeklyMenuUrl: locationConfiguration.get("weeklyMenuUrl")
+                apiEndpointUrl: locationConfiguration.get("apiEndpointUrl")
         )
         buildingGeometriesJsonFile = new File(locationConfiguration.get("buildingGeometries"))
         parkingGeometriesJsonFile = new File(locationConfiguration.get("parkingGeometries"))

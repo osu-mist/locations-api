@@ -21,12 +21,6 @@ class ServiceAttributes {
     String locationId
 
     /**
-     * Used to determine weekly menus of dining locations
-     */
-    @JsonIgnore
-    String locId
-
-    /**
      * Used to calculate if the object holds only hours / metadata that needs to be merged
      */
     @JsonIgnore

@@ -16,7 +16,6 @@ import groovy.transform.TypeCheckingMode
 
 class LocationMapper {
     String apiEndpointUrl
-    String weeklyMenuUrl
 
     public ResourceObject map(ServiceLocation serviceLocation) {
         // The ServiceLocation class is used for multiple types of data
@@ -42,8 +41,7 @@ class LocationMapper {
                     openHours: serviceLocation.openHours,
                     merge: serviceLocation.merge,
                     tags: serviceLocation.tags,
-                    parent: serviceLocation.parent,
-                    locId: serviceLocation.locId
+                    parent: serviceLocation.parent
             )
         }
 
@@ -133,16 +131,12 @@ class LocationMapper {
         buildResourceObject(facilLocation.calculateId(), attributes)
     }
 
-    private void setLinks(ResourceObject resourceObject, String locId) {
+    private void setLinks(ResourceObject resourceObject) {
         String resource = isService(resourceObject.attributes) ? Constants.SERVICES :
                 Constants.LOCATIONS
 
         String selfUrl = "$apiEndpointUrl$resource/${resourceObject.id}"
         def links = ['self': selfUrl]
-        if(resourceObject.attributes.type == "dining" && locId != null) {
-            String menuLink = "${weeklyMenuUrl}?loc=${locId}"
-            links.put("weeklyMenu", menuLink)
-        }
         resourceObject.links = links
     }
 
@@ -155,9 +149,8 @@ class LocationMapper {
     private ResourceObject buildResourceObject(String id, def attributes) {
         def type = isService(attributes) ? Constants.TYPE_SERVICES : "locations"
         def resourceObject = new ResourceObject(id: id, type: type, attributes: attributes)
-        String locId = attributes.locId ?: null
 
-        setLinks(resourceObject, locId)
+        setLinks(resourceObject)
         resourceObject
     }
 
