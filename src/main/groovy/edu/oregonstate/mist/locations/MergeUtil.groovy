@@ -158,6 +158,7 @@ class MergeUtil {
             if (campusMapData[it.id]) {
                 it.attributes.address = campusMapData[it.id].address
                 it.attributes.description = campusMapData[it.id].description
+                it.attributes.descriptionHTML = campusMapData[it.id].descriptionHTML
                 it.attributes.images = campusMapData[it.id].images
                 it.attributes.thumbnails = campusMapData[it.id].thumbnail
                 it.attributes.website = campusMapData[it.id].mapUrl

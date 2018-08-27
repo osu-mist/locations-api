@@ -7,6 +7,7 @@ class Attributes extends ServiceAttributes {
     Geometry geometry
     String summary
     String description
+    String descriptionHTML
     String address
     String city
     String state
