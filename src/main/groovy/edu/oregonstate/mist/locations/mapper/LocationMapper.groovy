@@ -42,7 +42,8 @@ class LocationMapper {
                     openHours: serviceLocation.openHours,
                     merge: serviceLocation.merge,
                     tags: serviceLocation.tags,
-                    parent: serviceLocation.parent
+                    parent: serviceLocation.parent,
+                    weeklyMenu: serviceLocation.weeklyMenu
             )
         }
 
