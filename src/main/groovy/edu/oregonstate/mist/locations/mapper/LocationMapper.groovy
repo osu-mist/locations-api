@@ -1,16 +1,16 @@
 package edu.oregonstate.mist.locations.mapper
 
+import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.Constants
 import edu.oregonstate.mist.locations.core.Attributes
+import edu.oregonstate.mist.locations.core.ExtensionLocation
 import edu.oregonstate.mist.locations.core.ExtraLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
+import edu.oregonstate.mist.locations.core.GeoLocation
 import edu.oregonstate.mist.locations.core.Geometry
 import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.core.ServiceAttributes
 import edu.oregonstate.mist.locations.core.ServiceLocation
-import edu.oregonstate.mist.locations.core.ExtensionLocation
-import edu.oregonstate.mist.locations.core.GeoLocation
-import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 
@@ -42,7 +42,8 @@ class LocationMapper {
                     openHours: serviceLocation.openHours,
                     merge: serviceLocation.merge,
                     tags: serviceLocation.tags,
-                    parent: serviceLocation.parent
+                    parent: serviceLocation.parent,
+                    weeklyMenu: serviceLocation.weeklyMenu
             )
         }
 

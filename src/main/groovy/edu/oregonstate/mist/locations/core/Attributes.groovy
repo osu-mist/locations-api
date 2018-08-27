@@ -32,4 +32,5 @@ class Attributes extends ServiceAttributes {
     Integer adaParkingSpaceCount
     Integer motorcycleParkingSpaceCount
     Integer evParkingSpaceCount
+    String weeklyMenu
 }

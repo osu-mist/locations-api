@@ -45,6 +45,7 @@ authentication:
 
 locations:
   uhdsUrl: http://example.com/path-to-json-file.json
+  weeklyMenuUrl: https://example.com/path/to/weeklymenu/index
   icalUrl: https://www.google.com/calendar/ical/calendar-id%40group.calendar.google.com/public/basic.ics
   cacheDirectory: cache
   campusMapHttpData: https://example.com/locations.json

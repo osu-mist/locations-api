@@ -1,8 +1,8 @@
 package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.ParkingLocation
