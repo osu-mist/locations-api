@@ -31,6 +31,7 @@ class LibraryDAO {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"
     public static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mma"
+    public static final String TIMEZONE = "America/Los_Angeles"
 
     private ObjectMapper mapper = new ObjectMapper()
 
@@ -60,8 +61,10 @@ class LibraryDAO {
         Map<String, LibraryHours> data = getLibraryData(startDate, numDays)
         // Attributes requires a list of DayOpenHours
         Map<Integer, List<DayOpenHours>> openHours = new HashMap<>()
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(DATETIME_FORMAT)
-                .withZone(DateTimeZone.forID("America/Los_Angeles"))
+        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT)
+                .withZone(DateTimeZone.forID(TIMEZONE))
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT)
+                .withZone(DateTimeZone.forID(TIMEZONE))
 
         data?.each { _, it ->
             // Sometimes the data has space padding :(
@@ -69,17 +72,26 @@ class LibraryDAO {
             def open = it.open.trim()
             def close = it.close.trim()
 
-            DateTime start = formatter.parseDateTime(openDate + " " + open)
-            DateTime end = formatter.parseDateTime(openDate + " " + close)
+            DateTime parsedOpenDate = dateFormatter.parseDateTime(openDate)
+            Integer index = Days.daysBetween(startDate, parsedOpenDate).getDays() + 1
 
-            if (!it.closesAtNight) {
+            DateTime start = open ? dateTimeFormatter.parseDateTime(
+                    openDate + " " + open) : null
+            DateTime end = close ? dateTimeFormatter.parseDateTime(
+                    openDate + " " + close) : null
+
+            if (end && !it.closesAtNight) {
                 end = end.withTime(23, 59, 59, 999)
             }
 
-            Integer index = Days.daysBetween(startDate, start).getDays() + 1
-            openHours.put(index, [
-                    new DayOpenHours(start: start.toDate(), end: end.toDate())
-            ])
+            if (!start && !end) {
+                // If the day has no start and end dates, the library is closed.
+                openHours.put(index, [])
+            } else {
+                openHours.put(index, [
+                        new DayOpenHours(start: start?.toDate(), end: end?.toDate())
+                ])
+            }
         }
 
         openHours
