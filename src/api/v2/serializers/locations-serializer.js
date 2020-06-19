@@ -6,7 +6,7 @@ import { openapi } from 'utils/load-openapi';
 import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
-const petResourceProp = openapi.definitions.PetResource.properties;
+const petResourceProp = openapi.definitions.LocationResource.properties;
 const petResourceType = petResourceProp.type.enum[0];
 const petResourceKeys = _.keys(petResourceProp.attributes.properties);
 const petResourcePath = 'pets';
@@ -15,11 +15,11 @@ const petResourceUrl = resourcePathLink(apiBaseUrl, petResourcePath);
 /**
  * Serialize petResources to JSON API
  *
- * @param {object[]} rawPets Raw data rows from data source
+ * @param {object[]} rawLocations Raw data rows from data source
  * @param {object} req Express request object
  * @returns {object} Serialized petResources object
  */
-const serializePets = (rawPets, req) => {
+const serializeLocations = (rawLocations, req) => {
   const { query } = req;
 
   // Add pagination links and meta information to options if pagination is enabled
@@ -28,9 +28,9 @@ const serializePets = (rawPets, req) => {
     number: query['page[number]'],
   };
 
-  const pagination = paginate(rawPets, pageQuery);
-  pagination.totalResults = rawPets.length;
-  rawPets = pagination.paginatedRows;
+  const pagination = paginate(rawLocations, pageQuery);
+  pagination.totalResults = rawLocations.length;
+  rawLocations = pagination.paginatedRows;
 
   // TODO use req.path
   const topLevelSelfLink = paramsLink(petResourceUrl, query);
@@ -47,23 +47,23 @@ const serializePets = (rawPets, req) => {
   return new JsonApiSerializer(
     petResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawPets);
+  ).serialize(rawLocations);
 };
 
 /**
  * Serialize petResource to JSON API
  *
- * @param {object} rawPet Raw data row from data source
+ * @param {object} rawLocation Raw data row from data source
  * @param {boolean} req Express request object
  * @returns {object} Serialized petResource object
  */
-const serializePet = (rawPet, req) => {
+const serializeLocation = (rawLocation, req) => {
   const { query } = req;
 
   // TODO use req.path
   const baseUrl = req.method === 'POST'
     ? petResourceUrl
-    : resourcePathLink(petResourceUrl, rawPet.id);
+    : resourcePathLink(petResourceUrl, rawLocation.id);
   const topLevelSelfLink = paramsLink(baseUrl, query);
 
   const serializerArgs = {
@@ -78,6 +78,6 @@ const serializePet = (rawPet, req) => {
   return new JsonApiSerializer(
     petResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawPet);
+  ).serialize(rawLocation);
 };
-export { serializePets, serializePet };
+export { serializeLocations, serializeLocation };

@@ -1,6 +1,6 @@
 import { errorBuilder, errorHandler } from 'errors/errors';
-import { getPetById } from '../../db/json/pets-dao-example';
-import { serializePet } from '../../serializers/pets-serializer';
+import { getServiceById } from '../../db/http/services-dao';
+import { serializeService } from '../../serializers/services-serializer';
 
 /**
  * Get pet by unique ID
@@ -10,11 +10,11 @@ import { serializePet } from '../../serializers/pets-serializer';
 const get = async (req, res) => {
   try {
     const { id } = req.params;
-    const rawPet = await getPetById(id);
-    if (!rawPet) {
+    const rawService = await getServiceById(id);
+    if (!rawService) {
       errorBuilder(res, 404, 'A pet with the specified ID was not found.');
     } else {
-      const result = serializePet(rawPet, req);
+      const result = serializeService(rawService, req);
       res.send(result);
     }
   } catch (err) {

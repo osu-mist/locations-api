@@ -1,7 +1,7 @@
 import config from 'config';
 import rp from 'request-promise-native';
 
-import { serializePets, serializePet } from 'api/v1/serializers/pets-serializer';
+import { serializeService, serializeServices } from 'api/v2/serializers/services-serializer';
 
 const { sourceUri } = config.get('httpDataSource');
 const { endpointUri } = config.get('server');
@@ -11,11 +11,11 @@ const { endpointUri } = config.get('server');
  *
  * @returns {Promise} Promise object represents a list of pets
  */
-const getPets = async () => {
+const getServices = async () => {
   const options = { uri: sourceUri, json: true };
-  const rawPets = await rp(options);
-  const serializedPets = serializePets(rawPets, endpointUri);
-  return serializedPets;
+  const rawServices = await rp(options);
+  const serializedServices = serializeServices(rawServices, endpointUri);
+  return serializedServices;
 };
 
 /**
@@ -24,14 +24,14 @@ const getPets = async () => {
  * @param {string} id Unique pet ID
  * @returns {Promise} Promise object represents a specific pet
  */
-const getPetById = async (id) => {
+const getServiceById = async (id) => {
   const options = { uri: `${sourceUri}/${id}`, json: true };
-  const rawPet = await rp(options);
-  if (!rawPet) {
+  const rawService = await rp(options);
+  if (!rawService) {
     return undefined;
   }
-  const serializedPet = serializePet(rawPet, endpointUri);
-  return serializedPet;
+  const serializedService = serializeService(rawService, endpointUri);
+  return serializedService;
 };
 
-export { getPets, getPetById };
+export { getServices, getServiceById };
