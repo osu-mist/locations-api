@@ -5,20 +5,23 @@ import { logger } from 'utils/logger';
 
 const { dataSources } = config.get('dataSources');
 const awsS3 = dataSources.includes('awsS3')
-  ? require('api/v1/db/awsS3/aws-operations').validateAwsS3
+  ? require('db/awsS3/aws-operations').validateAwsS3
+  : null;
+const http = dataSources.includes('http')
+  ? require('db/http/connection').validateHttp
   : null;
 const json = dataSources.includes('json')
-  ? require('api/v1/db/json/fs-operations').validateJsonDb
+  ? require('db/json/fs-operations').validateJsonDb
   : null;
 const oracledb = dataSources.includes('oracledb')
-  ? require('api/v1/db/oracledb/connection').validateOracleDb
+  ? require('db/oracledb/connection').validateOracleDb
   : null;
 
 /** Validate database configuration */
 const validateDataSource = () => {
   const validationMethods = {
     awsS3,
-    http: null, // TODO: add HTTP validation method
+    http,
     json,
     oracledb,
   };

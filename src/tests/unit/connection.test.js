@@ -1,6 +1,5 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import config from 'config';
 import _ from 'lodash';
 import proxyquireModule from 'proxyquire';
 import sinon from 'sinon';
@@ -14,22 +13,20 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('Test oracledb connection module', () => {
-  let configGetStub;
   let connection;
 
-  beforeEach(() => {
-    configGetStub = sinon.stub(config, 'get')
-      .withArgs('dataSources.oracledb')
-      .returns({});
-  });
+  const configGetStub = sinon.stub()
+    .withArgs('dataSources.oracledb')
+    .returns({});
+
   afterEach(() => sinon.restore());
 
   const createOracleDbStub = (createPoolStub) => {
-    connection = proxyquire('api/v1/db/oracledb/connection', {
+    connection = proxyquire('db/oracledb/connection', {
       config: { get: configGetStub },
       oracledb: { createPool: createPoolStub },
       // suppress logger output for testing
-      '../../../../utils/logger': { logger: { error: () => {} } },
+      '../../utils/logger': { logger: { error: () => {} } },
     });
   };
 

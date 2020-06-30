@@ -8,10 +8,10 @@ const { endpointUri } = config.get('server');
 
 /**
  * Return a list of pets
- *
+ * @param query Object containing query parameters
  * @returns {Promise} Promise object represents a list of pets
  */
-const getServices = async () => {
+const getServices = async (query) => {
   const options = { uri: sourceUri, json: true };
   const rawServices = await rp(options);
   const serializedServices = serializeServices(rawServices, endpointUri);
