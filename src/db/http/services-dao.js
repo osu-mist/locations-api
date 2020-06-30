@@ -1,7 +1,7 @@
 import config from 'config';
 import rp from 'request-promise-native';
 
-import { serializeService, serializeServices } from 'api/v2/serializers/services-serializer';
+import { serializeService, serializeServices } from 'serializers/services-serializer';
 
 const { sourceUri } = config.get('httpDataSource');
 const { endpointUri } = config.get('server');
@@ -12,7 +12,7 @@ const { endpointUri } = config.get('server');
  * @returns {Promise} Promise object represents a list of pets
  */
 const getServices = async (query) => {
-  const options = { uri: sourceUri, json: true };
+  const options = { uri: sourceUri, json: true, query };
   const rawServices = await rp(options);
   const serializedServices = serializeServices(rawServices, endpointUri);
   return serializedServices;
