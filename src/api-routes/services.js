@@ -3,7 +3,7 @@ import { getServices } from '../db/http/services-dao';
 import { serializeServices } from '../serializers/services-serializer';
 
 /**
- * Get pets
+ * Get services
  *
  * @type {RequestHandler}
  */

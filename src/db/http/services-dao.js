@@ -7,9 +7,9 @@ const { sourceUri } = config.get('httpDataSource');
 const { endpointUri } = config.get('server');
 
 /**
- * Return a list of pets
+ * Return a list of services
  * @param query Object containing query parameters
- * @returns {Promise} Promise object represents a list of pets
+ * @returns {Promise} Promise object represents a list of services
  */
 const getServices = async (query) => {
   const options = { uri: sourceUri, json: true, query };
@@ -19,10 +19,10 @@ const getServices = async (query) => {
 };
 
 /**
- * Return a specific pet by unique ID
+ * Return a specific service by unique ID
  *
- * @param {string} id Unique pet ID
- * @returns {Promise} Promise object represents a specific pet
+ * @param {string} id Unique service ID
+ * @returns {Promise} Promise object represents a specific service
  */
 const getServiceById = async (id) => {
   const options = { uri: `${sourceUri}/${id}`, json: true };

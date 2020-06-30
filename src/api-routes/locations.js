@@ -3,7 +3,7 @@ import { getLocations } from '../db/http/locations-dao';
 import { serializeLocations } from '../serializers/locations-serializer';
 
 /**
- * Get pets
+ * Get locations
  *
  * @type {RequestHandler}
  */

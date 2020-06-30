@@ -3,7 +3,7 @@ import { getServiceById } from '../../db/http/services-dao';
 import { serializeService } from '../../serializers/services-serializer';
 
 /**
- * Get pet by unique ID
+ * Get service by unique ID
  *
  * @type {RequestHandler}
  */
@@ -12,7 +12,7 @@ const get = async (req, res) => {
     const { id } = req.params;
     const rawService = await getServiceById(id);
     if (!rawService) {
-      errorBuilder(res, 404, 'A pet with the specified ID was not found.');
+      errorBuilder(res, 404, 'A service with the specified ID was not found.');
     } else {
       const result = serializeService(rawService, req);
       res.send(result);

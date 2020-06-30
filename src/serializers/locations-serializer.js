@@ -6,18 +6,18 @@ import { openapi } from 'utils/load-openapi';
 import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
-const petResourceProp = openapi.definitions.LocationResource.properties;
-const petResourceType = petResourceProp.type.enum[0];
-const petResourceKeys = _.keys(petResourceProp.attributes.properties);
-const petResourcePath = 'pets';
-const petResourceUrl = resourcePathLink(apiBaseUrl, petResourcePath);
+const locationResourceProp = openapi.definitions.LocationResource.properties;
+const locationResourceType = locationResourceProp.type.enum[0];
+const locationResourceKeys = _.keys(locationResourceProp.attributes.properties);
+const locationResourcePath = 'locations';
+const locationResourceUrl = resourcePathLink(apiBaseUrl, locationResourcePath);
 
 /**
- * Serialize petResources to JSON API
+ * Serialize locationResources to JSON API
  *
  * @param {object[]} rawLocations Raw data rows from data source
  * @param {object} req Express request object
- * @returns {object} Serialized petResources object
+ * @returns {object} Serialized locationResources object
  */
 const serializeLocations = (rawLocations, req) => {
   const { query } = req;
@@ -33,50 +33,50 @@ const serializeLocations = (rawLocations, req) => {
   rawLocations = pagination.paginatedRows;
 
   // TODO use req.path
-  const topLevelSelfLink = paramsLink(petResourceUrl, query);
+  const topLevelSelfLink = paramsLink(locationResourceUrl, query);
   const serializerArgs = {
     identifierField: 'id',
-    resourceKeys: petResourceKeys,
+    resourceKeys: locationResourceKeys,
     pagination,
-    resourcePath: petResourcePath,
+    resourcePath: locationResourcePath,
     topLevelSelfLink,
     query,
     enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
+    locationResourceType,
     serializerOptions(serializerArgs),
   ).serialize(rawLocations);
 };
 
 /**
- * Serialize petResource to JSON API
+ * Serialize locationResource to JSON API
  *
  * @param {object} rawLocation Raw data row from data source
  * @param {boolean} req Express request object
- * @returns {object} Serialized petResource object
+ * @returns {object} Serialized locationResource object
  */
 const serializeLocation = (rawLocation, req) => {
   const { query } = req;
 
   // TODO use req.path
   const baseUrl = req.method === 'POST'
-    ? petResourceUrl
-    : resourcePathLink(petResourceUrl, rawLocation.id);
+    ? locationResourceUrl
+    : resourcePathLink(locationResourceUrl, rawLocation.id);
   const topLevelSelfLink = paramsLink(baseUrl, query);
 
   const serializerArgs = {
     identifierField: 'id',
-    resourceKeys: petResourceKeys,
-    resourcePath: petResourcePath,
+    resourceKeys: locationResourceKeys,
+    resourcePath: locationResourcePath,
     topLevelSelfLink,
     query,
     enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
+    locationResourceType,
     serializerOptions(serializerArgs),
   ).serialize(rawLocation);
 };

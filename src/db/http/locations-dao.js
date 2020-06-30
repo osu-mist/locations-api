@@ -8,9 +8,9 @@ import { serializeLocations } from 'serializers/locations-serializer';
 const {
   domain,
   region,
-  accessKeyId,
-  secretAccessKey,
-} = config.get('dataSources.awsEs');
+  accessKey,
+  secretKey,
+} = config.get('dataSources.http');
 
 const opts = {
   host: domain,
@@ -34,7 +34,7 @@ const getLocations = async (queryParams) => {
   }
 
   opts.body = requestBody;
-  awsAuth.sign(opts, { accessKeyId, secretAccessKey });
+  awsAuth.sign(opts, { accessKey, secretKey });
   const rawLocations = await rp(opts);
   console.log(rawLocations);
   const serializedLocations = serializeLocations(rawLocations /* , endpointUri */);
