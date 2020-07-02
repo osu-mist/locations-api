@@ -13,7 +13,7 @@ const {
 
 const path = '/locations/_search';
 const opts = {
-  uri: `https://${host}`,
+  uri: `https://${host}${path}`,
   host,
   path,
   service: 'es',
