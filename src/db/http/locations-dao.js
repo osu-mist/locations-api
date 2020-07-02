@@ -1,22 +1,22 @@
 import awsAuth from 'aws4';
 import config from 'config';
-import esb, { boolQuery } from 'elastic-builder';
+import esb from 'elastic-builder';
 import rp from 'request-promise-native';
 
 import { serializeLocations } from 'serializers/locations-serializer';
 
 const {
-  domain,
-  region,
-  accessKey,
-  secretKey,
+  host,
+  accessKeyId,
+  secretAccessKey,
 } = config.get('dataSources.http');
 
+const path = '/locations/_search';
 const opts = {
-  host: domain,
-  path: '/locations/_search',
+  uri: `https://${host}`,
+  host,
+  path,
   service: 'es',
-  region,
   method: 'POST',
 };
 
@@ -26,18 +26,17 @@ const opts = {
  * @returns {Promise} Promise object represents a list of locations
  */
 const getLocations = async (queryParams) => {
-  const requestBody = esb.requestBodySearch();
-  const query = boolQuery();
-
+  const q = esb.boolQuery();
   if (queryParams['filter[name]']) {
-    query.filter('attributes.name', queryParams['filter[name]']);
+    q.must(esb.termQuery('attributes.name', queryParams['filter[name]']));
   }
 
-  opts.body = requestBody;
-  awsAuth.sign(opts, { accessKey, secretKey });
+  opts.json = esb.requestBodySearch().query(q).toJSON();
+  awsAuth.sign(opts, { accessKeyId, secretAccessKey });
+  console.log(opts);
   const rawLocations = await rp(opts);
   console.log(rawLocations);
-  const serializedLocations = serializeLocations(rawLocations /* , endpointUri */);
+  const serializedLocations = serializeLocations(rawLocations, host);
   return serializedLocations;
 };
 
