@@ -3,7 +3,7 @@ import rp from 'request-promise-native';
 
 import { serializeService, serializeServices } from 'serializers/services-serializer';
 
-const { sourceUri } = config.get('httpDataSource');
+const { domain } = config.get('dataSources.http');
 const { endpointUri } = config.get('server');
 
 /**
@@ -12,7 +12,7 @@ const { endpointUri } = config.get('server');
  * @returns {Promise} Promise object represents a list of services
  */
 const getServices = async (query) => {
-  const options = { uri: sourceUri, json: true, query };
+  const options = { uri: domain, json: true, query };
   const rawServices = await rp(options);
   const serializedServices = serializeServices(rawServices, endpointUri);
   return serializedServices;
@@ -25,7 +25,7 @@ const getServices = async (query) => {
  * @returns {Promise} Promise object represents a specific service
  */
 const getServiceById = async (id) => {
-  const options = { uri: `${sourceUri}/${id}`, json: true };
+  const options = { uri: `${domain}/${id}`, json: true };
   const rawService = await rp(options);
   if (!rawService) {
     return undefined;
