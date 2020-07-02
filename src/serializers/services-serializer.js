@@ -6,7 +6,7 @@ import { openapi } from 'utils/load-openapi';
 import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
-const serviceResourceProp = openapi.definitions.ServiceResource.properties;
+const serviceResourceProp = openapi.components.schemas.ServiceResource.properties;
 const serviceResourceType = serviceResourceProp.type.enum[0];
 const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
 const serviceResourcePath = 'services';

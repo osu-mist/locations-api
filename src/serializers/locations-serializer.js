@@ -6,7 +6,7 @@ import { openapi } from 'utils/load-openapi';
 import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
-const locationResourceProp = openapi.definitions.LocationResource.properties;
+const locationResourceProp = openapi.components.schemas.LocationResource.properties;
 const locationResourceType = locationResourceProp.type.enum[0];
 const locationResourceKeys = _.keys(locationResourceProp.attributes.properties);
 const locationResourcePath = 'locations';
