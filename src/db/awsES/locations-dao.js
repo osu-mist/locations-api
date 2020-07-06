@@ -1,8 +1,9 @@
-import awsAuth from 'aws4';
-// import aws from 'aws-sdk';
+import _ from 'lodash';
+import AWS from 'aws-sdk';
 import config from 'config';
+import connectionClass from 'http-aws-es';
 import esb from 'elastic-builder';
-import rp from 'request-promise-native';
+import elasticsearch from 'elasticsearch';
 
 import { serializeLocations } from 'serializers/locations-serializer';
 
@@ -12,29 +13,37 @@ const {
   secretAccessKey,
 } = config.get('dataSources.awsES');
 
-const path = '/locations/_search';
-const opts = {
-  uri: `https://${domain}${path}`,
-  host: domain,
-  path,
-  method: 'POST',
-};
-
 /**
  * Return a list of Locations
  * @param queryParams Object containing query parameters
  * @returns {Promise} Promise object represents a list of locations
  */
 const getLocations = async (queryParams) => {
+  const client = elasticsearch.Client({
+    host: domain,
+    log: 'error',
+    connectionClass,
+    awsConfig: new AWS.Config({
+      accessKeyId,
+      secretAccessKey,
+      region: 'us-east-2',
+    }),
+  });
   const q = esb.boolQuery();
   if (queryParams['filter[name]']) {
-    q.must(esb.termQuery('attributes.name', queryParams['filter[name]']));
+    q.must(esb.matchQuery('attributes.name', queryParams['filter[name]']));
   }
 
-  opts.json = esb.requestBodySearch().query(q).toJSON();
-  awsAuth.sign(opts, { accessKeyId, secretAccessKey });
-  console.log(opts);
-  const rawLocations = await rp(opts);
+  const res = await client.search({
+    index: 'locations',
+    body: esb.requestBodySearch().query(q).toJSON(),
+  });
+
+  const rawLocations = [];
+  _.forEach(res.hits.hits, (value) => {
+    // eslint-disable-next-line dot-notation
+    rawLocations.push(value['_source']);
+  });
   console.log(rawLocations);
   const serializedLocations = serializeLocations(rawLocations, domain);
   return serializedLocations;

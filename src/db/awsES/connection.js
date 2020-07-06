@@ -6,16 +6,6 @@ import config from 'config';
 import { logger } from 'utils/logger';
 
 const { domain, accessKeyId, secretAccessKey } = config.get('dataSources.awsES');
-const esOptions = {
-  host: domain,
-  log: 'error',
-  connectionClass,
-  awsConfig: new AWS.Config({
-    accessKeyId,
-    secretAccessKey,
-    region: 'us-east-2',
-  }),
-};
 /**
  * Validate http connection and throw an error if invalid
  *
@@ -23,7 +13,16 @@ const esOptions = {
  */
 const validateAwsES = async () => {
   try {
-    const client = elasticsearch.Client(esOptions);
+    const client = elasticsearch.Client({
+      host: domain,
+      log: 'error',
+      connectionClass,
+      awsConfig: new AWS.Config({
+        accessKeyId,
+        secretAccessKey,
+        region: 'us-east-2',
+      }),
+    });
     await client.ping({ requestTimeout: 3000 });
   } catch (err) {
     logger.error(err);
@@ -31,4 +30,4 @@ const validateAwsES = async () => {
   }
 };
 
-export { esOptions, validateAwsES };
+export { validateAwsES };
