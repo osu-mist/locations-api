@@ -3,7 +3,7 @@ import rp from 'request-promise-native';
 
 import { serializeService, serializeServices } from 'serializers/services-serializer';
 
-const { domain } = config.get('dataSources.http');
+const { domain } = config.get('dataSources.awsES');
 const { endpointUri } = config.get('server');
 
 /**

@@ -1,4 +1,5 @@
 import awsAuth from 'aws4';
+// import aws from 'aws-sdk';
 import config from 'config';
 import esb from 'elastic-builder';
 import rp from 'request-promise-native';
@@ -6,17 +7,16 @@ import rp from 'request-promise-native';
 import { serializeLocations } from 'serializers/locations-serializer';
 
 const {
-  host,
+  domain,
   accessKeyId,
   secretAccessKey,
-} = config.get('dataSources.http');
+} = config.get('dataSources.awsES');
 
 const path = '/locations/_search';
 const opts = {
-  uri: `https://${host}${path}`,
-  host,
+  uri: `https://${domain}${path}`,
+  host: domain,
   path,
-  service: 'es',
   method: 'POST',
 };
 
@@ -36,7 +36,7 @@ const getLocations = async (queryParams) => {
   console.log(opts);
   const rawLocations = await rp(opts);
   console.log(rawLocations);
-  const serializedLocations = serializeLocations(rawLocations, host);
+  const serializedLocations = serializeLocations(rawLocations, domain);
   return serializedLocations;
 };
 

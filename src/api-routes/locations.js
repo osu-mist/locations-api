@@ -1,5 +1,5 @@
 import { errorHandler } from 'errors/errors';
-import { getLocations } from '../db/http/locations-dao';
+import { getLocations } from '../db/awsES/locations-dao';
 import { serializeLocations } from '../serializers/locations-serializer';
 
 /**
