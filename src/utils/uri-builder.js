@@ -25,7 +25,7 @@ const resourcePathLink = (baseUrl, resourcePath) => `${baseUrl}/${resourcePath}`
  * Params link builder
  *
  * @param {string} baseUrl base URL
- * @param {string} params query params
+ * @param {object} params query params
  * @returns {string} decoded url formatted with query parameters in the query object
  */
 const paramsLink = (baseUrl, params) => {

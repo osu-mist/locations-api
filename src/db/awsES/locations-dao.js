@@ -5,8 +5,6 @@ import connectionClass from 'http-aws-es';
 import esb from 'elastic-builder';
 import elasticsearch from 'elasticsearch';
 
-import { serializeLocations } from 'serializers/locations-serializer';
-
 const {
   domain,
   accessKeyId,
@@ -44,9 +42,7 @@ const getLocations = async (queryParams) => {
     // eslint-disable-next-line dot-notation
     rawLocations.push(value['_source']);
   });
-  console.log(rawLocations);
-  const serializedLocations = serializeLocations(rawLocations, domain);
-  return serializedLocations;
+  return rawLocations;
 };
 
 /**
