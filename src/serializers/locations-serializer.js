@@ -44,10 +44,19 @@ const serializeLocations = (rawLocations, req) => {
     enableDataLinks: true,
   };
 
+  // flatten attributes object in rawLocations for serializer
+  const newRawLocations = [];
+  _.forEach(rawLocations, (rawLocation) => {
+    newRawLocations.push({
+      ...{ id: rawLocation.id, type: rawLocation.type },
+      ...rawLocation.attributes,
+    });
+  });
+
   return new JsonApiSerializer(
     locationResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawLocations);
+  ).serialize(newRawLocations);
 };
 
 /**

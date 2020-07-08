@@ -47,6 +47,7 @@ const serializerOptions = (serializerArgs) => {
       },
     },
     topLevelLinks: { self: topLevelSelfLink },
+    nullIfMissing: true,
   };
 
   if (transformFunction) options.transform = transformFunction;
