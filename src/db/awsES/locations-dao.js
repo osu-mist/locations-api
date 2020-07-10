@@ -5,6 +5,8 @@ import connectionClass from 'http-aws-es';
 import esb from 'elastic-builder';
 import elasticsearch from 'elasticsearch';
 
+import { parseQuery } from 'utils/parse-query';
+
 const {
   domain,
   accessKeyId,
@@ -18,76 +20,87 @@ const {
  * @returns {object} Elasticsearch query body
  */
 const parseQueryParams = (queryParams) => {
+  const parsedParams = parseQuery(queryParams);
   let q = esb.boolQuery();
-  if (queryParams['filter[search]'] !== undefined) {
+  if (parsedParams.search !== undefined) {
     q = esb.multiMatchQuery([
       'attributes.name',
       'attributes.arcgisAbbreviation',
       'attributes.bannerAbbreviation',
-    ], queryParams['filter[search]']);
+    ], parsedParams.search);
   }
 
-  if (queryParams['filter[name]'] !== undefined) {
-    q.must(esb.matchQuery('attributes.name', queryParams['filter[name]']));
+  if (parsedParams.name !== undefined) {
+    if (parsedParams.name.operator === 'fuzzy') {
+      q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
+    } else {
+      q.must(esb.matchQuery('attributes.name', parsedParams.name));
+    }
   }
 
-  if (queryParams['filter[name][fuzzy]'] !== undefined) {
-    q.must(esb.fuzzyQuery('attributes.name', queryParams['filter[name][fuzzy]']));
-  }
-
-  if (queryParams['filter[type]'] !== undefined) {
-    q.must(esb.matchQuery('attributes.type', queryParams['filter[type]'][0]));
+  if (parsedParams.type !== undefined) {
+    q.must(esb.matchQuery('attributes.type', parsedParams.type[0]));
     // filter[type] is an array for some reason?
   }
 
-  if (queryParams['filter[hasGiRestroom]'] !== undefined) {
-    if (queryParams['filter[hasGiRestroom]']) {
+  if (parsedParams.hasGiRestroom !== undefined) {
+    if (parsedParams.hasGiRestroom) {
       q.must(esb.rangeQuery('attributes.girCount').gt(0));
     } else {
       q.must(esb.matchQuery('attributes.girCount', 0));
     }
   }
 
-  if (queryParams['filter[adaParkingSpaceCount][gte]'] !== undefined) {
-    q.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
-      .gte(queryParams['filter[adaParkingSpaceCount][gte]']));
+  if (parsedParams.adaParkingSpaceCount !== undefined) {
+    if (parsedParams.adaParkingSpaceCount.operator === '>=') {
+      q.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
+        .gte(parsedParams.adaParkingSpaceCount.value));
+    }
   }
 
-  if (queryParams['filter[motoParkingSpaceCount][gte]'] !== undefined) {
-    q.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
-      .gte(queryParams['filter[motorcycleSpaceCount][gte]']));
+  if (parsedParams.motorcycleParkingSpaceCount !== undefined) {
+    if (parsedParams.motorcycleParkingSpaceCount.operator === '>=') {
+      q.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
+        .gte(parsedParams.motorcycleParkingSpaceCount.value));
+    }
   }
 
-  if (queryParams['filter[evParkingSpaceCount][gte]'] !== undefined) {
-    q.must(esb.rangeQuery('attributes.evParkingSpaceCount')
-      .gte(queryParams['filter[evSpaceCount][gte]']));
+  if (parsedParams.evParkingSpaceCount !== undefined) {
+    if (parsedParams.evParkingSpaceCount.operator === '>=') {
+      q.must(esb.rangeQuery('attributes.evParkingSpaceCount')
+        .gte(parsedParams.evParkingSpaceCount.value));
+    }
   }
 
-  if (queryParams['filter[bannerAbbreviation]'] !== undefined) {
+  if (parsedParams.bannerAbbreviation !== undefined) {
     q.must(esb.matchQuery('attributes.bannerAbbreviation',
       queryParams['filter[bannerAbbreviation]']));
   }
 
-  if (queryParams['filter[arcGisAbbreviation]'] !== undefined) {
-    q.must(esb.matchQuery('attributes.arcgisAbbreviation',
-      queryParams['filter[arcGisAbbreviation]']));
+  if (parsedParams.arcgisAbbreviation !== undefined) {
+    q.must(esb.matchQuery('attributes.arcgisAbbreviation', parsedParams.arcgisAbbreviation));
   }
 
-  if (queryParams['filter[isOpen]'] !== undefined) {
-    if (queryParams['filter[isOpen]']) {
-      q.must(esb.existsQuery('attributes.openHours'));
+  // unable to test because nothing is open :(
+  if (parsedParams.isOpen !== undefined) {
+    if (parsedParams.isOpen) {
+      const currentDayIndex = new Date().getDay();
+      q.must(esb.rangeQuery(`attributes.openHours[${currentDayIndex}].start`).lte('now'));
+      q.must(esb.rangeQuery(`attributes.openHours[${currentDayIndex}].end`).gte('now'));
     } else {
       q.mustNot(esb.existsQuery('attributes.openHours'));
     }
   }
-
-  if (queryParams['filter[campus][oneOf]'] !== undefined) {
-    q.must(esb.termsQuery('attributes.campus', queryParams['filter[campus][oneOf]']));
+  if (parsedParams.campus !== undefined) {
+    if (parsedParams.campus.operator === 'oneOf') {
+      q.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
+    }
   }
 
-  if (queryParams['filter[parkingZoneGroup][oneOf]'] !== undefined) {
-    q.must(esb.termsQuery('attributes.parkingZoneGroup',
-      queryParams['filter[parkingZoneGroup][oneOf]']));
+  if (parsedParams.parkingZoneGroup !== undefined) {
+    if (parsedParams.parkingZoneGroup.operator === 'oneOf') {
+      q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.operator));
+    }
   }
   /*
   if (queryParams['filter[distance]'] !== undefined) {
@@ -122,7 +135,6 @@ const getLocations = async (queryParams) => {
   });
 
   const bodyQuery = parseQueryParams(queryParams);
-  console.log(bodyQuery.query);
   const res = await client.search({
     index: 'locations',
     body: bodyQuery,
