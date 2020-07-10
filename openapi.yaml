@@ -83,6 +83,7 @@ paths:
           schema:
             type: string
             enum: [mi, yd, ft, in, km, m, cm, mm, nmi]
+            default: mi
         - $ref: '#/components/parameters/isOpen'
         - in: query
           name: filter[campus][oneOf]
