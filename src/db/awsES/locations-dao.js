@@ -28,7 +28,7 @@ const parseQueryParams = (queryParams) => {
   }
 
   if (queryParams['filter[name]'] !== undefined) {
-    q.must(esb.termQuery('attributes.name', queryParams['filter[name]']));
+    q.must(esb.matchQuery('attributes.name', queryParams['filter[name]']));
   }
 
   if (queryParams['filter[name][fuzzy]'] !== undefined) {
@@ -72,16 +72,24 @@ const parseQueryParams = (queryParams) => {
     q.must(esb.matchQuery('attributes.arcgisAbbreviation',
       queryParams['filter[arcGisAbbreviation]']));
   }
-  /*
+
   if (queryParams['filter[isOpen]'] !== undefined) {
-
+    if (queryParams['filter[isOpen]']) {
+      q.must(esb.existsQuery('attributes.openHours'));
+    } else {
+      q.mustNot(esb.existsQuery('attributes.openHours'));
+    }
   }
+
   if (queryParams['filter[campus][oneOf]'] !== undefined) {
-
+    q.must(esb.termsQuery('attributes.campus', queryParams['filter[campus][oneOf]']));
   }
+
   if (queryParams['filter[parkingZoneGroup][oneOf]'] !== undefined) {
-
+    q.must(esb.termsQuery('attributes.parkingZoneGroup',
+      queryParams['filter[parkingZoneGroup][oneOf]']));
   }
+  /*
   if (queryParams['filter[distance]'] !== undefined) {
 
   }
