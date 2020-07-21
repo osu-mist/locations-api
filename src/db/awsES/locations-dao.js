@@ -19,8 +19,9 @@ const {
  * @param {object} queryParams Query paramaters from GET /locations request
  * @returns {object} Elasticsearch query body
  */
-const parseQueryParams = (queryParams) => {
+const buildQueryBody = (queryParams) => {
   const parsedParams = parseQuery(queryParams);
+  console.log(parsedParams);
   let q = esb.boolQuery();
   if (parsedParams.search !== undefined) {
     q = esb.multiMatchQuery([
@@ -34,7 +35,7 @@ const parseQueryParams = (queryParams) => {
     if (parsedParams.name.operator === 'fuzzy') {
       q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
     } else {
-      q.must(esb.matchQuery('attributes.name', parsedParams.name));
+      q.must(esb.matchQuery('attributes.name', parsedParams.name.value));
     }
   }
 
@@ -73,12 +74,11 @@ const parseQueryParams = (queryParams) => {
   }
 
   if (parsedParams.bannerAbbreviation !== undefined) {
-    q.must(esb.matchQuery('attributes.bannerAbbreviation',
-      queryParams['filter[bannerAbbreviation]']));
+    q.must(esb.matchQuery('attributes.bannerAbbreviation', parsedParams.bannerAbbreviation));
   }
 
-  if (parsedParams.arcgisAbbreviation !== undefined) {
-    q.must(esb.matchQuery('attributes.arcgisAbbreviation', parsedParams.arcgisAbbreviation));
+  if (parsedParams.arcGisAbbreviation !== undefined) {
+    q.must(esb.matchQuery('attributes.arcgisAbbreviation', parsedParams.arcGisAbbreviation));
   }
 
   // unable to test because nothing is open :(
@@ -91,6 +91,7 @@ const parseQueryParams = (queryParams) => {
       q.mustNot(esb.existsQuery('attributes.openHours'));
     }
   }
+
   if (parsedParams.campus !== undefined) {
     if (parsedParams.campus.operator === 'oneOf') {
       q.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
@@ -99,19 +100,28 @@ const parseQueryParams = (queryParams) => {
 
   if (parsedParams.parkingZoneGroup !== undefined) {
     if (parsedParams.parkingZoneGroup.operator === 'oneOf') {
-      q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.operator));
+      q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
     }
   }
+
   /*
-  if (queryParams['filter[distance]'] !== undefined) {
+  geo distance query not working.
+  Maybe has to do with the naming of the lat and lon fields in index?
 
+  if (parsedParams.coordinates !== undefined) {
+    const latitude = parsedParams.coordinates[0];
+    const longitude = parsedParams.coordinates[1];
+    const distance = `${parsedParams.distance}${parsedParams.distanceUnit}`;
+    console.log(parsedParams.coordinates);
+    q.must(esb.geoDistanceQuery()
+      .field('attributes.geoLocation')
+      .distance(distance)
+      .geoPoint(esb.geoPoint().lat(latitude).lon(longitude)));
   }
-  if (queryParams['filter[coordinates]'] !== undefined) {
+  */
 
-  }
-  if (queryParams['include'] !== undefined) {
-
-  }
+  /* Will implement after GET /locations
+  if (queryParams['include'] !== undefined) {}
   */
   return esb.requestBodySearch().query(q).toJSON();
 };
@@ -134,10 +144,10 @@ const getLocations = async (queryParams) => {
     }),
   });
 
-  const bodyQuery = parseQueryParams(queryParams);
+  console.log(buildQueryBody(queryParams).query);
   const res = await client.search({
     index: 'locations',
-    body: bodyQuery,
+    body: buildQueryBody(queryParams),
   });
 
   const locations = [];
@@ -161,6 +171,14 @@ const getLocations = async (queryParams) => {
       adaSpaceCount: locationAttributes.adaParkingSpaceCount,
       motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
     };
+    if (locationAttributes.geoLocation) {
+      locationSource.attributes.coordinates = {
+        lat: locationAttributes.geoLocation.latitude,
+        long: locationAttributes.geoLocation.longitude,
+      };
+    } else {
+      locationSource.attributes.coordinates = null;
+    }
     locations.push(locationSource);
   });
   return locations;
