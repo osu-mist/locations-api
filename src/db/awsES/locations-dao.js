@@ -21,7 +21,6 @@ const {
  */
 const buildQueryBody = (queryParams) => {
   const parsedParams = parseQuery(queryParams);
-  console.log(parsedParams);
   let q = esb.boolQuery();
   if (parsedParams.search !== undefined) {
     q = esb.multiMatchQuery([
