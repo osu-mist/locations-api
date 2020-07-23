@@ -34,7 +34,7 @@ const buildQueryBody = (queryParams) => {
     if (parsedParams.name.operator === 'fuzzy') {
       q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
     } else {
-      q.must(esb.matchQuery('attributes.name', parsedParams.name.value));
+      q.must(esb.matchQuery('attributes.name', parsedParams.name));
     }
   }
 
