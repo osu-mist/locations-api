@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import AWS from 'aws-sdk';
+import aws from 'aws-sdk';
 import config from 'config';
 import connectionClass from 'http-aws-es';
-import esb from 'elastic-builder';
 import elasticsearch from 'elasticsearch';
+import esb from 'elastic-builder';
 
 import { parseQuery } from 'utils/parse-query';
 
@@ -34,13 +34,12 @@ const buildQueryBody = (queryParams) => {
     if (parsedParams.name.operator === 'fuzzy') {
       q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
     } else {
-      q.must(esb.matchQuery('attributes.name', parsedParams.name));
+      q.must(esb.termQuery('attributes.name.keyword', parsedParams.name));
     }
   }
 
   if (parsedParams.type !== undefined) {
     q.must(esb.matchQuery('attributes.type', parsedParams.type[0]));
-    // filter[type] is an array for some reason?
   }
 
   if (parsedParams.hasGiRestroom !== undefined) {
@@ -51,25 +50,19 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
-  if (parsedParams.adaParkingSpaceCount !== undefined) {
-    if (parsedParams.adaParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
-        .gte(parsedParams.adaParkingSpaceCount.value));
-    }
+  if (parsedParams.adaParkingSpaceCount && parsedParams.adaParkingSpaceCount.operator === '>=') {
+    q.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
+      .gte(parsedParams.adaParkingSpaceCount.value));
   }
 
-  if (parsedParams.motorcycleParkingSpaceCount !== undefined) {
-    if (parsedParams.motorcycleParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
-        .gte(parsedParams.motorcycleParkingSpaceCount.value));
-    }
+  if (parsedParams.motorcycleParkingSpaceCount && parsedParams.motorcycleParkingSpaceCount.operator === '>=') {
+    q.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
+      .gte(parsedParams.motorcycleParkingSpaceCount.value));
   }
 
-  if (parsedParams.evParkingSpaceCount !== undefined) {
-    if (parsedParams.evParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.evParkingSpaceCount')
-        .gte(parsedParams.evParkingSpaceCount.value));
-    }
+  if (parsedParams.evParkingSpaceCount && parsedParams.evParkingSpaceCount.operator === '>=') {
+    q.must(esb.rangeQuery('attributes.evParkingSpaceCount')
+      .gte(parsedParams.evParkingSpaceCount.value));
   }
 
   if (parsedParams.bannerAbbreviation !== undefined) {
@@ -91,16 +84,12 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
-  if (parsedParams.campus !== undefined) {
-    if (parsedParams.campus.operator === 'oneOf') {
-      q.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
-    }
+  if (parsedParams.campus && parsedParams.campus.operator === 'oneOf') {
+    q.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
   }
 
-  if (parsedParams.parkingZoneGroup !== undefined) {
-    if (parsedParams.parkingZoneGroup.operator === 'oneOf') {
-      q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
-    }
+  if (parsedParams.parkingZoneGroup && parsedParams.parkingZoneGroup.operator === 'oneOf') {
+    q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
   }
 
   /*
@@ -128,7 +117,7 @@ const buildQueryBody = (queryParams) => {
 /**
  * Return a list of Locations
  * @param queryParams Object containing query parameters
- * @returns {Promise} Promise object represents a list of locations
+ * @returns {Promise<object>} Promise object represents a list of locations
  */
 // GET /locations only returns 10 objects?
 const getLocations = async (queryParams) => {
@@ -136,14 +125,13 @@ const getLocations = async (queryParams) => {
     host: domain,
     log: 'error',
     connectionClass,
-    awsConfig: new AWS.Config({
+    awsConfig: new aws.Config({
       accessKeyId,
       secretAccessKey,
       region: 'us-east-2',
     }),
   });
 
-  console.log(buildQueryBody(queryParams).query);
   const res = await client.search({
     index: 'locations',
     body: buildQueryBody(queryParams),

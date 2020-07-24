@@ -1,7 +1,7 @@
-import AWS from 'aws-sdk';
-import elasticsearch from 'elasticsearch';
-import connectionClass from 'http-aws-es';
+import aws from 'aws-sdk';
 import config from 'config';
+import connectionClass from 'http-aws-es';
+import elasticsearch from 'elasticsearch';
 
 import { logger } from 'utils/logger';
 
@@ -9,15 +9,15 @@ const { domain, accessKeyId, secretAccessKey } = config.get('dataSources.awsES')
 /**
  * Validate http connection and throw an error if invalid
  *
- * @returns {Promise} resolves if http connection can be established and rejects otherwise
+ * @returns {Promise<object>} resolves if http connection can be established and rejects otherwise
  */
-const validateAwsES = async () => {
+const validateAwsEs = async () => {
   try {
     const client = elasticsearch.Client({
       host: domain,
       log: 'error',
       connectionClass,
-      awsConfig: new AWS.Config({
+      awsConfig: new aws.Config({
         accessKeyId,
         secretAccessKey,
         region: 'us-east-2',
@@ -26,8 +26,8 @@ const validateAwsES = async () => {
     await client.ping({ requestTimeout: 3000 });
   } catch (err) {
     logger.error(err);
-    throw new Error('Unable to connect to AWS Elasticsearch data source');
+    throw new Error('Unable to connect to AWS Elasticsearch data source.');
   }
 };
 
-export { validateAwsES };
+export { validateAwsEs };
