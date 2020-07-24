@@ -44,10 +44,19 @@ const serializeServices = (rawServices, req) => {
     enableDataLinks: true,
   };
 
+  // flatten attributes object in rawServices for serializer
+  const newRawServices = [];
+  _.forEach(rawServices, (rawService) => {
+    newRawServices.push({
+      ...{ id: rawService.id, type: rawService.type },
+      ...rawService.attributes,
+    });
+  });
+
   return new JsonApiSerializer(
     serviceResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawServices);
+  ).serialize(newRawServices);
 };
 
 /**

@@ -237,12 +237,19 @@ paths:
       operationId: getServices
       parameters:
         - in: query
-          name: filter[search]
-          description: Query to search through buildings. Looks through the building name, abbreviation.
+          name: filter[name]
+          description: Search for a service with this exact name
           required: false
           schema:
             type: string
-            example: dixon
+            example: Adventure Leadership Institute
+        - in: query
+          name: filter[name][fuzzy]
+          description: Search for a service with a name similiar to the query
+          required: false
+          schema:
+            type: string
+            example: adventure leadership
         - $ref: '#/components/parameters/isOpen'
         - $ref: '#/components/parameters/pageNumber'
         - $ref: '#/components/parameters/pageSize'
