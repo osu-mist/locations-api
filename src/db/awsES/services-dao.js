@@ -1,13 +1,9 @@
 import _ from 'lodash';
-import AWS from 'aws-sdk';
-import config from 'config';
-import connectionClass from 'http-aws-es';
-import esb from 'elastic-builder';
 import elasticsearch from 'elasticsearch';
+import esb from 'elastic-builder';
 
+import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
-
-const { domain, accessKeyId, secretAccessKey } = config.get('dataSources.awsES');
 
 const buildQueryBody = (queryParams) => {
   const parsedParams = parseQuery(queryParams);
@@ -37,24 +33,18 @@ const buildQueryBody = (queryParams) => {
  * @returns {Promise} Promise object represents a list of services
  */
 const getServices = async (queryParams) => {
-  const client = elasticsearch.Client({
-    host: domain,
-    log: 'error',
-    connectionClass,
-    awsConfig: new AWS.Config({
-      accessKeyId,
-      secretAccessKey,
-      region: 'us-east-2',
-    }),
-  });
+  const client = elasticsearch.Client(clientOptions());
   const res = await client.search({
     index: 'services',
     body: buildQueryBody(queryParams),
   });
 
   const services = [];
-  // eslint-disable-next-line dot-notation
-  _.forEach(res.hits.hits, (service) => services.push(service['_source']));
+
+  _.forEach(res.hits.hits, (service) => {
+    const { _source: locationSource } = service;
+    services.push(locationSource);
+  });
   return services;
 };
 

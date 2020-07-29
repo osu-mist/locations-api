@@ -48,7 +48,8 @@ const serializeLocations = (rawLocations, req) => {
   const newRawLocations = [];
   _.forEach(rawLocations, (rawLocation) => {
     newRawLocations.push({
-      ...{ id: rawLocation.id, type: rawLocation.type },
+      id: rawLocation.id,
+      type: rawLocation.type,
       ...rawLocation.attributes,
     });
   });

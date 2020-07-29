@@ -11,7 +11,7 @@ const {
   domain,
   accessKeyId,
   secretAccessKey,
-} = config.get('dataSources.awsES');
+} = config.get('dataSources.awsEs');
 
 /**
  * Parses query parameters and generates an elasticsearch query body
@@ -143,7 +143,6 @@ const getLocations = async (queryParams) => {
     }),
   });
 
-  console.log(buildQueryBody(queryParams).query);
   const res = await client.search({
     index: 'locations',
     body: buildQueryBody(queryParams),

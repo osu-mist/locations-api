@@ -48,7 +48,8 @@ const serializeServices = (rawServices, req) => {
   const newRawServices = [];
   _.forEach(rawServices, (rawService) => {
     newRawServices.push({
-      ...{ id: rawService.id, type: rawService.type },
+      id: rawService.id,
+      type: rawService.type,
       ...rawService.attributes,
     });
   });

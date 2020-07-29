@@ -16,15 +16,15 @@ const json = dataSources.includes('json')
 const oracledb = dataSources.includes('oracledb')
   ? require('db/oracledb/connection').validateOracleDb
   : null;
-const awsES = dataSources.includes('awsES')
-  ? require('db/awsES/connection').validateAwsES
+const awsEs = dataSources.includes('awsEs')
+  ? require('db/awsEs/connection').validateAwsES
   : null;
 
 /** Validate database configuration */
 const validateDataSource = () => {
   const validationMethods = {
     awsS3,
-    awsES,
+    awsEs,
     http,
     json,
     oracledb,
