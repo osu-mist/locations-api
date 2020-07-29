@@ -1,6 +1,6 @@
 import { errorHandler } from 'errors/errors';
-import { getServices } from '../db/awsES/services-dao';
-import { serializeServices } from '../serializers/services-serializer';
+import { getServices } from 'db/awsEs/services-dao';
+import { serializeServices } from 'serializers/services-serializer';
 
 /**
  * Get services

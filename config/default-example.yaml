@@ -13,8 +13,9 @@ authentication:
   password: ${PASSWD}
 
 dataSources:
-  dataSources: ['awsES']
-  awsES:
-    domain: yourElasticSearchIndexHere.us-east-2.es.amazonaws.com
+  dataSources: ['awsEs']
+  awsEs:
+    domain: yourEsDomain.region.es.amazonaws.com
+    region: 'us-east-2'
     accessKeyId: top
     secretAccessKey: secret

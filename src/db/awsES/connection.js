@@ -1,28 +1,41 @@
 import aws from 'aws-sdk';
 import config from 'config';
-import connectionClass from 'http-aws-es';
 import elasticsearch from 'elasticsearch';
+import connectionClass from 'http-aws-es';
 
 import { logger } from 'utils/logger';
 
-const { domain, accessKeyId, secretAccessKey } = config.get('dataSources.awsES');
+const {
+  domain,
+  region,
+  accessKeyId,
+  secretAccessKey,
+} = config.get('dataSources.awsEs');
+
 /**
- * Validate http connection and throw an error if invalid
+ * Returns options for elasticsearch client
  *
- * @returns {Promise<object>} resolves if http connection can be established and rejects otherwise
+ * @returns {object} elasticsearch client options
+ */
+const clientOptions = () => ({
+  host: domain,
+  log: 'error',
+  connectionClass,
+  awsConfig: new aws.Config({
+    accessKeyId,
+    secretAccessKey,
+    region,
+  }),
+});
+
+/**
+ * Validate AWS elasticsearch connection and throw an error if invalid
+ *
+ * @returns {Promise<object>} resolves if AWS connection can be established and rejects otherwise
  */
 const validateAwsEs = async () => {
   try {
-    const client = elasticsearch.Client({
-      host: domain,
-      log: 'error',
-      connectionClass,
-      awsConfig: new aws.Config({
-        accessKeyId,
-        secretAccessKey,
-        region: 'us-east-2',
-      }),
-    });
+    const client = elasticsearch.Client(clientOptions());
     await client.ping({ requestTimeout: 3000 });
   } catch (err) {
     logger.error(err);
@@ -30,4 +43,4 @@ const validateAwsEs = async () => {
   }
 };
 
-export { validateAwsEs };
+export { validateAwsEs, clientOptions };

@@ -4,13 +4,13 @@ import _ from 'lodash';
 import { logger } from 'utils/logger';
 
 const { dataSources } = config.get('dataSources');
-const awsES = dataSources.includes('awsES')
-  ? require('db/awsES/connection').validateAwsEs
+const awsEs = dataSources.includes('awsEs')
+  ? require('db/awsEs/connection').validateAwsEs
   : null;
 
 /** Validate database configuration */
 const validateDataSource = () => {
-  const validationMethods = { awsES };
+  const validationMethods = { awsEs };
 
   _.each(dataSources, (dataSourceType) => {
     if (dataSourceType in validationMethods) {

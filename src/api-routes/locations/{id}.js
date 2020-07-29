@@ -1,6 +1,6 @@
 import { errorBuilder, errorHandler } from 'errors/errors';
-import { getLocationById } from '../../db/awsES/locations-dao';
-import { serializeLocation } from '../../serializers/locations-serializer';
+import { getLocationById } from 'db/awsEs/locations-dao';
+import { serializeLocation } from 'serializers/locations-serializer';
 
 /**
  * Get location by unique ID
