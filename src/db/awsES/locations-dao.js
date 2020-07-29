@@ -83,25 +83,6 @@ const buildQueryBody = (queryParams) => {
     qu.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
   }
 
-  /*
-  geo distance query not working.
-  Maybe has to do with the naming of the lat and lon fields in index?
-
-  if (parsedParams.coordinates !== undefined) {
-    const latitude = parsedParams.coordinates[0];
-    const longitude = parsedParams.coordinates[1];
-    const distance = `${parsedParams.distance}${parsedParams.distanceUnit}`;
-    console.log(parsedParams.coordinates);
-    q.must(esb.geoDistanceQuery()
-      .field('attributes.geoLocation')
-      .distance(distance)
-      .geoPoint(esb.geoPoint().lat(latitude).lon(longitude)));
-  }
-  */
-
-  /* Will implement after GET /locations
-  if (queryParams['include'] !== undefined) {}
-  */
   return esb.requestBodySearch().query(qu).toJSON();
 };
 
