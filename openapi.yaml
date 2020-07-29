@@ -100,7 +100,7 @@ paths:
                 - hmsc
                 - other
         - in: query
-          name: filter[type]
+          name: filter[type][oneOf]
           required: false
           description: 'Type of location'
           schema:

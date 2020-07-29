@@ -1,5 +1,6 @@
 import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
+import _ from 'lodash';
 
 import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
@@ -29,10 +30,6 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
-  if (parsedParams.type !== undefined) {
-    qu.must(esb.matchQuery('attributes.type', parsedParams.type[0]));
-  }
-
   if (parsedParams.hasGiRestroom !== undefined) {
     if (parsedParams.hasGiRestroom) {
       qu.must(esb.rangeQuery('attributes.girCount').gt(0));
@@ -41,29 +38,31 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
-  if (parsedParams.adaParkingSpaceCount && parsedParams.adaParkingSpaceCount.operator === '>=') {
-    qu.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
-      .gte(parsedParams.adaParkingSpaceCount.value));
-  }
+  const parkingSpaceTypes = [
+    'adaParkingSpaceCount',
+    'motorcycleParkingSpaceCount',
+    'evParkingSpaceCount',
+  ];
+  _.forEach(parkingSpaceTypes, (parkingSpaceType) => {
+    if (parsedParams[parkingSpaceType] && parsedParams[parkingSpaceType].operator === '>=') {
+      qu.must(esb.rangeQuery(`attributes.${parkingSpaceType}`)
+        .gte(parsedParams.adaParkingSpaceCount.value));
+    }
+  });
 
-  if (parsedParams.motorcycleParkingSpaceCount
-      && parsedParams.motorcycleParkingSpaceCount.operator === '>=') {
-    qu.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
-      .gte(parsedParams.motorcycleParkingSpaceCount.value));
-  }
+  const abbreviations = ['bannerAbbreviation', 'arcGisAbbreviation'];
+  _.forEach(abbreviations, (abbreviation) => {
+    if (parsedParams[abbreviation] !== undefined) {
+      qu.must(esb.matchQuery(`attributes.${abbreviation}`, parsedParams[abbreviation]));
+    }
+  });
 
-  if (parsedParams.evParkingSpaceCount && parsedParams.evParkingSpaceCount.operator === '>=') {
-    qu.must(esb.rangeQuery('attributes.evParkingSpaceCount')
-      .gte(parsedParams.evParkingSpaceCount.value));
-  }
-
-  if (parsedParams.bannerAbbreviation !== undefined) {
-    qu.must(esb.matchQuery('attributes.bannerAbbreviation', parsedParams.bannerAbbreviation));
-  }
-
-  if (parsedParams.arcGisAbbreviation !== undefined) {
-    qu.must(esb.matchQuery('attributes.arcgisAbbreviation', parsedParams.arcGisAbbreviation));
-  }
+  const oneOfQueries = ['parkingZoneGroup', 'type', 'campus'];
+  _.forEach(oneOfQueries, (field) => {
+    if (parsedParams[field] && parsedParams[field].operator === 'oneOf') {
+      qu.must(esb.termsQuery(`attributes.${field}`, parsedParams[field].value));
+    }
+  });
 
   if (parsedParams.isOpen !== undefined) {
     if (parsedParams.isOpen) {
@@ -74,15 +73,6 @@ const buildQueryBody = (queryParams) => {
       qu.mustNot(esb.existsQuery('attributes.openHours'));
     }
   }
-
-  if (parsedParams.campus && parsedParams.campus.operator === 'oneOf') {
-    qu.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
-  }
-
-  if (parsedParams.parkingZoneGroup && parsedParams.parkingZoneGroup.operator === 'oneOf') {
-    qu.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
-  }
-
   return esb.requestBodySearch().query(qu).toJSON();
 };
 
