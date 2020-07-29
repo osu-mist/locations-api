@@ -1,6 +1,5 @@
 import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
-import _ from 'lodash';
 
 import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
@@ -117,38 +116,7 @@ const getLocations = async (queryParams) => {
     index: 'locations',
     body: buildQueryBody(queryParams),
   });
-
-  const locations = [];
-  _.forEach(res.hits.hits, (location) => {
-    const { _source: locationSource } = location;
-    const locationAttributes = locationSource.attributes;
-    locationSource.attributes.abbreviations = {
-      arcGis: locationAttributes.arcgisAbbreviation,
-      banner: locationAttributes.bannerAbbreviation,
-    };
-    locationSource.attributes.giRestrooms = {
-      count: locationAttributes.girCount,
-      limit: locationAttributes.girLimit,
-      locations: (locationAttributes.girLocations)
-        ? locationAttributes.girLocations.split(', ')
-        : null,
-    };
-    locationSource.attributes.parkingSpaces = {
-      evSpaceCount: locationAttributes.evParkingSpaceCount,
-      adaSpaceCount: locationAttributes.adaParkingSpaceCount,
-      motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
-    };
-    if (locationAttributes.geoLocation) {
-      locationSource.attributes.coordinates = {
-        lat: locationAttributes.geoLocation.latitude,
-        long: locationAttributes.geoLocation.longitude,
-      };
-    } else {
-      locationSource.attributes.coordinates = null;
-    }
-    locations.push(locationSource);
-  });
-  return locations;
+  return res.hits.hits;
 };
 
 /**
