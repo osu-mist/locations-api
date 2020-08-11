@@ -384,14 +384,14 @@ components:
     CoordinatePair:
       description: a pair of latitude, longitude coordinates
       type: object
-      required: [lat, long]
+      required: [lat, lon]
       properties:
         lat:
           example: 44.562934
           type: number
           format: float
           description: the latitude value of the coordinate pair
-        long:
+        lon:
           example: -123.281901
           type: number
           format: float

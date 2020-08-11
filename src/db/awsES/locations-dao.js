@@ -38,6 +38,16 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
+  if (parsedParams.coordinates !== undefined) {
+    const [lat, lon] = parsedParams.coordinates.split(',');
+    qu.must(
+      esb.geoDistanceQuery()
+        .field('attributes.geoLocation')
+        .distance(`${parsedParams.distance}${parsedParams.distanceUnit}`)
+        .geoPoint(esb.geoPoint().lat(lat).lon(lon)),
+    );
+  }
+
   const parkingSpaceTypes = [
     'adaParkingSpaceCount',
     'motorcycleParkingSpaceCount',

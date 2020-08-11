@@ -50,7 +50,7 @@ const serializeLocations = (rawLocations, req) => {
     const { _source: locationSource } = rawLocation;
     const locationAttributes = locationSource.attributes;
     locationSource.attributes.abbreviations = {
-      arcGis: locationAttributes.arcgisAbbreviation,
+      arcGis: locationAttributes.arcGisAbbreviation,
       banner: locationAttributes.bannerAbbreviation,
     };
     locationSource.attributes.giRestrooms = {
@@ -67,16 +67,15 @@ const serializeLocations = (rawLocations, req) => {
     };
     if (locationAttributes.geoLocation) {
       locationSource.attributes.coordinates = {
-        lat: locationAttributes.geoLocation.latitude,
-        long: locationAttributes.geoLocation.longitude,
+        lat: locationAttributes.geoLocation.lat,
+        lon: locationAttributes.geoLocation.lon,
       };
     } else {
       locationSource.attributes.coordinates = null;
     }
-    locationSource.id = rawLocation.id;
     locationSource.type = rawLocation.type;
     newRawLocations.push({
-      ...{ id: rawLocation.id, type: rawLocation.type },
+      ...{ id: locationSource.id, type: rawLocation.type },
       ...locationSource.attributes,
     });
   });
