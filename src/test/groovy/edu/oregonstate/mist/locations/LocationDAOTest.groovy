@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
+import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.db.LocationDAO
 import groovy.transform.TypeChecked
 import org.junit.Test
@@ -81,7 +82,17 @@ class LocationDAOTest {
 
             ),
         ]
-        def actual = LocationDAO.mergeFacilAndArcGis(campusmap, girr, arcgis)
+
+        def adaEntries = [
+            "0032": new AdaEntriesLocation(
+                bldID: "0032",
+                lat: "123",
+                lon: "45",
+                accessable: "Y"
+            )
+        ]
+
+        def actual = LocationDAO.mergeFacilAndArcGis(campusmap, girr, arcgis, adaEntries)
 
         assert actual == expected
     }

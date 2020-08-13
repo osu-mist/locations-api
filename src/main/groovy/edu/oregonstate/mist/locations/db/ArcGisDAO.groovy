@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
+import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -20,6 +21,7 @@ class ArcGisDAO {
      * bldNam, bldNamAbr, latitude, longitude
      */
     private final String arcGisGenderInclusiveRRUrl
+    private final String arcGisAdaEntriesUrl
 
     /**
      * File where the arcgis data is downloaded to
@@ -35,6 +37,7 @@ class ArcGisDAO {
 
     public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
+        arcGisAdaEntriesUrl = locationConfiguration.get("arcGisAdaEntries")
         ARC_GIS_THRESHOLD = locationConfiguration.get("arcGisThreshold").toInteger()
         this.cache = cache
     }
@@ -53,6 +56,34 @@ class ArcGisDAO {
                 ARC_GIS_THRESHOLD, "gender inclusive restrooms")
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), GenderInclusiveRRLocation)
+            data[rr.bldID] = rr
+        }
+
+        data
+    }
+
+    HttpURLConnection openHttpUrlConnection(URL url) {
+        (HttpURLConnection)url.openConnection()
+    }
+
+    String getURL(String url) {
+        def conn = openHttpUrlConnection(new URL(url))
+        int code = conn.getResponseCode()
+        if (code != HttpURLConnection.HTTP_OK) {
+            throw new IOException("HTTP status code ${code} returned for url ${url}")
+        }
+        conn.getInputStream().withStream { stream ->
+            stream.getText()
+        }
+    }
+
+    public HashMap<String, AdaEntriesLocation> getAdaEntries() {
+        def rawData = getURL(arcGisAdaEntriesUrl)
+        def mappedData = mapper.readTree(rawData).get("features")
+        def data = new HashMap<String, AdaEntriesLocation>()
+
+        mappedData.asList().each {
+            def rr = mapper.readValue(it.get("attributes").toString(), AdaEntriesLocation)
             data[rr.bldID] = rr
         }
 
