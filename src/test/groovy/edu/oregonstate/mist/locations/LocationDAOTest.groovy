@@ -1,10 +1,10 @@
 package edu.oregonstate.mist.locations
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
-import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.db.LocationDAO
 import groovy.transform.TypeChecked
 import org.junit.Test
