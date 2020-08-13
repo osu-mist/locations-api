@@ -84,7 +84,10 @@ class ArcGisDAO {
 
         mappedData.asList().each {
             def rr = mapper.readValue(it.get("attributes").toString(), AdaEntriesLocation)
-            data[rr.bldID] = rr
+            if (!data.containsKey(rr.bldID)) {
+                data[rr.bldID] = rr
+            }
+            data[rr.bldID].adaEntries.add([rr.lon as Double, rr.lat as Double])
         }
 
         data

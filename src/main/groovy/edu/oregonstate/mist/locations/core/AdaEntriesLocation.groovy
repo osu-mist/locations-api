@@ -17,4 +17,5 @@ class AdaEntriesLocation {
     String lon
     @JsonProperty("Accessable")
     String accessable
+    List<List<Double>> adaEntries = []
 }

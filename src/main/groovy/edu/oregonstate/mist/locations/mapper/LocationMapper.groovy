@@ -127,7 +127,10 @@ class LocationMapper {
                 giRestroomCount: facilLocation.giRestroomCount,
                 giRestroomLimit: getGiRestroomLimit(facilLocation.giRestroomLimit),
                 giRestroomLocations: facilLocation.giRestroomLocations,
-                bldgID: facilLocation.bldgID
+                bldgID: facilLocation.bldgID,
+                adaEntriesAccessable: facilLocation.adaEntriesAccessable,
+                adaEntries: facilLocation.adaEntries
+
         )
 
         buildResourceObject(facilLocation.calculateId(), attributes)

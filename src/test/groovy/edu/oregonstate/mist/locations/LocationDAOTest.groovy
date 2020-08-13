@@ -78,7 +78,10 @@ class LocationDAOTest {
 
                     giRestroomCount: 3,
                     giRestroomLimit: "Only for residents!",
-                    giRestroomLocations: "110, 210, 310"
+                    giRestroomLocations: "110, 210, 310",
+
+                    adaEntriesAccessable: true,
+                    adaEntries: []
 
             ),
         ]
