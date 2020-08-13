@@ -5,6 +5,7 @@ import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
+import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.core.ParkingLocation
 import edu.oregonstate.mist.locations.mapper.LocationMapper
 import groovy.json.JsonSlurper
@@ -91,7 +92,8 @@ class LocationDAO {
     public static Map<String, FacilLocation> mergeFacilAndArcGis(
             List<FacilLocation> buildings,
             Map<String, GenderInclusiveRRLocation> genderInclusiveRR,
-            Map<String, ArcGisLocation> geometries
+            Map<String, ArcGisLocation> geometries,
+            Map<String, AdaEntriesLocation> adaEntries
     ) {
         def facilLocationHashMap = new HashMap<String, FacilLocation>()
 
@@ -115,8 +117,11 @@ class LocationDAO {
                 facilLocationHashMap[key].coordinatesType =
                         geometries[key].coordinatesType
             }
+            if (adaEntries[key]) {
+                facilLocationHashMap[key].adaEntriesAccessable = adaEntries[key].accessable == "Y"
+                facilLocationHashMap[key].adaEntries = adaEntries[key].adaEntries
+            }
         }
-
         facilLocationHashMap
     }
 

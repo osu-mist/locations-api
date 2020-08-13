@@ -33,4 +33,6 @@ class Attributes extends ServiceAttributes {
     Integer motorcycleParkingSpaceCount
     Integer evParkingSpaceCount
     String weeklyMenu
+    Boolean adaEntriesAccessable
+    List<List<Double>> adaEntries = []
 }
