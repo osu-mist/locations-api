@@ -118,7 +118,6 @@ class LocationDAO {
                         geometries[key].coordinatesType
             }
             if (adaEntries[key]) {
-                facilLocationHashMap[key].adaEntriesAccessable = adaEntries[key].accessable == "Y"
                 facilLocationHashMap[key].adaEntries = adaEntries[key].adaEntries
             }
         }

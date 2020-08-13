@@ -80,7 +80,6 @@ class LocationDAOTest {
                     giRestroomLimit: "Only for residents!",
                     giRestroomLocations: "110, 210, 310",
 
-                    adaEntriesAccessable: true,
                     adaEntries: []
 
             ),
@@ -91,7 +90,7 @@ class LocationDAOTest {
                 bldID: "0032",
                 lat: "123",
                 lon: "45",
-                accessable: "Y"
+                accessible: "Y"
             )
         ]
 

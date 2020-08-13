@@ -32,7 +32,7 @@ class FacilLocation extends BaseType {
     String giRestroomLimit
     String giRestroomLocations
     Boolean adaEntriesAccessable
-    List<List<Double>> adaEntries = []
+    List<AdaEntry> adaEntries = []
 
     @JsonIgnore
     Integer getGiRestroomCount() {

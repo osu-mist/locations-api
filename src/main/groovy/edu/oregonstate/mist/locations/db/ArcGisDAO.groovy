@@ -5,6 +5,7 @@ import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import edu.oregonstate.mist.locations.core.AdaEntriesLocation
+import edu.oregonstate.mist.locations.core.AdaEntry
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -87,7 +88,12 @@ class ArcGisDAO {
             if (!data.containsKey(rr.bldID)) {
                 data[rr.bldID] = rr
             }
-            data[rr.bldID].adaEntries.add([rr.lon as Double, rr.lat as Double])
+            data[rr.bldID].adaEntries.add(
+                new AdaEntry(
+                    accessible: rr.accessible == "Y",
+                    lon: rr.lon as Double,
+                    lat: rr.lat as Double)
+            )
         }
 
         data
