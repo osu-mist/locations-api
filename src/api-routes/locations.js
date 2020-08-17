@@ -1,6 +1,6 @@
+import { getLocations } from 'db/awsEs/locations-dao';
 import { errorHandler } from 'errors/errors';
-import { getLocations } from '../db/awsEs/locations-dao';
-import { serializeLocations } from '../serializers/locations-serializer';
+import { serializeLocations } from 'serializers/locations-serializer';
 
 /**
  * Get locations

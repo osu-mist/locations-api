@@ -1,22 +1,14 @@
-import _ from 'lodash';
-import AWS from 'aws-sdk';
-import config from 'config';
-import connectionClass from 'http-aws-es';
+import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
-import elasticsearch from 'elasticsearch';
+import _ from 'lodash';
 
+import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
-
-const {
-  domain,
-  accessKeyId,
-  secretAccessKey,
-} = config.get('dataSources.awsEs');
 
 /**
  * Parses query parameters and generates an elasticsearch query body
  *
- * @param {object} queryParams Query paramaters from GET /locations request
+ * @param {object} queryParams Query parameters from GET /locations request
  * @returns {object} Elasticsearch query body
  */
 const buildQueryBody = (queryParams) => {
@@ -34,13 +26,8 @@ const buildQueryBody = (queryParams) => {
     if (parsedParams.name.operator === 'fuzzy') {
       q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
     } else {
-      q.must(esb.matchQuery('attributes.name', parsedParams.name.value));
+      q.must(esb.termQuery('attributes.name.keyword', parsedParams.name));
     }
-  }
-
-  if (parsedParams.type !== undefined) {
-    q.must(esb.matchQuery('attributes.type', parsedParams.type[0]));
-    // filter[type] is an array for some reason?
   }
 
   if (parsedParams.hasGiRestroom !== undefined) {
@@ -51,36 +38,42 @@ const buildQueryBody = (queryParams) => {
     }
   }
 
-  if (parsedParams.adaParkingSpaceCount !== undefined) {
-    if (parsedParams.adaParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.adaParkingSpaceCount')
+  if (parsedParams.coordinates !== undefined) {
+    const [lat, lon] = parsedParams.coordinates.split(',');
+    q.must(
+      esb.geoDistanceQuery()
+        .field('attributes.geoLocation')
+        .distance(`${parsedParams.distance}${parsedParams.distanceUnit}`)
+        .geoPoint(esb.geoPoint().lat(lat).lon(lon)),
+    );
+  }
+
+  const parkingSpaceTypes = [
+    'adaParkingSpaceCount',
+    'motorcycleParkingSpaceCount',
+    'evParkingSpaceCount',
+  ];
+  _.forEach(parkingSpaceTypes, (parkingSpaceType) => {
+    if (parsedParams[parkingSpaceType] && parsedParams[parkingSpaceType].operator === '>=') {
+      q.must(esb.rangeQuery(`attributes.${parkingSpaceType}`)
         .gte(parsedParams.adaParkingSpaceCount.value));
     }
-  }
+  });
 
-  if (parsedParams.motorcycleParkingSpaceCount !== undefined) {
-    if (parsedParams.motorcycleParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.motorcycleParkingSpaceCount')
-        .gte(parsedParams.motorcycleParkingSpaceCount.value));
+  const abbreviations = ['bannerAbbreviation', 'arcGisAbbreviation'];
+  _.forEach(abbreviations, (abbreviation) => {
+    if (parsedParams[abbreviation] !== undefined) {
+      q.must(esb.matchQuery(`attributes.${abbreviation}`, parsedParams[abbreviation]));
     }
-  }
+  });
 
-  if (parsedParams.evParkingSpaceCount !== undefined) {
-    if (parsedParams.evParkingSpaceCount.operator === '>=') {
-      q.must(esb.rangeQuery('attributes.evParkingSpaceCount')
-        .gte(parsedParams.evParkingSpaceCount.value));
+  const oneOfQueries = ['parkingZoneGroup', 'type', 'campus'];
+  _.forEach(oneOfQueries, (field) => {
+    if (parsedParams[field] && parsedParams[field].operator === 'oneOf') {
+      q.must(esb.termsQuery(`attributes.${field}`, parsedParams[field].value));
     }
-  }
+  });
 
-  if (parsedParams.bannerAbbreviation !== undefined) {
-    q.must(esb.matchQuery('attributes.bannerAbbreviation', parsedParams.bannerAbbreviation));
-  }
-
-  if (parsedParams.arcGisAbbreviation !== undefined) {
-    q.must(esb.matchQuery('attributes.arcgisAbbreviation', parsedParams.arcGisAbbreviation));
-  }
-
-  // unable to test because nothing is open :(
   if (parsedParams.isOpen !== undefined) {
     if (parsedParams.isOpen) {
       const currentDayIndex = new Date().getDay();
@@ -90,96 +83,21 @@ const buildQueryBody = (queryParams) => {
       q.mustNot(esb.existsQuery('attributes.openHours'));
     }
   }
-
-  if (parsedParams.campus !== undefined) {
-    if (parsedParams.campus.operator === 'oneOf') {
-      q.must(esb.termsQuery('attributes.campus', parsedParams.campus.value));
-    }
-  }
-
-  if (parsedParams.parkingZoneGroup !== undefined) {
-    if (parsedParams.parkingZoneGroup.operator === 'oneOf') {
-      q.must(esb.termsQuery('attributes.parkingZoneGroup', parsedParams.parkingZoneGroup.value));
-    }
-  }
-
-  /*
-  geo distance query not working.
-  Maybe has to do with the naming of the lat and lon fields in index?
-
-  if (parsedParams.coordinates !== undefined) {
-    const latitude = parsedParams.coordinates[0];
-    const longitude = parsedParams.coordinates[1];
-    const distance = `${parsedParams.distance}${parsedParams.distanceUnit}`;
-    console.log(parsedParams.coordinates);
-    q.must(esb.geoDistanceQuery()
-      .field('attributes.geoLocation')
-      .distance(distance)
-      .geoPoint(esb.geoPoint().lat(latitude).lon(longitude)));
-  }
-  */
-
-  /* Will implement after GET /locations
-  if (queryParams['include'] !== undefined) {}
-  */
   return esb.requestBodySearch().query(q).toJSON();
 };
 
 /**
  * Return a list of Locations
  * @param queryParams Object containing query parameters
- * @returns {Promise} Promise object represents a list of locations
+ * @returns {Promise<object>} Promise object represents a list of locations
  */
-// GET /locations only returns 10 objects?
 const getLocations = async (queryParams) => {
-  const client = elasticsearch.Client({
-    host: domain,
-    log: 'error',
-    connectionClass,
-    awsConfig: new AWS.Config({
-      accessKeyId,
-      secretAccessKey,
-      region: 'us-east-2',
-    }),
-  });
-
+  const client = Client(clientOptions());
   const res = await client.search({
     index: 'locations',
     body: buildQueryBody(queryParams),
   });
-
-  const locations = [];
-  _.forEach(res.hits.hits, (location) => {
-    // eslint-disable-next-line dot-notation
-    const locationSource = location['_source'];
-    const locationAttributes = locationSource.attributes;
-    locationSource.attributes.abbreviations = {
-      arcGis: locationAttributes.arcgisAbbreviation,
-      banner: locationAttributes.bannerAbbreviation,
-    };
-    locationSource.attributes.giRestrooms = {
-      count: locationAttributes.girCount,
-      limit: locationAttributes.girLimit,
-      locations: (locationAttributes.girLocations)
-        ? locationAttributes.girLocations.split(', ')
-        : null,
-    };
-    locationSource.attributes.parkingSpaces = {
-      evSpaceCount: locationAttributes.evParkingSpaceCount,
-      adaSpaceCount: locationAttributes.adaParkingSpaceCount,
-      motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
-    };
-    if (locationAttributes.geoLocation) {
-      locationSource.attributes.coordinates = {
-        lat: locationAttributes.geoLocation.latitude,
-        long: locationAttributes.geoLocation.longitude,
-      };
-    } else {
-      locationSource.attributes.coordinates = null;
-    }
-    locations.push(locationSource);
-  });
-  return locations;
+  return res.hits.hits;
 };
 
 /**
@@ -188,15 +106,6 @@ const getLocations = async (queryParams) => {
  * @param {string} id Unique location ID
  * @returns {Promise} Promise object represents a specific location
  */
-const getLocationById = async (id) => id; /* {
-  const options = { uri: `${sourceUri}/${id}`, json: true };
-  const rawLocation = await rp(options);
-  if (!rawLocation) {
-    return undefined;
-  }
-  const serializedLocation = serializeLocation(rawLocation, endpointUri);
-  return serializedLocation;
-
-}; */
+const getLocationById = async (id) => id;
 
 export { getLocations, getLocationById };

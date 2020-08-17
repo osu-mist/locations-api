@@ -4,31 +4,13 @@ import _ from 'lodash';
 import { logger } from 'utils/logger';
 
 const { dataSources } = config.get('dataSources');
-const awsS3 = dataSources.includes('awsS3')
-  ? require('db/awsS3/aws-operations').validateAwsS3
-  : null;
-const http = dataSources.includes('http')
-  ? require('db/http/connection').validateHttp
-  : null;
-const json = dataSources.includes('json')
-  ? require('db/json/fs-operations').validateJsonDb
-  : null;
-const oracledb = dataSources.includes('oracledb')
-  ? require('db/oracledb/connection').validateOracleDb
-  : null;
 const awsEs = dataSources.includes('awsEs')
-  ? require('db/awsEs/connection').validateAwsES
+  ? require('db/awsEs/connection').validateAwsEs
   : null;
 
 /** Validate database configuration */
 const validateDataSource = () => {
-  const validationMethods = {
-    awsS3,
-    awsEs,
-    http,
-    json,
-    oracledb,
-  };
+  const validationMethods = { awsEs };
 
   _.each(dataSources, (dataSourceType) => {
     if (dataSourceType in validationMethods) {

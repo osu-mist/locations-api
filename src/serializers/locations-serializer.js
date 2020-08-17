@@ -44,13 +44,39 @@ const serializeLocations = (rawLocations, req) => {
     enableDataLinks: true,
   };
 
-  // flatten attributes object in rawLocations for serializer
+  // format and flatten attributes object in rawLocations for serializer
   const newRawLocations = [];
   _.forEach(rawLocations, (rawLocation) => {
+    const { _source: locationSource } = rawLocation;
+    const locationAttributes = locationSource.attributes;
+    locationSource.attributes.abbreviations = {
+      arcGis: locationAttributes.arcGisAbbreviation,
+      banner: locationAttributes.bannerAbbreviation,
+    };
+    locationSource.attributes.giRestrooms = {
+      count: locationAttributes.girCount,
+      limit: locationAttributes.girLimit,
+      locations: (locationAttributes.girLocations)
+        ? locationAttributes.girLocations.split(', ')
+        : null,
+    };
+    locationSource.attributes.parkingSpaces = {
+      evSpaceCount: locationAttributes.evParkingSpaceCount,
+      adaSpaceCount: locationAttributes.adaParkingSpaceCount,
+      motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
+    };
+    if (locationAttributes.geoLocation) {
+      locationSource.attributes.coordinates = {
+        lat: locationAttributes.geoLocation.lat,
+        lon: locationAttributes.geoLocation.lon,
+      };
+    } else {
+      locationSource.attributes.coordinates = null;
+    }
+    locationSource.type = rawLocation.type;
     newRawLocations.push({
-      id: rawLocation.id,
-      type: rawLocation.type,
-      ...rawLocation.attributes,
+      ...{ id: locationSource.id, type: rawLocation.type },
+      ...locationSource.attributes,
     });
   });
 
