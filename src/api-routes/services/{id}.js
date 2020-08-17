@@ -1,5 +1,5 @@
-import { errorBuilder, errorHandler } from 'errors/errors';
 import { getServiceById } from 'db/awsEs/services-dao';
+import { errorBuilder, errorHandler } from 'errors/errors';
 import { serializeService } from 'serializers/services-serializer';
 
 /**
