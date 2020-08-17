@@ -90,7 +90,8 @@ class LocationDAOTest {
                 bldID: "0032",
                 lat: "123",
                 lon: "45",
-                accessible: "Y"
+                accessible: "Y",
+                function: "Entry"
             )
         ]
 

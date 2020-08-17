@@ -17,5 +17,7 @@ class AdaEntriesLocation {
     String lon
     @JsonProperty("Accessable")
     String accessible
+    @JsonProperty("Function_")
+    String function
     List<AdaEntry> adaEntries = []
 }
