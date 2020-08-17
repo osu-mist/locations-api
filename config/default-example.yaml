@@ -16,6 +16,6 @@ dataSources:
   dataSources: ['awsEs']
   awsEs:
     domain: yourEsDomain.region.es.amazonaws.com
-    region: 'us-east-2'
+    region: 'moon'
     accessKeyId: top
     secretAccessKey: secret
