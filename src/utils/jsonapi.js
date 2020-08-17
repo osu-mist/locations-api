@@ -2,7 +2,6 @@ import _ from 'lodash';
 
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
-
 /**
  * Helper function to generate pagination params
  *
@@ -48,6 +47,7 @@ const serializerOptions = (serializerArgs) => {
       },
     },
     topLevelLinks: { self: topLevelSelfLink },
+    nullIfMissing: true,
   };
 
   if (transformFunction) options.transform = transformFunction;

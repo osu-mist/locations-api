@@ -12,7 +12,7 @@ info:
     email: isdataarchitecture@oregonstate.edu
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/locations-frontend-api
+  url: https://github.com/osu-mist/locations-api
 servers:
   - url: https://api.oregonstate.edu/v2
 security:
@@ -83,6 +83,7 @@ paths:
           schema:
             type: string
             enum: [mi, yd, ft, in, km, m, cm, mm, nmi]
+            default: mi
         - $ref: '#/components/parameters/isOpen'
         - in: query
           name: filter[campus][oneOf]
@@ -99,7 +100,7 @@ paths:
                 - hmsc
                 - other
         - in: query
-          name: filter[type]
+          name: filter[type][oneOf]
           required: false
           description: 'Type of location'
           schema:
@@ -843,16 +844,18 @@ components:
               $ref: '#/components/schemas/SelfLink'
     DayHours:
       description: >-
-        This array represents open hours for a location, relative to the date
-        that the API returns the response. The array has seven elements: the 
+        This object represents open hours for a location, relative to the date
+        that the API returns the response. The object has seven elements: the 
         first element represents the current day, the second represents the next 
         day etc. All times are in UTC.
-      type: array
-      minItems: 7
-      maxItems: 7
-      items:
-        $ref: '#/components/schemas/TimeSlot'
+      type: object
+      minProperties: 7
+      maxProperties: 7
+      additionalProperties:
+        items:
+          $ref: '#/components/schemas/TimeSlot'
     TimeSlot:
+      type: object
       properties:
         start:
           type: string

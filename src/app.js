@@ -16,10 +16,14 @@ import { bodyParserError } from 'middlewares/body-parser-error';
 import { loggerMiddleware } from 'middlewares/logger';
 import { removeUnknownParams } from 'middlewares/remove-unknown-params';
 import { runtimeErrors } from 'middlewares/runtime-errors';
+import { validateBooleanParams } from 'middlewares/validate-boolean-params';
+import { validateNestedObjects } from 'middlewares/validate-nested-objects';
+import { validateOperationParams } from 'middlewares/validate-operation-params';
 import { openapi } from 'utils/load-openapi';
 import { validateDataSource } from 'utils/validate-data-source';
 
 const serverConfig = config.get('server');
+const { version, title } = openapi.info;
 
 validateDataSource();
 
@@ -45,12 +49,13 @@ const httpsServer = https.createServer(httpsOptions, app);
 const adminHttpsServer = https.createServer(httpsOptions, adminApp);
 
 // Middlewares for routers, logger and authentication
-const baseEndpoint = `${serverConfig.basePathPrefix}`;
+const baseEndpoint = serverConfig.basePathPrefix;
 app.use(baseEndpoint, appRouter);
 adminApp.use(baseEndpoint, adminAppRouter);
 
 appRouter.use(loggerMiddleware);
 appRouter.use(authentication);
+appRouter.use(validateBooleanParams);
 adminAppRouter.use(authentication);
 
 /**
@@ -78,13 +83,13 @@ const errorTransformer = (openapiError, ajvError) => {
 };
 
 // Return API meta information at admin endpoint
-adminAppRouter.get(`${openapi.basePath}`, async (req, res) => {
+adminAppRouter.get(`/${version}`, async (req, res) => {
   try {
     const commit = await git().revparse(['--short', 'HEAD']);
     const now = moment();
     const info = {
       meta: {
-        name: openapi.info.title,
+        name: title,
         time: now.format('YYYY-MM-DD HH:mm:ssZZ'),
         unixTime: now.unix(),
         commit: commit.trim(),
@@ -102,9 +107,13 @@ initialize({
   app: appRouter,
   apiDoc: {
     ...openapi,
-    'x-express-openapi-additional-middleware': [removeUnknownParams],
+    'x-express-openapi-additional-middleware': [
+      validateOperationParams,
+      removeUnknownParams,
+      validateNestedObjects,
+    ],
   },
-  paths: `dist/api${openapi.basePath}/paths`,
+  paths: 'dist/api-routes',
   consumesMiddleware: {
     'application/json': compose([bodyParser.json(), bodyParserError]),
   },
