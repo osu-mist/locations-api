@@ -86,6 +86,12 @@ const buildQueryBody = (queryParams) => {
   return esb.requestBodySearch().query(q).toJSON();
 };
 
+const buildIdQueryBody = (queryParams) => {
+  const q = esb.boolQuery();
+  q.must(esb.matchQuery('id', queryParams.locationId));
+  return esb.requestBodySearch().query(q).toJSON();
+};
+
 /**
  * Return a list of Locations
  * @param queryParams Object containing query parameters
@@ -103,9 +109,16 @@ const getLocations = async (queryParams) => {
 /**
  * Return a specific location by unique ID
  *
- * @param {string} id Unique location ID
+ * @param {string} queryParams Query parameters from GET /locations/{locationId} request
  * @returns {Promise} Promise object represents a specific location
  */
-const getLocationById = async (id) => id;
+const getLocationById = async (queryParams) => {
+  const client = Client(clientOptions());
+  const res = await client.search({
+    index: 'locations',
+    body: buildIdQueryBody(queryParams),
+  });
+  return res.hits.hits[0];
+};
 
 export { getLocations, getLocationById };

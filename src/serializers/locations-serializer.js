@@ -15,6 +15,41 @@ const locationResourceUrl = resourcePathLink(apiBaseUrl, locationResourcePath);
 /**
  * Serialize locationResources to JSON API
  *
+ * @param {object} rawLocation Raw data row from data source
+ * @returns {object} Formatted location object to be passed into serializer
+ */
+const formatLocation = (rawLocation) => {
+  const { _source: locationSource } = rawLocation;
+  const locationAttributes = locationSource.attributes;
+  locationSource.attributes.abbreviations = {
+    arcGis: locationAttributes.arcGisAbbreviation,
+    banner: locationAttributes.bannerAbbreviation,
+  };
+  locationSource.attributes.giRestrooms = {
+    count: locationAttributes.girCount,
+    limit: locationAttributes.girLimit,
+    locations: (locationAttributes.girLocations)
+      ? locationAttributes.girLocations.split(', ')
+      : null,
+  };
+  locationSource.attributes.parkingSpaces = {
+    evSpaceCount: locationAttributes.evParkingSpaceCount,
+    adaSpaceCount: locationAttributes.adaParkingSpaceCount,
+    motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
+  };
+  locationSource.attributes.coordinates = (locationAttributes.geoLocation)
+    ? { lat: locationAttributes.geoLocation.lat, lon: locationAttributes.geoLocation.lon }
+    : null;
+  locationSource.type = rawLocation.type;
+  return {
+    ...{ id: locationSource.id, type: rawLocation.type },
+    ...locationSource.attributes,
+  };
+};
+
+/**
+ * Serialize locationResources to JSON API
+ *
  * @param {object[]} rawLocations Raw data rows from data source
  * @param {object} req Express request object
  * @returns {object} Serialized locationResources object
@@ -46,39 +81,7 @@ const serializeLocations = (rawLocations, req) => {
 
   // format and flatten attributes object in rawLocations for serializer
   const newRawLocations = [];
-  _.forEach(rawLocations, (rawLocation) => {
-    const { _source: locationSource } = rawLocation;
-    const locationAttributes = locationSource.attributes;
-    locationSource.attributes.abbreviations = {
-      arcGis: locationAttributes.arcGisAbbreviation,
-      banner: locationAttributes.bannerAbbreviation,
-    };
-    locationSource.attributes.giRestrooms = {
-      count: locationAttributes.girCount,
-      limit: locationAttributes.girLimit,
-      locations: (locationAttributes.girLocations)
-        ? locationAttributes.girLocations.split(', ')
-        : null,
-    };
-    locationSource.attributes.parkingSpaces = {
-      evSpaceCount: locationAttributes.evParkingSpaceCount,
-      adaSpaceCount: locationAttributes.adaParkingSpaceCount,
-      motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
-    };
-    if (locationAttributes.geoLocation) {
-      locationSource.attributes.coordinates = {
-        lat: locationAttributes.geoLocation.lat,
-        lon: locationAttributes.geoLocation.lon,
-      };
-    } else {
-      locationSource.attributes.coordinates = null;
-    }
-    locationSource.type = rawLocation.type;
-    newRawLocations.push({
-      ...{ id: locationSource.id, type: rawLocation.type },
-      ...locationSource.attributes,
-    });
-  });
+  _.forEach(rawLocations, (rawLocation) => newRawLocations.push(formatLocation(rawLocation)));
 
   return new JsonApiSerializer(
     locationResourceType,
@@ -95,11 +98,8 @@ const serializeLocations = (rawLocations, req) => {
  */
 const serializeLocation = (rawLocation, req) => {
   const { query } = req;
-
-  // TODO use req.path
-  const baseUrl = req.method === 'POST'
-    ? locationResourceUrl
-    : resourcePathLink(locationResourceUrl, rawLocation.id);
+  const { _id: id } = rawLocation;
+  const baseUrl = resourcePathLink(locationResourceUrl, id);
   const topLevelSelfLink = paramsLink(baseUrl, query);
 
   const serializerArgs = {
@@ -111,9 +111,12 @@ const serializeLocation = (rawLocation, req) => {
     enableDataLinks: true,
   };
 
+  // format and flatten attributes object in rawLocation for serializer
+  const formattedLocation = formatLocation(rawLocation);
+
   return new JsonApiSerializer(
     locationResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawLocation);
+  ).serialize(formattedLocation);
 };
 export { serializeLocations, serializeLocation };
