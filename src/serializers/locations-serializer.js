@@ -37,14 +37,9 @@ const formatLocation = (rawLocation) => {
     adaSpaceCount: locationAttributes.adaParkingSpaceCount,
     motorcyclesSpaceCount: locationAttributes.motorcycleParkingSpaceCount,
   };
-  if (locationAttributes.geoLocation) {
-    locationSource.attributes.coordinates = {
-      lat: locationAttributes.geoLocation.lat,
-      lon: locationAttributes.geoLocation.lon,
-    };
-  } else {
-    locationSource.attributes.coordinates = null;
-  }
+  locationSource.attributes.coordinates = (locationAttributes.geoLocation)
+    ? { lat: locationAttributes.geoLocation.lat, lon: locationAttributes.geoLocation.lon }
+    : null;
   locationSource.type = rawLocation.type;
   return {
     ...{ id: locationSource.id, type: rawLocation.type },
@@ -103,11 +98,8 @@ const serializeLocations = (rawLocations, req) => {
  */
 const serializeLocation = (rawLocation, req) => {
   const { query } = req;
-  // TODO use req.path
-  const baseUrl = req.method === 'POST'
-    ? locationResourceUrl
-    // eslint-disable-next-line dot-notation
-    : resourcePathLink(locationResourceUrl, rawLocation['_id']);
+  const { _id: id } = rawLocation;
+  const baseUrl = resourcePathLink(locationResourceUrl, id);
   const topLevelSelfLink = paramsLink(baseUrl, query);
 
   const serializerArgs = {

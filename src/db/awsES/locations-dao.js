@@ -109,7 +109,7 @@ const getLocations = async (queryParams) => {
 /**
  * Return a specific location by unique ID
  *
- * @param {string} queryParams Query parameters from GET /locations/{id} request
+ * @param {string} queryParams Query parameters from GET /locations/{locationId} request
  * @returns {Promise} Promise object represents a specific location
  */
 const getLocationById = async (queryParams) => {
