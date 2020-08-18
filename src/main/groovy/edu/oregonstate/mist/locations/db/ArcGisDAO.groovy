@@ -92,7 +92,9 @@ class ArcGisDAO {
                 new AdaEntry(
                     accessible: rr.accessible == "Y",
                     lon: rr.lon as Double,
-                    lat: rr.lat as Double)
+                    lat: rr.lat as Double,
+                    function: rr.function
+                )
             )
         }
 

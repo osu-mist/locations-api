@@ -4,4 +4,5 @@ class AdaEntry {
     Double lon
     Double lat
     Boolean accessible
+    String function
 }
