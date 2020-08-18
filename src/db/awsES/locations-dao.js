@@ -24,7 +24,7 @@ const buildQueryBody = (queryParams) => {
 
   if (parsedParams.name !== undefined) {
     if (parsedParams.name.operator === 'fuzzy') {
-      q.must(esb.fuzzyQuery('attributes.name', parsedParams.name.value));
+      q.must(esb.matchQuery('attributes.name', parsedParams.name.value).fuzziness(10));
     } else {
       q.must(esb.termQuery('attributes.name.keyword', parsedParams.name));
     }
