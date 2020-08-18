@@ -79,10 +79,7 @@ const serializeServices = (rawServices, req) => {
 const serializeService = (rawService, req) => {
   const { query } = req;
 
-  // TODO use req.path
-  const baseUrl = req.method === 'POST'
-    ? serviceResourceUrl
-    : resourcePathLink(serviceResourceUrl, rawService.id);
+  const baseUrl = resourcePathLink(serviceResourceUrl, rawService.id);
   const topLevelSelfLink = paramsLink(baseUrl, query);
 
   const serializerArgs = {
@@ -94,9 +91,12 @@ const serializeService = (rawService, req) => {
     enableDataLinks: true,
   };
 
+  // flatten attributes object in rawServices for serializer
+  const formattedService = formatService(rawService);
+
   return new JsonApiSerializer(
     serviceResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawService);
+  ).serialize(formattedService);
 };
 export { serializeServices, serializeService };
