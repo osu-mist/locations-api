@@ -13,6 +13,21 @@ const serviceResourcePath = 'services';
 const serviceResourceUrl = resourcePathLink(apiBaseUrl, serviceResourcePath);
 
 /**
+ * Format and flatten raw service object for serializer
+ *
+ * @param {object} rawService Raw data row from data source
+ * @returns {object} Formatted service object to be passed into serializer
+ */
+const formatService = (rawService) => {
+  const { _source: serviceSource } = rawService;
+  serviceSource.type = rawService.type;
+  return {
+    ...{ id: serviceSource.id, type: rawService.type },
+    ...serviceSource.attributes,
+  };
+};
+
+/**
  * Serialize serviceResources to JSON API
  *
  * @param {object[]} rawServices Raw data rows from data source
@@ -44,10 +59,14 @@ const serializeServices = (rawServices, req) => {
     enableDataLinks: true,
   };
 
+  // flatten attributes object in rawServices for serializer
+  const newRawServices = [];
+  _.forEach(rawServices, (rawService) => newRawServices.push(formatService(rawService)));
+
   return new JsonApiSerializer(
     serviceResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawServices);
+  ).serialize(newRawServices);
 };
 
 /**
