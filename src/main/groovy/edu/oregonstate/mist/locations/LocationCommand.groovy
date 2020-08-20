@@ -105,9 +105,11 @@ class LocationCommand extends EnvironmentCommand<LocationConfiguration> {
         def arcGisGeometries = locationDAO.getArcGisCoordinates()
         // Get arcgis ada entries data from json file
         def adaEntries = arcGisDAO.getAdaEntries()
+        // Get arcgis aed inventories data from json file
+        def aedInventories = arcGisDAO.getAedInventories()
 
         def buildingAndArcGisMerged = locationDAO.mergeFacilAndArcGis(buildings,
-            genderInclusiveRR, arcGisGeometries, adaEntries)
+            genderInclusiveRR, arcGisGeometries, adaEntries, aedInventories)
 
         new ArrayList<FacilLocation>(buildingAndArcGisMerged.values())
     }

@@ -5,6 +5,8 @@ import edu.oregonstate.mist.locations.Cache
 import edu.oregonstate.mist.locations.LocationUtil
 import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.core.AdaEntry
+import edu.oregonstate.mist.locations.core.AedInventoriesLocation
+import edu.oregonstate.mist.locations.core.AedInventory
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
@@ -23,6 +25,7 @@ class ArcGisDAO {
      */
     private final String arcGisGenderInclusiveRRUrl
     private final String arcGisAdaEntriesUrl
+    private final String arcGisAedInventoryUrl
 
     /**
      * File where the arcgis data is downloaded to
@@ -39,6 +42,7 @@ class ArcGisDAO {
     public ArcGisDAO(Map<String, String> locationConfiguration, Cache cache) {
         arcGisGenderInclusiveRRUrl = locationConfiguration.get("arcGisGenderInclusiveRR")
         arcGisAdaEntriesUrl = locationConfiguration.get("arcGisAdaEntries")
+        arcGisAedInventoryUrl = locationConfiguration.get("arcGisAedInventory")
         ARC_GIS_THRESHOLD = locationConfiguration.get("arcGisThreshold").toInteger()
         this.cache = cache
     }
@@ -96,6 +100,38 @@ class ArcGisDAO {
                     function: rr.function
                 )
             )
+        }
+
+        data
+    }
+
+    public HashMap<String, AedInventoriesLocation> getAedInventories() {
+        def rawData = getURL(arcGisAedInventoryUrl)
+        def mappedData = mapper.readTree(rawData).get("features")
+        def data = new HashMap<String, AedInventoriesLocation>()
+
+        mappedData.asList().each {
+            def rr = mapper.readValue(it.get("attributes").toString(), AedInventoriesLocation)
+
+            if (rr.bldg) {
+                rr.bldID = rr.bldg.padLeft(4, "0")
+                if (!data.containsKey(rr.bldID)) {
+                    data[rr.bldID] = rr
+                }
+                data[rr.bldID].aedInventories.add(
+                    new AedInventory(
+                        lon: rr.lon as Double,
+                        lat: rr.lat as Double,
+                        location: rr.location,
+                        floor: rr.floor as Integer,
+                        make: rr.make,
+                        model: rr.model,
+                        serialNo: rr.serialNo,
+                        departmentOwner: rr.departmentOwner,
+                        contact: rr.contact,
+                    )
+                )
+            }
         }
 
         data

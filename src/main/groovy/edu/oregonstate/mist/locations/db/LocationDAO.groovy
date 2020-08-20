@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.locations.core.AedInventoriesLocation
 import edu.oregonstate.mist.locations.core.AdaEntriesLocation
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
@@ -93,7 +94,8 @@ class LocationDAO {
             List<FacilLocation> buildings,
             Map<String, GenderInclusiveRRLocation> genderInclusiveRR,
             Map<String, ArcGisLocation> geometries,
-            Map<String, AdaEntriesLocation> adaEntries
+            Map<String, AdaEntriesLocation> adaEntries,
+            Map<String, AedInventoriesLocation> aedInventories
     ) {
         def facilLocationHashMap = new HashMap<String, FacilLocation>()
 
@@ -119,6 +121,10 @@ class LocationDAO {
             }
             if (adaEntries[key]) {
                 facilLocationHashMap[key].adaEntries = adaEntries[key].adaEntries
+            }
+
+            if (aedInventories[key]) {
+                facilLocationHashMap[key].aedInventories = aedInventories[key].aedInventories
             }
         }
         facilLocationHashMap

@@ -34,4 +34,5 @@ class Attributes extends ServiceAttributes {
     Integer evParkingSpaceCount
     String weeklyMenu
     List<AdaEntry> adaEntries = []
+    List<AedInventory> aedInventories = []
 }
