@@ -25,6 +25,7 @@ const serializerOptions = (serializerArgs) => {
     resourceKeys,
     pagination,
     resourcePath,
+    topLevelPath,
     topLevelSelfLink,
     query,
     keyForAttribute,
@@ -33,6 +34,10 @@ const serializerOptions = (serializerArgs) => {
   } = serializerArgs;
 
   const resourceUrl = resourcePathLink(apiBaseUrl, resourcePath);
+  const topLevelUrl = (topLevelPath)
+    ? resourcePathLink(apiBaseUrl, topLevelPath)
+    : resourceUrl;
+
   const options = {
     pluralizeType: false,
     attributes: resourceKeys,
@@ -63,13 +68,13 @@ const serializerOptions = (serializerArgs) => {
     } = pagination;
 
     options.topLevelLinks = _.assign(options.topLevelLinks, {
-      first: paramsLink(resourceUrl, { ...query, ...pageParamsBuilder(1, pageSize) }),
-      last: paramsLink(resourceUrl, { ...query, ...pageParamsBuilder(totalPages, pageSize) }),
+      first: paramsLink(topLevelUrl, { ...query, ...pageParamsBuilder(1, pageSize) }),
+      last: paramsLink(topLevelUrl, { ...query, ...pageParamsBuilder(totalPages, pageSize) }),
       next: nextPage
-        ? paramsLink(resourceUrl, { ...query, ...pageParamsBuilder(nextPage, pageSize) })
+        ? paramsLink(topLevelUrl, { ...query, ...pageParamsBuilder(nextPage, pageSize) })
         : null,
       prev: prevPage
-        ? paramsLink(resourceUrl, { ...query, ...pageParamsBuilder(prevPage, pageSize) })
+        ? paramsLink(topLevelUrl, { ...query, ...pageParamsBuilder(prevPage, pageSize) })
         : null,
     });
 
