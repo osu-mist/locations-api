@@ -2,6 +2,7 @@ package edu.oregonstate.mist.locations
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import edu.oregonstate.mist.locations.core.AdaEntriesLocation
+import edu.oregonstate.mist.locations.core.AedInventoriesLocation
 import edu.oregonstate.mist.locations.core.ArcGisLocation
 import edu.oregonstate.mist.locations.core.FacilLocation
 import edu.oregonstate.mist.locations.core.GenderInclusiveRRLocation
@@ -80,8 +81,8 @@ class LocationDAOTest {
                     giRestroomLimit: "Only for residents!",
                     giRestroomLocations: "110, 210, 310",
 
-                    adaEntries: []
-
+                    adaEntries: [],
+                    aedInventories: []
             ),
         ]
 
@@ -95,7 +96,24 @@ class LocationDAOTest {
             )
         ]
 
-        def actual = LocationDAO.mergeFacilAndArcGis(campusmap, girr, arcgis, adaEntries)
+        def aedInventories = [
+            "0032": new AedInventoriesLocation(
+                bldg: "32",
+                lat: "123",
+                lon: "45",
+                location: "basement",
+                floor: "1",
+                make: "fake make",
+                model: "fake model",
+                serialNo: "1234567",
+                departmentOwner: "COE",
+                contact: "Harry Potter",
+            )
+        ]
+
+        def actual = LocationDAO.mergeFacilAndArcGis(
+            campusmap, girr, arcgis, adaEntries, aedInventories
+        )
 
         assert actual == expected
     }

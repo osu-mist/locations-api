@@ -128,7 +128,8 @@ class LocationMapper {
                 giRestroomLimit: getGiRestroomLimit(facilLocation.giRestroomLimit),
                 giRestroomLocations: facilLocation.giRestroomLocations,
                 bldgID: facilLocation.bldgID,
-                adaEntries: facilLocation.adaEntries
+                adaEntries: facilLocation.adaEntries,
+                aedInventories: facilLocation.aedInventories
 
         )
 
