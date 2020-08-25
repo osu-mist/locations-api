@@ -304,6 +304,8 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
       responses:
         '200':
           description: Successful response
