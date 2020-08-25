@@ -4,6 +4,13 @@ import _ from 'lodash';
 
 import { clientOptions } from 'db/awsEs/connection';
 
+/**
+ * Generates a query body object to get a specific location or service by ID.
+ *
+ * @param {string} queryParams Query parameters from the endpoint request
+ * @param {string} type The ID's document type. Should be either 'locations' or 'services'
+ * @returns {Object} Elasticsearch query body
+ */
 const buildIdQueryBody = (queryParams, type) => {
   const q = esb.boolQuery();
   const id = (type === 'locations') ? queryParams.locationId : queryParams.serviceId;
@@ -11,6 +18,13 @@ const buildIdQueryBody = (queryParams, type) => {
   return esb.requestBodySearch().query(q).toJSON();
 };
 
+/**
+ * Generates a query body object to get all documents that match the given IDs
+ *
+ * @param {string[]} ids An array of document IDs to search for
+ * @param {string} type The IDs' document type. Should be either 'locations' or 'services'
+ * @returns {Object} Elasticsearch query body
+ */
 const buildBulkIdQueryBody = (ids, type) => {
   const q = esb.boolQuery();
   q.must(esb.idsQuery(type, ids));
@@ -31,8 +45,7 @@ const getServicesByLocationId = async (queryParams) => {
   });
 
   const { _source: rawLocation } = locationRes.hits.hits[0];
-  const serviceIds = [];
-  _.forEach(rawLocation.relationships.services.data, (value) => serviceIds.push(value.id));
+  const serviceIds = _.map(rawLocation.relationships.services.data, 'id');
 
   const serviceRes = await client.search({
     index: 'services',
