@@ -47,6 +47,19 @@ const formatLocation = (rawLocation) => {
 };
 
 /**
+ * Helper function to get the top level path and self link
+ *
+ * @param {string} path The path of the api call
+ * @param {object} query Query param object
+ * @returns {object} Object containing topLevelPath and topLevelSelfLink
+ */
+const getTopLevelData = (query, path) => {
+  const topLevelPath = path.split('/').slice(2, path.length).join('/');
+  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
+  return { topLevelPath, topLevelSelfLink };
+};
+
+/**
  * Serialize locationResources to JSON API
  *
  * @param {object[]} rawLocations Raw data rows from data source
@@ -55,6 +68,7 @@ const formatLocation = (rawLocation) => {
  */
 const serializeLocations = (rawLocations, req) => {
   const { query, path } = req;
+  const { topLevelPath, topLevelSelfLink } = getTopLevelData(query, path);
 
   // Add pagination links and meta information to options if pagination is enabled
   const pageQuery = {
@@ -66,9 +80,6 @@ const serializeLocations = (rawLocations, req) => {
   pagination.totalResults = rawLocations.length;
   rawLocations = pagination.paginatedRows;
 
-  // get the path from after version
-  const topLevelPath = path.split('/').slice(2, path.length).join('/');
-  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: locationResourceKeys,
@@ -99,8 +110,8 @@ const serializeLocations = (rawLocations, req) => {
  */
 const serializeLocation = (rawLocation, req) => {
   const { query, path } = req;
-  const topLevelPath = path.split('/').slice(2, path.length).join('/');
-  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
+  const { topLevelPath, topLevelSelfLink } = getTopLevelData(query, path);
+
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: locationResourceKeys,
