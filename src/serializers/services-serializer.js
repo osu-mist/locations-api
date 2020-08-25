@@ -10,7 +10,6 @@ const serviceResourceProp = openapi.components.schemas.ServiceResource.propertie
 const serviceResourceType = serviceResourceProp.type.enum[0];
 const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
 const serviceResourcePath = 'services';
-const serviceResourceUrl = resourcePathLink(apiBaseUrl, serviceResourcePath);
 
 /**
  * Format and flatten raw service object for serializer
@@ -77,16 +76,16 @@ const serializeServices = (rawServices, req) => {
  * @returns {object} Serialized serviceResource object
  */
 const serializeService = (rawService, req) => {
-  const { query } = req;
+  const { query, path } = req;
 
-  const baseUrl = resourcePathLink(serviceResourceUrl, rawService.id);
-  const topLevelSelfLink = paramsLink(baseUrl, query);
-
+  const topLevelPath = path.split('/').slice(2, path.length).join('/');
+  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: serviceResourceKeys,
     resourcePath: serviceResourcePath,
     topLevelSelfLink,
+    topLevelPath,
     query,
     enableDataLinks: true,
   };
