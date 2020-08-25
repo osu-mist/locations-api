@@ -10,7 +10,6 @@ const serviceResourceProp = openapi.components.schemas.ServiceResource.propertie
 const serviceResourceType = serviceResourceProp.type.enum[0];
 const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
 const serviceResourcePath = 'services';
-const serviceResourceUrl = resourcePathLink(apiBaseUrl, serviceResourcePath);
 
 /**
  * Format and flatten raw service object for serializer
@@ -20,7 +19,6 @@ const serviceResourceUrl = resourcePathLink(apiBaseUrl, serviceResourcePath);
  */
 const formatService = (rawService) => {
   const { _source: serviceSource } = rawService;
-  serviceSource.type = rawService.type;
   return {
     ...{ id: serviceSource.id, type: rawService.type },
     ...serviceSource.attributes,
@@ -35,8 +33,7 @@ const formatService = (rawService) => {
  * @returns {object} Serialized serviceResources object
  */
 const serializeServices = (rawServices, req) => {
-  const { query } = req;
-
+  const { query, path } = req;
   // Add pagination links and meta information to options if pagination is enabled
   const pageQuery = {
     size: query['page[size]'],
@@ -47,12 +44,14 @@ const serializeServices = (rawServices, req) => {
   pagination.totalResults = rawServices.length;
   rawServices = pagination.paginatedRows;
 
-  // TODO use req.path
-  const topLevelSelfLink = paramsLink(serviceResourceUrl, query);
+  // get the path from after version
+  const topLevelPath = path.split('/').slice(2, path.length).join('/');
+  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: serviceResourceKeys,
     pagination,
+    topLevelPath,
     resourcePath: serviceResourcePath,
     topLevelSelfLink,
     query,
@@ -77,16 +76,16 @@ const serializeServices = (rawServices, req) => {
  * @returns {object} Serialized serviceResource object
  */
 const serializeService = (rawService, req) => {
-  const { query } = req;
+  const { query, path } = req;
 
-  const baseUrl = resourcePathLink(serviceResourceUrl, rawService.id);
-  const topLevelSelfLink = paramsLink(baseUrl, query);
-
+  const topLevelPath = path.split('/').slice(2, path.length).join('/');
+  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: serviceResourceKeys,
     resourcePath: serviceResourcePath,
     topLevelSelfLink,
+    topLevelPath,
     query,
     enableDataLinks: true,
   };
