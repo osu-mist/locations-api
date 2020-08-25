@@ -26,6 +26,12 @@ const buildQueryBody = (queryParams) => {
   return esb.requestBodySearch().query(q).toJSON();
 };
 
+const buildIdQueryBody = (queryParams) => {
+  const q = esb.boolQuery();
+  q.must(esb.matchQuery('id', queryParams.serviceId));
+  return esb.requestBodySearch().query(q).toJSON();
+};
+
 /**
  * Return a list of services
  * @param queryParams Object containing query parameters
@@ -43,9 +49,16 @@ const getServices = async (queryParams) => {
 /**
  * Return a specific service by unique ID
  *
- * @param {string} id Unique service ID
+ * @param {string} queryParams Object containing query parameters
  * @returns {Promise} Promise object represents a specific service
  */
-const getServiceById = async (id) => id;
+const getServiceById = async (queryParams) => {
+  const client = Client(clientOptions());
+  const res = await client.search({
+    index: 'services',
+    body: buildIdQueryBody(queryParams),
+  });
+  return res.hits.hits[0];
+};
 
 export { getServices, getServiceById };

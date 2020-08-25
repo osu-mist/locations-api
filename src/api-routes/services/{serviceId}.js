@@ -9,8 +9,7 @@ import { serializeService } from 'serializers/services-serializer';
  */
 const get = async (req, res) => {
   try {
-    const { id } = req.params;
-    const rawService = await getServiceById(id);
+    const rawService = await getServiceById(req.params);
     if (!rawService) {
       errorBuilder(res, 404, 'A service with the specified ID was not found.');
     } else {
