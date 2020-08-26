@@ -35,7 +35,7 @@ const buildBulkIdQueryBody = (ids, type) => {
  * Return services related to a specific location
  *
  * @param {string} queryParams Query parameters from GET /locations/{locationId}/services request
- * @returns {Promise} Promise object represents a specific location
+ * @returns {Promise} Promise object represents the related services
  */
 const getServicesByLocationId = async (queryParams) => {
   const client = Client(clientOptions());
@@ -54,4 +54,27 @@ const getServicesByLocationId = async (queryParams) => {
   return serviceRes.hits.hits;
 };
 
-export { getServicesByLocationId };
+/**
+ * Return locations related to a specific service
+ *
+ * @param {string} queryParams Query parameters from GET /services/{serviceId}/locations request
+ * @returns {Promise} Promise object represents the related locations
+ */
+const getLocationsByServiceId = async (queryParams) => {
+  const client = Client(clientOptions());
+  const serviceRes = await client.search({
+    index: 'services',
+    body: buildIdQueryBody(queryParams, 'services'),
+  });
+
+  const { _source: rawService } = serviceRes.hits.hits[0];
+  const locationIds = _.map(rawService.relationships.location.data, 'id');
+
+  const locationRes = await client.search({
+    index: 'locations',
+    body: buildBulkIdQueryBody(locationIds, 'locations'),
+  });
+  return locationRes.hits.hits;
+};
+
+export { getServicesByLocationId, getLocationsByServiceId };

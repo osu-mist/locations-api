@@ -10,7 +10,6 @@ const locationResourceProp = openapi.components.schemas.LocationResource.propert
 const locationResourceType = locationResourceProp.type.enum[0];
 const locationResourceKeys = _.keys(locationResourceProp.attributes.properties);
 const locationResourcePath = 'locations';
-const locationResourceUrl = resourcePathLink(apiBaseUrl, locationResourcePath);
 
 /**
  * Serialize locationResources to JSON API
@@ -48,6 +47,19 @@ const formatLocation = (rawLocation) => {
 };
 
 /**
+ * Helper function to get the top level path and self link
+ *
+ * @param {string} path The path of the api call
+ * @param {object} query Query param object
+ * @returns {object} Object containing topLevelPath and topLevelSelfLink
+ */
+const getTopLevelData = (query, path) => {
+  const topLevelPath = path.split('/').slice(2, path.length).join('/');
+  const topLevelSelfLink = paramsLink(resourcePathLink(apiBaseUrl, topLevelPath), query);
+  return { topLevelPath, topLevelSelfLink };
+};
+
+/**
  * Serialize locationResources to JSON API
  *
  * @param {object[]} rawLocations Raw data rows from data source
@@ -55,7 +67,8 @@ const formatLocation = (rawLocation) => {
  * @returns {object} Serialized locationResources object
  */
 const serializeLocations = (rawLocations, req) => {
-  const { query } = req;
+  const { query, path } = req;
+  const { topLevelPath, topLevelSelfLink } = getTopLevelData(query, path);
 
   // Add pagination links and meta information to options if pagination is enabled
   const pageQuery = {
@@ -67,12 +80,11 @@ const serializeLocations = (rawLocations, req) => {
   pagination.totalResults = rawLocations.length;
   rawLocations = pagination.paginatedRows;
 
-  // TODO use req.path
-  const topLevelSelfLink = paramsLink(locationResourceUrl, query);
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: locationResourceKeys,
     pagination,
+    topLevelPath,
     resourcePath: locationResourcePath,
     topLevelSelfLink,
     query,
@@ -97,16 +109,15 @@ const serializeLocations = (rawLocations, req) => {
  * @returns {object} Serialized locationResource object
  */
 const serializeLocation = (rawLocation, req) => {
-  const { query } = req;
-  const { _id: id } = rawLocation;
-  const baseUrl = resourcePathLink(locationResourceUrl, id);
-  const topLevelSelfLink = paramsLink(baseUrl, query);
+  const { query, path } = req;
+  const { topLevelPath, topLevelSelfLink } = getTopLevelData(query, path);
 
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: locationResourceKeys,
     resourcePath: locationResourcePath,
     topLevelSelfLink,
+    topLevelPath,
     query,
     enableDataLinks: true,
   };
