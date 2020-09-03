@@ -7,18 +7,38 @@ import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
 const locationResourceProp = openapi.components.schemas.LocationResource.properties;
+const serviceResourceProp = openapi.components.schemas.ServiceResource.properties;
 const locationResourceType = locationResourceProp.type.enum[0];
 const locationResourceKeys = _.keys(locationResourceProp.attributes.properties);
+const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
 const locationResourcePath = 'locations';
 
 /**
- * Serialize locationResources to JSON API
+ * Flattens the attributes of an included service for use in the serializer
  *
- * @param {object} rawLocation Raw data row from data source
+ * @param {object} services services attribute from the raw data row
+ * @returns {object} Object containing flattened service attributes
+ */
+const flattenAttributes = (services) => {
+  const newServices = [];
+  _.forEach(services, (service) => {
+    const newService = {
+      ...service,
+      ...service.attributes,
+    };
+    delete newService.attributes;
+    newServices.push(newService);
+  });
+  return newServices;
+};
+
+/**
+ * Format raw location rows for use in serializer
+ *
+ * @param {object} locationSource _source attribute from raw data row
  * @returns {object} Formatted location object to be passed into serializer
  */
-const formatLocation = (rawLocation) => {
-  const { _source: locationSource } = rawLocation;
+const formatLocation = (locationSource) => {
   const locationAttributes = locationSource.attributes;
   locationSource.attributes.abbreviations = {
     arcGis: locationAttributes.arcGisAbbreviation,
@@ -39,11 +59,18 @@ const formatLocation = (rawLocation) => {
   locationSource.attributes.coordinates = (locationAttributes.geoLocation)
     ? { lat: locationAttributes.geoLocation.lat, lon: locationAttributes.geoLocation.lon }
     : null;
-  locationSource.type = rawLocation.type;
   return {
-    ...{ id: locationSource.id, type: rawLocation.type },
+    id: locationSource.id,
+    type: locationSource.type,
     ...locationSource.attributes,
+    services: flattenAttributes(locationSource.services),
   };
+};
+
+const includedArgs = {
+  ref: 'id',
+  type: 'services',
+  attributes: [...serviceResourceKeys],
 };
 
 /**
@@ -80,6 +107,13 @@ const serializeLocations = (rawLocations, req) => {
   pagination.totalResults = rawLocations.length;
   rawLocations = pagination.paginatedRows;
 
+  // format and flatten attributes object in rawLocations for serializer
+  const formattedLocations = [];
+  _.forEach(rawLocations, (rawLocation) => {
+    const { _source: locationSource } = rawLocation;
+    formattedLocations.push(formatLocation(locationSource));
+  });
+
   const serializerArgs = {
     identifierField: 'id',
     resourceKeys: locationResourceKeys,
@@ -89,16 +123,14 @@ const serializeLocations = (rawLocations, req) => {
     topLevelSelfLink,
     query,
     enableDataLinks: true,
+    included: (formattedLocations[0].services) ? includedArgs : undefined,
+    includedType: 'services',
   };
-
-  // format and flatten attributes object in rawLocations for serializer
-  const newRawLocations = [];
-  _.forEach(rawLocations, (rawLocation) => newRawLocations.push(formatLocation(rawLocation)));
 
   return new JsonApiSerializer(
     locationResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(newRawLocations);
+  ).serialize(formattedLocations);
 };
 
 /**
@@ -111,6 +143,10 @@ const serializeLocations = (rawLocations, req) => {
 const serializeLocation = (rawLocation, req) => {
   const { query, path } = req;
   const { topLevelPath, topLevelSelfLink } = getTopLevelData(query, path);
+  const { _source: locationSource } = rawLocation;
+
+  // format and flatten attributes object in rawLocation for serializer
+  const formattedLocation = formatLocation(locationSource);
 
   const serializerArgs = {
     identifierField: 'id',
@@ -120,10 +156,9 @@ const serializeLocation = (rawLocation, req) => {
     topLevelPath,
     query,
     enableDataLinks: true,
+    included: (formattedLocation.services) ? includedArgs : undefined,
+    includedType: 'services',
   };
-
-  // format and flatten attributes object in rawLocation for serializer
-  const formattedLocation = formatLocation(rawLocation);
 
   return new JsonApiSerializer(
     locationResourceType,
