@@ -1,6 +1,6 @@
+import _ from 'async-dash';
 import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
-import _ from 'async-dash';
 
 import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
@@ -113,8 +113,7 @@ const buildBulkIdQueryBody = (ids, type) => {
  */
 const includeServices = async (res) => {
   const client = Client(clientOptions());
-  await _.asyncEach(res.hits.hits, async (location) => {
-    const { _source: locationSource } = location;
+  await _.asyncEach(res.hits.hits, async ({ _source: locationSource }) => {
     const serviceIds = _.map(locationSource.relationships.services.data, 'id');
     const serviceRes = await client.search({
       index: 'services',

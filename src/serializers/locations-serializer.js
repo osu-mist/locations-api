@@ -109,8 +109,7 @@ const serializeLocations = (rawLocations, req) => {
 
   // format and flatten attributes object in rawLocations for serializer
   const formattedLocations = [];
-  _.forEach(rawLocations, (rawLocation) => {
-    const { _source: locationSource } = rawLocation;
+  _.forEach(rawLocations, ({ _source: locationSource }) => {
     formattedLocations.push(formatLocation(locationSource));
   });
 
