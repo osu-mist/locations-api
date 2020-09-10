@@ -7,11 +7,13 @@ import { paginate } from 'utils/paginator';
 import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
 const locationResourceProp = openapi.components.schemas.LocationResource.properties;
-const serviceResourceProp = openapi.components.schemas.ServiceResource.properties;
 const locationResourceType = locationResourceProp.type.enum[0];
 const locationResourceKeys = _.keys(locationResourceProp.attributes.properties);
-const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
 const locationResourcePath = 'locations';
+
+const serviceResourceProp = openapi.components.schemas.ServiceResource.properties;
+const serviceResourceKeys = _.keys(serviceResourceProp.attributes.properties);
+const serviceResourcePath = 'services';
 
 /**
  * Flattens the attributes of an included service for use in the serializer
@@ -23,10 +25,10 @@ const flattenAttributes = (services) => {
   const newServices = [];
   _.forEach(services, (service) => {
     const newService = {
-      ...service,
+      id: service.id,
+      type: service.type,
       ...service.attributes,
     };
-    delete newService.attributes;
     newServices.push(newService);
   });
   return newServices;
@@ -69,8 +71,8 @@ const formatLocation = (locationSource) => {
 
 const includedArgs = {
   ref: 'id',
-  type: 'services',
-  attributes: [...serviceResourceKeys],
+  type: serviceResourcePath,
+  attributes: serviceResourceKeys,
 };
 
 /**
@@ -123,7 +125,7 @@ const serializeLocations = (rawLocations, req) => {
     query,
     enableDataLinks: true,
     included: (formattedLocations[0].services) ? includedArgs : undefined,
-    includedType: 'services',
+    includedType: serviceResourcePath,
   };
 
   return new JsonApiSerializer(
@@ -156,7 +158,7 @@ const serializeLocation = (rawLocation, req) => {
     query,
     enableDataLinks: true,
     included: (formattedLocation.services) ? includedArgs : undefined,
-    includedType: 'services',
+    includedType: serviceResourcePath,
   };
 
   return new JsonApiSerializer(

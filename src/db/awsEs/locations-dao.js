@@ -97,7 +97,7 @@ const buildIdQueryBody = (queryParams) => {
  *
  * @param {string[]} ids An array of document IDs to search for
  * @param {string} type The IDs' document type. Should be either 'locations' or 'services'
- * @returns {Object} Elasticsearch query body
+ * @returns {object} Elasticsearch query body
  */
 const buildBulkIdQueryBody = (ids, type) => {
   const q = esb.boolQuery();
@@ -108,8 +108,8 @@ const buildBulkIdQueryBody = (ids, type) => {
 /**
  * Adds included services to raw Locations data rows
  *
- * @param {Object} res Response object from the GET Locations call
- * @returns {Object} Returns the GET Locations response with the related services included
+ * @param {object} res Response object from the GET Locations call
+ * @returns {object} Returns the GET Locations response with the related services included
  */
 const includeServices = async (res) => {
   const client = Client(clientOptions());
