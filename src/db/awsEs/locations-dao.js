@@ -1,4 +1,4 @@
-import _ from 'async-dash';
+import _ from 'lodash';
 import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
 
@@ -113,13 +113,21 @@ const buildBulkIdQueryBody = (ids, type) => {
  */
 const includeServices = async (res) => {
   const client = Client(clientOptions());
-  await _.asyncEach(res.hits.hits, async ({ _source: locationSource }) => {
+  const servicePromises = [];
+  _.forEach(res.hits.hits, ({ _source: locationSource }) => {
     const serviceIds = _.map(locationSource.relationships.services.data, 'id');
-    const serviceRes = await client.search({
+    const serviceRes = client.search({
       index: 'services',
       body: buildBulkIdQueryBody(serviceIds, 'services'),
     });
-    locationSource.services = _.map(serviceRes.hits.hits, '_source');
+    servicePromises.push(serviceRes);
+  });
+  await Promise.all(servicePromises).then((resolvedServices) => {
+    let index = 0;
+    _.forEach(res.hits.hits, ({ _source: locationSource }) => {
+      locationSource.services = _.map(resolvedServices[index].hits.hits, '_source');
+      index += 1;
+    });
   });
   return res.hits.hits;
 };
