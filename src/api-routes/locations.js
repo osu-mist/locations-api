@@ -9,7 +9,7 @@ import { serializeLocations } from 'serializers/locations-serializer';
  */
 const get = async (req, res) => {
   try {
-    const rawLocations = await getLocations(req.query);
+    const rawLocations = await getLocations(req);
     const result = serializeLocations(rawLocations, req);
     return res.send(result);
   } catch (err) {

@@ -31,6 +31,8 @@ const serializerOptions = (serializerArgs) => {
     keyForAttribute,
     enableDataLinks,
     transformFunction,
+    included,
+    includedType,
   } = serializerArgs;
 
   const resourceUrl = resourcePathLink(apiBaseUrl, resourcePath);
@@ -56,6 +58,11 @@ const serializerOptions = (serializerArgs) => {
   };
 
   if (transformFunction) options.transform = transformFunction;
+
+  if (included) {
+    options[includedType] = included;
+    options.attributes.push(includedType);
+  }
 
   if (pagination) {
     const {

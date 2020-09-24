@@ -1,6 +1,6 @@
+import _ from 'lodash';
 import { Client } from 'elasticsearch';
 import esb from 'elastic-builder';
-import _ from 'lodash';
 
 import { clientOptions } from 'db/awsEs/connection';
 import { parseQuery } from 'utils/parse-query';
@@ -93,31 +93,81 @@ const buildIdQueryBody = (queryParams) => {
 };
 
 /**
+ * Generates a query body object to get all documents that match the given IDs
+ *
+ * @param {string[]} ids An array of document IDs to search for
+ * @param {string} type The IDs' document type. Should be either 'locations' or 'services'
+ * @returns {object} Elasticsearch query body
+ */
+const buildBulkIdQueryBody = (ids, type) => {
+  const q = esb.boolQuery();
+  q.must(esb.idsQuery(type, ids));
+  return esb.requestBodySearch().query(q).toJSON();
+};
+
+/**
+ * Adds included services to raw Locations data rows
+ *
+ * @param {object} res Response object from the GET Locations call
+ * @returns {object} Returns the GET Locations response with the related services included
+ */
+const includeServices = async (res) => {
+  const client = Client(clientOptions());
+  const servicePromises = [];
+  _.forEach(res.hits.hits, ({ _source: locationSource }) => {
+    const serviceIds = _.map(locationSource.relationships.services.data, 'id');
+    const serviceRes = client.search({
+      index: 'services',
+      body: buildBulkIdQueryBody(serviceIds, 'services'),
+    });
+    servicePromises.push(serviceRes);
+  });
+  await Promise.all(servicePromises).then((resolvedServices) => {
+    let index = 0;
+    _.forEach(res.hits.hits, ({ _source: locationSource }) => {
+      locationSource.services = _.map(resolvedServices[index].hits.hits, '_source');
+      index += 1;
+    });
+  });
+  return res.hits.hits;
+};
+
+/**
  * Return a list of Locations
- * @param queryParams Object containing query parameters
+ * @param {object} req Request object
  * @returns {Promise<object>} Promise object represents a list of locations
  */
-const getLocations = async (queryParams) => {
+const getLocations = async (req) => {
+  const { query } = req;
   const client = Client(clientOptions());
   const res = await client.search({
     index: 'locations',
-    body: buildQueryBody(queryParams),
+    body: buildQueryBody(query),
   });
+  if (query.include && query.include[0] === 'services') {
+    const response = await includeServices(res);
+    return response;
+  }
   return res.hits.hits;
 };
 
 /**
  * Return a specific location by unique ID
  *
- * @param {string} queryParams Query parameters from GET /locations/{locationId} request
+ * @param {object} req Request object
  * @returns {Promise} Promise object represents a specific location
  */
-const getLocationById = async (queryParams) => {
+const getLocationById = async (req) => {
+  const { params, query } = req;
   const client = Client(clientOptions());
   const res = await client.search({
     index: 'locations',
-    body: buildIdQueryBody(queryParams),
+    body: buildIdQueryBody(params),
   });
+  if (query.include && query.include[0] === 'services') {
+    const response = await includeServices(res);
+    return response[0];
+  }
   return res.hits.hits[0];
 };
 

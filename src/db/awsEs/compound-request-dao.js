@@ -9,7 +9,7 @@ import { clientOptions } from 'db/awsEs/connection';
  *
  * @param {string} queryParams Query parameters from the endpoint request
  * @param {string} type The ID's document type. Should be either 'locations' or 'services'
- * @returns {Object} Elasticsearch query body
+ * @returns {object} Elasticsearch query body
  */
 const buildIdQueryBody = (queryParams, type) => {
   const q = esb.boolQuery();
@@ -23,7 +23,7 @@ const buildIdQueryBody = (queryParams, type) => {
  *
  * @param {string[]} ids An array of document IDs to search for
  * @param {string} type The IDs' document type. Should be either 'locations' or 'services'
- * @returns {Object} Elasticsearch query body
+ * @returns {object} Elasticsearch query body
  */
 const buildBulkIdQueryBody = (ids, type) => {
   const q = esb.boolQuery();

@@ -9,7 +9,7 @@ import { serializeLocation } from 'serializers/locations-serializer';
  */
 const get = async (req, res) => {
   try {
-    const rawLocation = await getLocationById(req.params);
+    const rawLocation = await getLocationById(req);
     if (!rawLocation) {
       errorBuilder(res, 404, 'A location with the specified ID was not found.');
     } else {
