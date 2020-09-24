@@ -134,7 +134,7 @@ const includeServices = async (res) => {
 
 /**
  * Return a list of Locations
- * @param req Request object
+ * @param {object} req Request object
  * @returns {Promise<object>} Promise object represents a list of locations
  */
 const getLocations = async (req) => {
