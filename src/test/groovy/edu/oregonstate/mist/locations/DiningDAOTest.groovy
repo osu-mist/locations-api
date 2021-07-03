@@ -8,6 +8,8 @@ import edu.oregonstate.mist.locations.db.IcalUtil
 import groovy.mock.interceptor.MockFor
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.Calendar
+import net.fortuna.ical4j.model.TimeZoneRegistry
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.junit.Rule
@@ -38,17 +40,20 @@ class DiningDAOTest {
         // the base event (see ECSPCS-311)
 
         // Filter events by day
-        def tz = DateTimeZone.forID("America/Los_Angeles")
-        def day = new DateTime(2017, 1, 6, 0, 0, tz) // Midnight, Jan 6th, PST
+        def jtz = DateTimeZone.forID("America/Los_Angeles")
+        def day = new DateTime(2017, 1, 6, 0, 0, jtz) // Midnight, Jan 6th, PST
         List events = IcalUtil.getEventsForDay(calendar, day)
+
+        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry()
+        TimeZone itz = registry.getTimeZone("America/Los_Angeles")
 
         println(events)
 
         // Expected result?
         assert events == [
             new DayOpenHours(
-                start: new net.fortuna.ical4j.model.DateTime("20170106T073000"),
-                end:  new net.fortuna.ical4j.model.DateTime("20170106T150000"),
+                start: new net.fortuna.ical4j.model.DateTime("20170106T073000", itz),
+                end:  new net.fortuna.ical4j.model.DateTime("20170106T150000", itz),
                 uid: "jvspu68dcau21vdtpj49li6d1o@google.com",
                 sequence: 0,
                 recurrenceId: "20170106T073000",
@@ -60,7 +65,7 @@ class DiningDAOTest {
         // the next day (see ECSPCS-311)
 
         // Filter events by day
-        day = new DateTime(2017, 1, 12, 0, 0, tz) // Midnight, Jan 12th, PST
+        day = new DateTime(2017, 1, 12, 0, 0, jtz) // Midnight, Jan 12th, PST
         events = IcalUtil.getEventsForDay(calendar, day)
 
         println(events)
@@ -69,8 +74,8 @@ class DiningDAOTest {
         assert events.size() == 1
         assert events == [
             new DayOpenHours(
-                start: new net.fortuna.ical4j.model.DateTime("20170112T073000"),
-                end: new net.fortuna.ical4j.model.DateTime("20170112T230000"),
+                start: new net.fortuna.ical4j.model.DateTime("20170112T073000", itz),
+                end: new net.fortuna.ical4j.model.DateTime("20170112T230000", itz),
                 uid:   "ruq45d78ag0km1m83i5b5flaoc@google.com",
                 sequence: 0,
                 recurrenceId: null,
