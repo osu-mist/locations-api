@@ -18,10 +18,8 @@ interface FacilDAO extends Closeable {
             LOCATION_CITY,
             LOCATION_STATE,
             LOCATION_ZIP
-        FROM 
-            FACIL_LOCATION 
-        WHERE 
-            LOCATION_BLDG_STATUS = 'ACTIVE'
+        FROM
+            FACIL_LOCATION
 """)
     List<FacilLocation> getBuildings()
 
