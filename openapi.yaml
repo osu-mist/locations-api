@@ -112,6 +112,7 @@ paths:
                 - dining
                 - cultural-center
                 - parking
+                - place
                 - other
         - in: query
           name: filter[hasGiRestroom]
