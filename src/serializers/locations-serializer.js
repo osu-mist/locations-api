@@ -124,7 +124,7 @@ const serializeLocations = (rawLocations, req) => {
     topLevelSelfLink,
     query,
     enableDataLinks: true,
-    included: (formattedLocations[0].services) ? includedArgs : undefined,
+    included: (formattedLocations[0] && formattedLocations[0].services) ? includedArgs : undefined,
     includedType: serviceResourcePath,
   };
 
