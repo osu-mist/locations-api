@@ -1,4 +1,4 @@
-import { Client } from 'elasticsearch';
+import { Client } from '@elastic/elasticsearch';
 import esb from 'elastic-builder';
 
 import { clientOptions } from 'db/awsEs/connection';
@@ -43,7 +43,7 @@ const getServices = async (queryParams) => {
     index: 'services',
     body: buildQueryBody(queryParams),
   });
-  return res.hits.hits;
+  return res.body.hits.hits;
 };
 
 /**
@@ -58,7 +58,7 @@ const getServiceById = async (queryParams) => {
     index: 'services',
     body: buildIdQueryBody(queryParams),
   });
-  return res.hits.hits[0];
+  return res.body.hits.hits[0];
 };
 
 export { getServices, getServiceById };

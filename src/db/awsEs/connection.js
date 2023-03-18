@@ -1,31 +1,35 @@
-import aws from 'aws-sdk';
-import config from 'config';
-import elasticsearch from 'elasticsearch';
-import connectionClass from 'http-aws-es';
+// import config from 'config';
+import { Client } from '@elastic/elasticsearch';
 
 import { logger } from 'utils/logger';
 
-const {
-  domain,
-  region,
-  accessKeyId,
-  secretAccessKey,
-} = config.get('dataSources.awsEs');
+// const {
+//   domain,
+//   region,
+//   accessKeyId,
+//   secretAccessKey,
+// } = config.get('dataSources.awsEs');
 
 /**
  * Returns options for elasticsearch client
  *
  * @returns {object} elasticsearch client options
  */
+// const clientOptions = () => ({
+//   host: domain,
+//   log: 'error',
+//   connectionClass,
+//   awsConfig: new aws.Config({
+//     accessKeyId,
+//     secretAccessKey,
+//     region,
+//   }),
+// });
+
 const clientOptions = () => ({
-  host: domain,
-  log: 'error',
-  connectionClass,
-  awsConfig: new aws.Config({
-    accessKeyId,
-    secretAccessKey,
-    region,
-  }),
+  node: 'http://localhost:9201',
+  maxRetries: 5,
+  sniffOnStart: true,
 });
 
 /**
@@ -35,7 +39,7 @@ const clientOptions = () => ({
  */
 const validateAwsEs = async () => {
   try {
-    const client = elasticsearch.Client(clientOptions());
+    const client = new Client(clientOptions());
     await client.ping({ requestTimeout: 3000 });
   } catch (err) {
     logger.error(err);

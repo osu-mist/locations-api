@@ -1,4 +1,4 @@
-import { Client } from 'elasticsearch';
+import { Client } from '@elastic/elasticsearch';
 import esb from 'elastic-builder';
 import _ from 'lodash';
 
@@ -51,7 +51,7 @@ const getServicesByLocationId = async (queryParams) => {
     index: 'services',
     body: buildBulkIdQueryBody(serviceIds, 'services'),
   });
-  return serviceRes.hits.hits;
+  return serviceRes.body.hits.hits;
 };
 
 /**
@@ -74,7 +74,7 @@ const getLocationsByServiceId = async (queryParams) => {
     index: 'locations',
     body: buildBulkIdQueryBody(locationIds, 'locations'),
   });
-  return locationRes.hits.hits;
+  return locationRes.body.hits.hits;
 };
 
 export { getServicesByLocationId, getLocationsByServiceId };

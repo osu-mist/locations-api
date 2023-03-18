@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Client } from 'elasticsearch';
+import { Client } from '@elastic/elasticsearch';
 import esb from 'elastic-builder';
 
 import { clientOptions } from 'db/awsEs/connection';
@@ -139,7 +139,7 @@ const includeServices = async (res) => {
  */
 const getLocations = async (req) => {
   const { query } = req;
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const res = await client.search({
     index: 'locations',
     body: buildQueryBody(query),
@@ -148,7 +148,8 @@ const getLocations = async (req) => {
     const response = await includeServices(res);
     return response;
   }
-  return res.hits.hits;
+
+  return res.body.hits.hits;
 };
 
 /**
@@ -159,7 +160,7 @@ const getLocations = async (req) => {
  */
 const getLocationById = async (req) => {
   const { params, query } = req;
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const res = await client.search({
     index: 'locations',
     body: buildIdQueryBody(params),
@@ -168,7 +169,7 @@ const getLocationById = async (req) => {
     const response = await includeServices(res);
     return response[0];
   }
-  return res.hits.hits[0];
+  return res.body.hits.hits[0];
 };
 
 export { getLocations, getLocationById };
