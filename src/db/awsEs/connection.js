@@ -27,7 +27,7 @@ import { logger } from 'utils/logger';
 // });
 
 const clientOptions = () => ({
-  node: 'http://localhost:9201',
+  node: 'http://localhost:9200',
   maxRetries: 5,
   sniffOnStart: true,
 });
@@ -40,7 +40,7 @@ const clientOptions = () => ({
 const validateAwsEs = async () => {
   try {
     const client = new Client(clientOptions());
-    await client.ping({ requestTimeout: 3000 });
+    await client.ping({}, { requestTimeout: 3000 });
   } catch (err) {
     logger.error(err);
     throw new Error('Unable to connect to AWS Elasticsearch data source.');
