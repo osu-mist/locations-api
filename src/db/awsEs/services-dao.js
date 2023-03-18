@@ -38,7 +38,7 @@ const buildIdQueryBody = (queryParams) => {
  * @returns {Promise} Promise object represents a list of services
  */
 const getServices = async (queryParams) => {
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const res = await client.search({
     index: 'services',
     body: buildQueryBody(queryParams),
@@ -53,7 +53,7 @@ const getServices = async (queryParams) => {
  * @returns {Promise} Promise object represents a specific service
  */
 const getServiceById = async (queryParams) => {
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const res = await client.search({
     index: 'services',
     body: buildIdQueryBody(queryParams),

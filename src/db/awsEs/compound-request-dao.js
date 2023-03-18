@@ -38,7 +38,7 @@ const buildBulkIdQueryBody = (ids, type) => {
  * @returns {Promise} Promise object represents the related services
  */
 const getServicesByLocationId = async (queryParams) => {
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const locationRes = await client.search({
     index: 'locations',
     body: buildIdQueryBody(queryParams, 'locations'),
@@ -61,7 +61,7 @@ const getServicesByLocationId = async (queryParams) => {
  * @returns {Promise} Promise object represents the related locations
  */
 const getLocationsByServiceId = async (queryParams) => {
-  const client = Client(clientOptions());
+  const client = new Client(clientOptions());
   const serviceRes = await client.search({
     index: 'services',
     body: buildIdQueryBody(queryParams, 'services'),

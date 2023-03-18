@@ -581,7 +581,7 @@ components:
           $ref: '#/components/schemas/CoordinatePair'
         geometry:
           description: >-
-            an array of arrays of (latitude, longitude) coordinates 
+            an array of arrays of (latitude, longitude) coordinates
             representing the shapes that make up the location
           nullable: true
           properties:
@@ -857,8 +857,8 @@ components:
     DayHours:
       description: >-
         This object represents open hours for a location, relative to the date
-        that the API returns the response. The object has seven elements: the 
-        first element represents the current day, the second represents the next 
+        that the API returns the response. The object has seven elements: the
+        first element represents the current day, the second represents the next
         day etc. All times are in UTC.
       type: object
       minProperties: 7
