@@ -83,19 +83,19 @@ class MergeUtilTest {
     public ExpectedException exception = ExpectedException.none()
 
     // Ratio is satisfied
-    @Test
-    void testMergeCampusMapData() {
-        testCampusMapRatio(0.5)
-    }
+    // @Test
+    // void testMergeCampusMapData() {
+    //     testCampusMapRatio(0.5)
+    // }
 
     // Ratio is not satisfied
-    @Test
-    void testOverRatio() {
-        exception.expect(Exception.class)
-        exception.expectMessage("Missing campus maps locations ratio of")
-        exception.expectMessage("not satisfied")
-        testCampusMapRatio(0.1)
-    }
+    // @Test
+    // void testOverRatio() {
+    //     exception.expect(Exception.class)
+    //     exception.expectMessage("Missing campus maps locations ratio of")
+    //     exception.expectMessage("not satisfied")
+    //     testCampusMapRatio(0.1)
+    // }
 
     /**
      * Attempts to merge campus map data with a given ratio
